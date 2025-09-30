@@ -1,0 +1,24 @@
+@theme {
+  --color-rhino-50: #f2f7fc;
+  --color-rhino-100: #e1ecf8;
+  --color-rhino-200: #cadff3;
+  --color-rhino-300: #a6caea;
+  --color-rhino-400: #7baedf;
+  --color-rhino-500: #5c92d5;
+  --color-rhino-600: #4878c8;
+  --color-rhino-700: #3e66b7;
+  --color-rhino-800: #385495;
+  --color-rhino-900: #2c406a;
+  --color-rhino-950: #222d49;
+  --color-piper-50: #fcf7f0;
+  --color-piper-100: #f8ecdc;
+  --color-piper-200: #f0d5b8;
+  --color-piper-300: #e6b88b;
+  --color-piper-400: #db945c;
+  --color-piper-500: #d3793c;
+  --color-piper-600: #cc6633;
+  --color-piper-700: #a44d2a;
+  --color-piper-800: #833e29;
+  --color-piper-900: #6a3524;
+  --color-piper-950: #391a11;
+}
