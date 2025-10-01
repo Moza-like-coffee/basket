@@ -31,7 +31,7 @@ const navbarItem = ref([
           <router-link
             v-for="(item, index) in navbarItem"
             :key="index"
-            class="h-full flex items-center px-3"
+            class="h-full md:flex items-center px-3 hidden"
           >
             <p class="text-sm text-gray-300 hover:text-white transition-colors duration-300">
               {{ item.label }}

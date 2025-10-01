@@ -1,7 +1,7 @@
 <script setup></script>
 <template>
   <div class="bg-rhino-900 w-full min-h-20 max-w-7xl mx-auto px-10 pt-10">
-    <div class="flex w-full gap-5">
+    <div class="flex md:flex-row flex-col w-full gap-5">
       <div>
         <div class="flex flex-col gap-3">
           <div class="flex justify-center">

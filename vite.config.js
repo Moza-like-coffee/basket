@@ -6,6 +6,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
 export default defineConfig({
+  assetsInclude: ['**/*.lottie'],
+  server: {
+    allowedHosts: ['fd4973b59cfc.ngrok-free.app'],
+  },
   plugins: [vue(), tailwindcss()],
   resolve: {
     alias: {
