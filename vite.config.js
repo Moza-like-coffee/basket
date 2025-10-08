@@ -8,7 +8,7 @@ import tailwindcss from '@tailwindcss/vite'
 export default defineConfig({
   assetsInclude: ['**/*.lottie'],
   server: {
-    allowedHosts: ['fd4973b59cfc.ngrok-free.app'],
+    allowedHosts: ['a34418c5fb0e.ngrok-free.app'],
   },
   plugins: [vue(), tailwindcss()],
   resolve: {
