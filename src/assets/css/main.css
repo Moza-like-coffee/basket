@@ -28,3 +28,6 @@
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+html {
+  scroll-behavior: smooth;
+}

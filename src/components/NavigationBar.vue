@@ -1,6 +1,9 @@
 <script setup>
 import { ref } from 'vue'
 import Logo from '@/assets/images/logo.png'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
 
 const navbarItem = ref([
   {
@@ -41,7 +44,7 @@ const navbarItem = ref([
             </p>
           </router-link>
         </div>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-3" v-if="!authStore.authStatus">
           <router-link :to="{ name: 'login' }">
             <div
               class="bg-white rounded-lg px-3 py-1 flex gap-1 items-center justify-center shadow-lg group hover:bg-piper-600 transition-colors duration-300"
@@ -92,6 +95,17 @@ const navbarItem = ref([
               </svg>
               <p class="text-xs text-white group-hover:text-black transition-colors duration-300">
                 Daftar
+              </p>
+            </div>
+          </router-link>
+        </div>
+        <div v-else>
+          <router-link :to="{ name: 'dashboard' }">
+            <div
+              class="bg-piper-600 rounded-lg px-3 py-1 flex gap-1 items-center justify-center shadow-lg group hover:bg-white transition-colors duration-300"
+            >
+              <p class="text-xs text-white group-hover:text-black transition-colors duration-300">
+                Dashboard
               </p>
             </div>
           </router-link>

@@ -10,6 +10,7 @@ import ToastService from 'primevue/toastservice'
 import { Toast } from 'primevue'
 import '@/assets/css/font-awesome.css'
 import '@/assets/js/font-awesome.min.js'
+import Tooltip from 'primevue/tooltip'
 
 const app = createApp(App)
 
@@ -26,6 +27,7 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.directive('tooltip', Tooltip)
 app.component('Toast', Toast)
 
 app.mount('#app')

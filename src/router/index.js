@@ -5,6 +5,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    // MAIN
     {
       path: '/',
       name: 'welcome',
@@ -31,10 +32,58 @@ const router = createRouter({
     {
       path: '/dashboard',
       name: 'dashboard',
-      component: () => import('@/pages/admin/Dashboard.vue'),
+      component: () => import('@/pages/member/Dashboard.vue'),
       meta: {
         auth: true,
         title: 'Dashboard',
+      },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/pages/Profile.vue'),
+      meta: {
+        auth: true,
+        title: 'Profile',
+      },
+    },
+
+    // Member
+    // Member
+    {
+      path: '/member',
+      name: 'member.index',
+      component: () => import('@/pages/member/member/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Member',
+      },
+    },
+    {
+      path: '/member/create',
+      name: 'member.create',
+      component: () => import('@/pages/member/member/Create.vue'),
+      meta: {
+        auth: true,
+        title: 'Tambah Member',
+      },
+    },
+    {
+      path: '/member/:id/edit',
+      name: 'member.edit',
+      component: () => import('@/pages/member/member/Edit.vue'),
+      meta: {
+        auth: true,
+        title: 'Edit Data Member',
+      },
+    },
+    {
+      path: '/member/:id/verification',
+      name: 'member.verification',
+      component: () => import('@/pages/member/member/Verification.vue'),
+      meta: {
+        auth: true,
+        title: 'Verifikasi Data Member',
       },
     },
   ],
