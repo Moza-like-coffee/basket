@@ -36,6 +36,17 @@ const router = createRouter({
       meta: {
         auth: true,
         title: 'Dashboard',
+        allowedRoles: ['parent']
+      },
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'admin.dashboard',
+      component: () => import('@/pages/admin/Dashboard.vue'),
+      meta: {
+        auth: true,
+        title: 'Admin Dashboard',
+        allowedRoles: ['admin']
       },
     },
     {
@@ -86,6 +97,73 @@ const router = createRouter({
         title: 'Verifikasi Data Member',
       },
     },
+
+
+    //admin
+    {
+      path: '/admin/member',
+      name: 'admin.member.index',
+      component: () => import('@/pages/admin/member/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Admin Member',
+      },
+    },
+    {
+      path: '/admin/member/create',
+      name: 'admin.member.create',
+      component: () => import('@/pages/admin/member/Create.vue'),
+      meta: {
+        auth: true,
+        title: 'Tambah Admin Member',
+      },
+    },
+    {
+      path: '/admin/member/:id/edit',
+      name: 'admin.member.edit',
+      component: () => import('@/pages/admin/member/Edit.vue'),
+      meta: {
+        auth: true,
+        title: 'Edit Data Member',
+      },
+    },
+    {
+      path: '/admin/member/:id/verification',
+      name: 'admin.member.verification',
+      component: () => import('@/pages/admin/member/Verification.vue'),
+      meta: {
+        auth: true,
+        title: 'Verifikasi Data Member',
+      },
+    },
+
+    {
+      path: '/admin/user',
+      name: 'admin.user.index',
+      component: () => import('@/pages/admin/user/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Admin User',
+      },
+    },
+    {
+      path: '/admin/user/create',
+      name: 'admin.user.create',
+      component: () => import('@/pages/admin/user/Create.vue'),
+      meta: {
+        auth: true,
+        title: 'Tambah Admin User',
+      },
+    },
+    {
+      path: '/admin/user/:id/edit',
+      name: 'admin.user.edit',
+      component: () => import('@/pages/admin/user/Edit.vue'),
+      meta: {
+        auth: true,
+        title: 'Edit Data User',
+      },
+    },
   ],
 })
 
@@ -121,11 +199,16 @@ router.beforeEach((to, from, next) => {
       }
 
       const userRole = data.role
-      const requiredRoles = to.meta.roles
+      const allowedRoles = to.meta.allowedRoles
 
-      if (requiredRoles && !requiredRoles.includes(userRole)) {
+      if (allowedRoles && !allowedRoles.includes(userRole)) {
         console.log('Akses ditolak: role tidak sesuai')
-        return next({ name: 'welcome' })
+
+        if (userRole === 'admin') {
+          return next({ name: 'admin.dashboard' })
+        } else {
+          return next({ name: 'dashboard' })
+        }
       }
 
       return next()
@@ -142,7 +225,13 @@ router.beforeEach((to, from, next) => {
         localStorage.removeItem('userData')
         return next()
       }
-      return next({ name: 'dashboard' })
+      
+      const userRole = data.role
+      if (userRole === 'admin') {
+        return next({ name: 'admin.dashboard' })
+      } else {
+        return next({ name: 'dashboard' })
+      }
     }
     return next()
   } else {
