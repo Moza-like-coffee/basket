@@ -2,6 +2,18 @@
 import { RouterLink } from 'vue-router'
 
 import GuestLayouts from '@/layouts/GuestLayouts.vue'
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+
+const authStore = useAuthStore()
+const form = ref({
+  username: null,
+  password: null,
+})
+
+async function submit() {
+  authStore.login(form.value)
+}
 </script>
 
 <template>
@@ -23,22 +35,26 @@ import GuestLayouts from '@/layouts/GuestLayouts.vue'
               </p>
             </div>
 
-            <form class="flex flex-col gap-4 mt-5 pb-3">
+            <form @submit.prevent="submit" class="flex flex-col gap-4 mt-5 pb-3">
               <div class="flex flex-col gap-2">
                 <div>
                   <input
+                    v-model="form.username"
                     type="text"
                     placeholder="Masukkan Nama Pengguna/Email"
                     class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                    required
                   />
                 </div>
               </div>
               <div class="flex flex-col gap-2">
                 <div>
                   <input
+                    v-model="form.password"
                     type="password"
                     placeholder="Masukkan Password"
                     class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                    required
                   />
                 </div>
               </div>

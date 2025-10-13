@@ -4,6 +4,59 @@ import heroImage from '@/assets/images/hero.jpg'
 import spot1 from '@/assets/path/spot-1.svg'
 import spot2 from '@/assets/path/spot-2.svg'
 import spot3 from '@/assets/path/spot-3.svg'
+import { ref } from 'vue'
+import Carousel from 'primevue/carousel'
+
+// Data testimoni
+const testimonials = ref([
+  {
+    name: 'Patrick Kluivert',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/736x/7c/65/03/7c65036ddbb602fd22ffd243fe147402.jpg',
+    text: 'Pelatihnya sabar banget, teknik dasar jadi lebih mudah dipahami. Anak saya jadi lebih percaya diri saat main basket.',
+  },
+  {
+    name: 'Indra Sjafri',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/736x/c3/f3/ce/c3f3cef6d4e1c9b9db157a6571bfd789.jpg',
+    text: 'Kursus ini benar-benar membantu meningkatkan stamina dan skill anak saya. Latihannya seru dan nggak membosankan.',
+  },
+  {
+    name: 'Gordon Ramsay',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/1200x/c0/73/79/c073794f46ab97ec9e98d91d48f87b41.jpg',
+    text: 'Awalnya hanya coba-coba, tapi sekarang jadi semangat latihan setiap minggu. Suasana latihan ramah dan penuh motivasi.',
+  },
+])
+
+// Responsive (mobile/tablet/desktop)
+const responsiveOptions = ref([
+  { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+  { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+])
+
+const achievements = ref([
+  {
+    title: 'Juara Nasional',
+    year: '2024',
+    desc: 'Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae...',
+    icon: `
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-piper-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 21h8v-2H8v2zM12 2a1 1 0 0 0-1 1v1H7v3a5 5 0 0 0 4 4.9V15H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-3.1A5 5 0 0 0 17 7V4h-4V3a1 1 0 0 0-1-1z"/>
+      </svg>
+    `,
+  },
+  {
+    title: 'Medali Emas Internasional',
+    year: '2023',
+    desc: 'Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae...',
+    icon: `
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-piper-500" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 1a7 7 0 0 0-7 7c0 2.5 1.3 4.7 3.3 6l-1.7 6.8a1 1 0 0 0 1.5 1.1L12 19.6l3.9 2.3a1 1 0 0 0 1.5-1.1l-1.7-6.8A7 7 0 0 0 19 8a7 7 0 0 0-7-7z"/>
+      </svg>
+    `,
+  },
+])
 </script>
 <template>
   <Layouts>
@@ -130,7 +183,7 @@ import spot3 from '@/assets/path/spot-3.svg'
       </div>
     </div>
     <!-- Section 2 -->
-    <div class="w-full md:h-[calc(100vh-64px)] bg-noise relative z-10">
+    <div class="w-full md:min-h-[calc(100vh-64px)] bg-noise relative z-10">
       <img :src="spot1" alt="" class="absolute z-20 top-0 right-0 w-60" />
       <img :src="spot2" alt="" class="absolute z-20 bottom-0 right-0 w-60" />
       <div class="w-full grid md:grid-cols-2 grid-cols-1 gap-10 p-10 relative z-30 h-full">
@@ -302,7 +355,7 @@ import spot3 from '@/assets/path/spot-3.svg'
     </div>
 
     <!-- Section 4 -->
-    <div class="w-full md:h-[calc(100vh-64px)] bg-noise relative z-10 p-10">
+    <div class="w-full md:min-h-[calc(100vh-64px)] bg-noise relative z-10 p-10">
       <p
         class="text-center font-poppins font-bold md:text-4xl text-2xl text-black border-b-2 w-min mx-auto whitespace-nowrap border-piper-600"
       >
@@ -427,6 +480,382 @@ import spot3 from '@/assets/path/spot-3.svg'
               inspiratif, dan penuh semangat agar semua pecinta basket dapat tumbuh dan berkembang
               bersama.
             </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 5 - Testimoni -->
+    <div class="w-full md:min-h-[calc(100vh-64px)] bg-gray-100 relative z-10 py-16 px-6">
+      <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-3xl font-bold text-rhino-900 font-basketball mb-4">Testimoni</h2>
+        <div class="w-24 h-1 bg-piper-600 mx-auto rounded-full"></div>
+        <p class="text-gray-600 max-w-2xl mx-auto mb-12 mt-6">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
+          ut labore et dolore magna aliqua.
+        </p>
+
+        <Carousel
+          :value="testimonials"
+          :numVisible="3"
+          :numScroll="1"
+          :responsiveOptions="responsiveOptions"
+          circular
+          autoplayInterval="5000"
+          class="px-4"
+        >
+          <template #item="slotProps">
+            <div
+              class="relative bg-white shadow-xl border border-gray-200 rounded-xl p-6 pt-16 mx-3"
+            >
+              <div class="flex justify-center -mt-14">
+                <img
+                  :src="slotProps.data.image"
+                  :alt="slotProps.data.name"
+                  class="w-20 h-20 object-cover rounded-full border-4 border-white shadow-lg"
+                />
+              </div>
+              <div class="mt-2">
+                <h3 class="font-semibold text-gray-900">{{ slotProps.data.name }}</h3>
+                <p class="text-sm text-gray-500">{{ slotProps.data.role }}</p>
+              </div>
+              <div class="mt-8">
+                <div class="flex justify-center mb-4">
+                  <div class="w-12 h-12 rounded-full bg-piper-500 flex items-center justify-center">
+                    <span class="font-bold text-black text-3xl mt-2">“</span>
+                  </div>
+                </div>
+                <p class="text-gray-700 mt-6">
+                  {{ slotProps.data.text }}
+                </p>
+              </div>
+            </div>
+          </template>
+        </Carousel>
+      </div>
+    </div>
+
+    <!-- Section 6 - Prestasi -->
+    <div class="w-full bg-noise relative z-10 py-16 px-4 md:px-10">
+      <div class="max-w-6xl mx-auto text-center">
+        <h2 class="text-3xl md:text-5xl font-extrabold text-rhino-900 font-basketball mb-3 md:mb-4">
+          Prestasi
+        </h2>
+        <div class="w-20 md:w-32 h-1.5 bg-piper-600 rounded mx-auto mb-10 md:mb-16"></div>
+
+        <Carousel
+          :value="achievements"
+          :numVisible="2"
+          :numScroll="1"
+          :responsiveOptions="[
+            { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+            { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+          ]"
+          circular
+          autoplayInterval="5000"
+          class="px-2 sm:px-4"
+        >
+          <template #item="slotProps">
+            <div
+              class="relative group bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md hover:shadow-xl transition duration-300 overflow-hidden text-left h-full flex flex-col mx-2 sm:mx-3"
+            >
+              <div
+                class="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-transparent bg-gradient-to-r from-piper-400/20 to-piper-600/20 opacity-0 group-hover:opacity-100 transition"
+              ></div>
+
+              <div class="relative flex items-start gap-4 sm:gap-6">
+                <div
+                  class="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-yellow-100 flex items-center justify-center shadow-inner"
+                  v-html="slotProps.data.icon"
+                />
+                <div>
+                  <h3
+                    class="text-lg sm:text-2xl font-bold text-rhino-900 flex items-center gap-2 sm:gap-3"
+                  >
+                    {{ slotProps.data.title }}
+                    <span
+                      class="text-xs sm:text-sm font-medium text-piper-600 bg-yellow-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full"
+                    >
+                      {{ slotProps.data.year }}
+                    </span>
+                  </h3>
+                  <p class="text-gray-600 mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">
+                    {{ slotProps.data.desc }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </template>
+        </Carousel>
+      </div>
+    </div>
+
+    <!-- Section 7 - Gallery -->
+    <div class="w-full bg-gray-50 relative z-10 py-20 px-6">
+      <div class="max-w-7xl mx-auto text-center">
+        <h2 class="text-4xl font-bold text-rhino-900 font-basketball mb-3">Gallery</h2>
+        <div class="w-40 h-1 bg-[#CC6633] mx-auto mb-12"></div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 1"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 2"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 3"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 4"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 5"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+          <div
+            class="overflow-hidden rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
+          >
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="Gallery 6"
+              class="w-full h-80 object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 8 - Informasi Latihan -->
+    <div class="w-full md:min-h-[calc(100vh-64px)] bg-noise relative z-10 p-10">
+      <div class="max-w-7xl mx-auto text-center">
+        <h2 class="text-4xl font-bold text-rhino-900 font-basketball mb-3">Informasi Latihan</h2>
+        <div class="w-40 h-1 bg-[#CC6633] mx-auto mb-12"></div>
+
+        <div class="grid md:grid-cols-3 gap-12">
+          <div class="flex flex-col items-center text-center">
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="KU 8-12"
+              class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
+            />
+            <h3 class="text-2xl font-bold mb-2 text-black">KU 8 - 10 - 12</h3>
+            <p class="text-gray-700 text-lg leading-relaxed">
+              Putera dan puteri dari usia 7-12 tahun<br />
+              Lap Basket Antam<br />
+              Kamis, Jumat, Sabtu & Minggu
+            </p>
+          </div>
+
+          <div class="flex flex-col items-center text-center">
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="KU 14-16"
+              class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
+            />
+            <h3 class="text-2xl font-bold mb-2 text-black">KU 14 - 16</h3>
+            <p class="text-gray-700 text-lg leading-relaxed">
+              Putera dan puteri dari usia 13-16 tahun<br />
+              Lap Basket Antam<br />
+              Kamis, Jumat, Sabtu & Minggu
+            </p>
+          </div>
+
+          <div class="flex flex-col items-center text-center">
+            <img
+              src="https://i.pinimg.com/1200x/33/9b/93/339b93c062180b34101b488ab3a149eb.jpg"
+              alt="KU 18 Divisi 2"
+              class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
+            />
+            <h3 class="text-2xl font-bold mb-2 text-black">KU 18 - Divisi 2</h3>
+            <p class="text-gray-700 text-lg leading-relaxed">
+              Putera dan puteri dari usia 17-30 tahun<br />
+              Lap Basket Antam<br />
+              Jumat, Sabtu & Minggu
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 9 - Hubungi Kami -->
+    <div class="w-full min-h-screen bg-gray-100 relative z-10 py-16 px-4 sm:px-6 lg:px-8 pb-24">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-12">
+          <h2
+            class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-rhino-900 font-basketball"
+          >
+            Hubungi Kami
+          </h2>
+          <div class="w-20 sm:w-24 h-1 bg-piper-600 mx-auto mt-6 rounded-full"></div>
+          <p class="mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+            Ada pertanyaan atau butuh bantuan? Jangan ragu untuk menghubungi kami.
+          </p>
+        </div>
+
+        <div class="flex flex-col md:flex-row md:justify-between gap-y-12 md:gap-x-12 items-start">
+          <div class="md:w-5/12 space-y-10">
+            <div class="flex items-start gap-5">
+              <div
+                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Atas Nama</h3>
+                <p class="text-base sm:text-lg text-gray-600">Erfan Bachtiar</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-5">
+              <div
+                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 
+              2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 
+              4-8 5-8-5V6l8 5 8-5v2z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Email</h3>
+                <p class="text-base sm:text-lg text-gray-600">victoria.basketballclub@gmail.com</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-5">
+              <div
+                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 .5C5.6.5.5 5.6.5 12c0 2.1.6 4.1 1.6 5.9L.5 23.5l5.7-1.6c1.7.9 3.6 1.4 5.8 1.4 6.4 0 11.5-5.1 11.5-11.5S18.4.5 12 .5zm0 20.8c-1.8 0-3.5-.5-5-1.3l-.4-.2-3.4 1 1.1-3.3-.2-.4c-.9-1.5-1.4-3.2-1.4-5 0-5.3 4.3-9.6 9.6-9.6s9.6 4.3 9.6 9.6-4.3 9.6-9.6 9.6zm5.2-7.2c-.3-.1-1.8-.9-2-1s-.5-.1-.7.1c-.2.3-.8 1-1 1.2s-.4.2-.7.1c-.3-.1-1.3-.5-2.5-1.6-.9-.8-1.6-1.8-1.8-2.1-.2-.3 0-.5.1-.6.1-.1.3-.4.4-.6.1-.2.2-.3.3-.5.1-.2 0-.4 0-.6s-.7-1.7-1-2.3c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.6s1.1 3 1.3 3.2c.2.3 2.1 3.2 5.1 4.5.7.3 1.2.5 1.6.6.7.2 1.3.2 1.7.1.5-.1 1.8-.7 2-1.4.3-.7.3-1.3.2-1.4-.1-.1-.3-.2-.6-.3z"
+                  />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Whatsapp</h3>
+                <p class="text-base sm:text-lg text-gray-600">+62 816 781 026</p>
+              </div>
+            </div>
+
+            <div class="flex items-start gap-5">
+              <div
+                class="flex items-center justify-center w-12 h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="w-6 h-6"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                >
+                  <path
+                    d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"
+                  />
+                </svg>
+              </div>
+              <div class="max-w-md">
+                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Alamat</h3>
+                <p class="text-base sm:text-lg text-gray-600 leading-relaxed">
+                  GOR Basket Gedung Antam, Jl. TB Simatupang Jl. KH. Guru Amin,<br />
+                  RT.9/RW.7, West Tanjung, Jagakarsa,<br />
+                  South Jakarta City, Jakarta 12550
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="md:w-7/12">
+            <form class="bg-white shadow-md rounded-xl p-6 space-y-4 border border-gray-100 w-full">
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-800">Nama Lengkap</label>
+                <input
+                  type="text"
+                  placeholder="Masukkan nama anda"
+                  class="w-full rounded-xl border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:ring-2 focus:ring-piper-600 focus:outline-none transition text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-800">Email</label>
+                <input
+                  type="email"
+                  placeholder="contoh@email.com"
+                  class="w-full rounded-xl border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:ring-2 focus:ring-piper-600 focus:outline-none transition text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-800">Subject</label>
+                <input
+                  type="text"
+                  placeholder="Judul pesan"
+                  class="w-full rounded-xl border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:ring-2 focus:ring-piper-600 focus:outline-none transition text-sm"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-semibold mb-1 text-gray-800">Pesan</label>
+                <textarea
+                  rows="4"
+                  placeholder="Tulis pesan anda..."
+                  class="w-full rounded-xl border border-gray-300 bg-gray-50 p-2.5 text-gray-900 focus:ring-2 focus:ring-piper-600 focus:outline-none transition text-sm"
+                ></textarea>
+              </div>
+              <button
+                type="submit"
+                class="w-full bg-piper-600 text-white px-4 py-2.5 rounded-xl font-semibold text-sm hover:bg-piper-700 transition shadow"
+              >
+                Kirim Pesan
+              </button>
+            </form>
           </div>
         </div>
       </div>

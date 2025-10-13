@@ -1,11 +1,20 @@
 <script setup>
 import GuestLayouts from '@/layouts/GuestLayouts.vue'
+import { useAuthStore } from '@/stores/auth'
 import { ref } from 'vue'
 
-const username = ref('')
-const email = ref('')
-const password = ref('')
-const confirmPassword = ref('')
+const authStore = useAuthStore()
+const form = ref({
+  name: null,
+  username: null,
+  password: null,
+  confirmedPassword: null,
+  email: null,
+})
+
+async function submit() {
+  authStore.register(form.value)
+}
 </script>
 
 <template>
@@ -26,14 +35,16 @@ const confirmPassword = ref('')
                 Buat Akun untuk mendapatkan akses ke Aplikasi.
               </p>
             </div>
-            <form class="space-y-4">
+            <form @submit.prevent="submit" class="space-y-4">
               <div class="grid grid-cols-2 gap-3">
                 <div class="flex flex-col gap-2">
                   <div>
                     <input
                       type="text"
+                      v-model="form.name"
                       placeholder="Masukkan Nama Lengkap"
                       class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                      required
                     />
                   </div>
                 </div>
@@ -41,8 +52,10 @@ const confirmPassword = ref('')
                   <div>
                     <input
                       type="text"
+                      v-model="form.username"
                       placeholder="Masukkan Username"
                       class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                      required
                     />
                   </div>
                 </div>
@@ -51,8 +64,10 @@ const confirmPassword = ref('')
                 <div>
                   <input
                     type="email"
+                    v-model="form.email"
                     placeholder="Masukkan Email"
                     class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                    required
                   />
                 </div>
               </div>
@@ -60,8 +75,10 @@ const confirmPassword = ref('')
                 <div>
                   <input
                     type="password"
+                    v-model="form.password"
                     placeholder="Masukkan Password"
                     class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                    required
                   />
                 </div>
               </div>
@@ -69,9 +86,17 @@ const confirmPassword = ref('')
                 <div>
                   <input
                     type="password"
+                    v-model="form.confirmedPassword"
                     placeholder="Konfirmasi Password"
                     class="w-full rounded-xl px-3 py-2 text-black text-xs bg-white shadow-lg"
+                    required
                   />
+                  <p
+                    v-if="form.confirmedPassword && form.password !== form.confirmedPassword"
+                    class="text-[10px] mt-1 text-red-500 pl-3"
+                  >
+                    Password Anda Tidak Valid
+                  </p>
                 </div>
               </div>
 
