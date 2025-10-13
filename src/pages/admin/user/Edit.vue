@@ -12,7 +12,6 @@ const form = ref({
   name: '',
   username: '',
   email: '',
-  role: '',
   password: '',
 })
 
@@ -20,7 +19,7 @@ const loading = ref(false)
 
 onMounted(async () => {
   await userStore.getById(route.params.id)
-  
+
   user.value = userStore.data
 
   form.value.name = user.value.name
@@ -51,7 +50,7 @@ async function submit() {
         <form @submit.prevent="submit" class="space-y-3">
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
             <legend class="text-sm px-3">Edit Data User</legend>
-            
+
             <div class="grid grid-cols-2 gap-3">
               <div class="space-y-1">
                 <label class="block text-sm" for="form-name">Nama Lengkap</label>
@@ -64,7 +63,7 @@ async function submit() {
                   required
                 />
               </div>
-              
+
               <div class="space-y-1">
                 <label class="block text-sm" for="form-username">Username</label>
                 <input
@@ -76,7 +75,7 @@ async function submit() {
                   required
                 />
               </div>
-              
+
               <div class="space-y-1">
                 <label class="block text-sm" for="form-email">Email</label>
                 <input
@@ -88,7 +87,7 @@ async function submit() {
                   required
                 />
               </div>
-              
+
               <div class="space-y-1">
                 <label class="block text-sm" for="form-password">Password</label>
                 <input
@@ -99,25 +98,9 @@ async function submit() {
                   placeholder="Kosongkan jika tidak ingin mengganti password"
                 />
               </div>
-              
-              <div class="space-y-1 col-span-2">
-                <label class="block text-sm" for="form-role">Role</label>
-                <select
-                  id="form-role"
-                  v-model="form.role"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-                  required
-                >
-                  <option value="" selected disabled>Pilih Role</option>
-                  <option value="admin">Admin</option>
-                  <option value="member">Member</option>
-                  <option value="coach">Coach</option>
-                  <option value="parent">Parent</option>
-                </select>
-              </div>
             </div>
           </fieldset>
-          
+
           <div class="flex justify-end gap-3">
             <button
               type="submit"

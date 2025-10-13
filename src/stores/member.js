@@ -40,6 +40,19 @@ export const useMemberStore = defineStore('member', {
         uiStore.isLoading = false
       }
     },
+    async get(withRelations = '') {
+      const uiStore = useUIStore()
+      uiStore.isLoading = true
+      try {
+        const response = await api.get('/member/' + (withRelations ? `?with=${withRelations}` : ''))
+        this.data = response.data.data
+      } catch (error) {
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+      } finally {
+        uiStore.isLoading = false
+      }
+    },
     async post(form, isNext) {
       const uiStore = useUIStore()
       uiStore.isLoading = true

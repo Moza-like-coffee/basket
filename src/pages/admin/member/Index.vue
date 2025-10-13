@@ -22,7 +22,7 @@ async function fetchData() {
 
 onMounted(async () => {
   const withVariable = 'file'
-  await memberStore.getByParentId(withVariable)
+  await memberStore.get(withVariable)
   fetchData()
 })
 

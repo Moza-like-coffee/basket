@@ -7,13 +7,11 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
-const userStore = useUserStore() 
-
+const userStore = useUserStore()
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
-
 
 const users = computed(() => userStore.datas)
 const loading = computed(() => {
@@ -72,7 +70,7 @@ async function removeUser(id) {
           <Column field="email" header="Email" />
           <Column field="role" header="Role" />
 
-          <Column header="Aksi">
+          <Column header="">
             <template #body="{ data }">
               <div class="flex justify-center gap-3">
                 <button
