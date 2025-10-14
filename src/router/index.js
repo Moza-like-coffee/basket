@@ -60,7 +60,6 @@ const router = createRouter({
     },
 
     // Member
-    // Member
     {
       path: '/member',
       name: 'member.index',
