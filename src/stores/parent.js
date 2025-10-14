@@ -7,6 +7,7 @@ export const useParentStore = defineStore('parent', {
     datas: [],
     data: {},
   }),
+
   actions: {
     async getByAuth() {
       const uiStore = useUIStore()
@@ -20,8 +21,22 @@ export const useParentStore = defineStore('parent', {
         uiStore.isLoading = false
       }
     },
+
+    async getAll() {
+      const uiStore = useUIStore()
+      uiStore.isLoading = true
+      try {
+        const response = await api.get('/parent')
+        this.datas = response.data.data ?? response.data
+      } catch (error) {
+        console.error('Gagal memuat data parent:', error)
+      } finally {
+        uiStore.isLoading = false
+      }
+    },
   },
 })
+
 if (import.meta.hot) {
   import.meta.hot.accept(acceptHMRUpdate(useParentStore, import.meta.hot))
 }
