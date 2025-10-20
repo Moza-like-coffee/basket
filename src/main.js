@@ -13,7 +13,6 @@ import '@/assets/js/font-awesome.min.js'
 import Tooltip from 'primevue/tooltip'
 import ConfirmationService from 'primevue/confirmationservice'
 
-
 const app = createApp(App)
 
 app.use(createPinia())
@@ -29,8 +28,8 @@ app.use(PrimeVue, {
   },
 })
 app.use(ToastService)
+app.use(ConfirmationService)
 app.directive('tooltip', Tooltip)
 app.component('Toast', Toast)
 
 app.mount('#app')
-app.use(ConfirmationService)

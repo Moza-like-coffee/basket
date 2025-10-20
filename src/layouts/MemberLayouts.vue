@@ -36,7 +36,7 @@ const sideBarItems = ref([
   {
     icon: 'fa-solid fa-money-bills',
     label: 'Tagihan',
-    to: 'dashboard',
+    to: 'bill.index',
   },
 ])
 

@@ -18,6 +18,7 @@ const form = ref({
   is_former_club: null,
   former_club: null,
   former_club_year: null,
+  ageGroup: null,
 
   parent_name: null,
   parent_phone_number: null,
@@ -49,6 +50,19 @@ function validatePhoneFormat() {
 
 async function submit() {
   await memberStore.post(form.value, form.value.isNext)
+}
+
+async function calculateAgeGroup() {
+  if (form.value.date_of_birth) {
+    const thisYear = new Date().getFullYear()
+    const birthYear = new Date(form.value.date_of_birth).getFullYear()
+    console.log(thisYear, birthYear)
+
+    const age = thisYear - birthYear
+    form.value.ageGroup = age
+  } else {
+    form.value.ageGroup = ''
+  }
 }
 </script>
 <template>
@@ -96,14 +110,20 @@ async function submit() {
               </div>
               <div class="space-y-1">
                 <label class="block text-sm" for="form-date-of-birth">Tanggal Lahir</label>
-                <input
-                  id="form-date-of-birth"
-                  type="date"
-                  v-model="form.date_of_birth"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-                  placeholder="Masukkan Tanggal Lahir"
-                  required
-                />
+                <div class="flex gap-3">
+                  <input
+                    id="form-date-of-birth"
+                    type="date"
+                    @change="calculateAgeGroup"
+                    v-model="form.date_of_birth"
+                    class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                    placeholder="Masukkan Tanggal Lahir"
+                    required
+                  />
+                  <div class="flex items-center whitespace-nowrap">
+                    <p>Kelompok Umur: {{ form.ageGroup }}</p>
+                  </div>
+                </div>
               </div>
               <div class="space-y-1">
                 <label class="block text-sm" for="form-school">Asal Sekolah</label>

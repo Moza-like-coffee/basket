@@ -36,7 +36,7 @@ const router = createRouter({
       meta: {
         auth: true,
         title: 'Dashboard',
-        allowedRoles: ['parent']
+        allowedRoles: ['parent'],
       },
     },
     {
@@ -46,7 +46,7 @@ const router = createRouter({
       meta: {
         auth: true,
         title: 'Admin Dashboard',
-        allowedRoles: ['admin']
+        allowedRoles: ['admin'],
       },
     },
     {
@@ -96,7 +96,33 @@ const router = createRouter({
         title: 'Verifikasi Data Member',
       },
     },
-
+    {
+      path: '/bill',
+      name: 'bill.index',
+      component: () => import('@/pages/member/bill/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Tagihan',
+      },
+    },
+    {
+      path: '/payment',
+      name: 'payment.index',
+      component: () => import('@/pages/member/Payment/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Pembayaran',
+      },
+    },
+    {
+      path: '/payment/:id',
+      name: 'payment.show',
+      component: () => import('@/pages/member/Payment/Show.vue'),
+      meta: {
+        auth: true,
+        title: 'Pembayaran',
+      },
+    },
 
     //admin
     {
@@ -114,7 +140,7 @@ const router = createRouter({
       component: () => import('@/pages/admin/member/Create.vue'),
       meta: {
         auth: true,
-        title: 'Tambah Admin Member',
+        title: 'Tambah Member',
       },
     },
     {
@@ -224,7 +250,7 @@ router.beforeEach((to, from, next) => {
         localStorage.removeItem('userData')
         return next()
       }
-      
+
       const userRole = data.role
       if (userRole === 'admin') {
         return next({ name: 'admin.dashboard' })

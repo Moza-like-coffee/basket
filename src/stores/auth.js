@@ -55,7 +55,7 @@ export const useAuthStore = defineStore('auth', {
 
         this.encryptedUserData = encrypted
         this.token = response.data.token
-        
+
         const userRole = fullUserObject.role
         if (userRole === 'admin') {
           router.push({ name: 'admin.dashboard' })
@@ -85,8 +85,7 @@ export const useAuthStore = defineStore('auth', {
         const encrypted = CryptoJS.AES.encrypt(JSON.stringify(fullUserObject), key).toString()
         this.encryptedUserData = encrypted
         this.token = response.data.token
-
-        router.push({ name: 'welcome' })
+        router.push({ name: 'dashboard' })
       } catch (error) {
         console.log(error)
         if (error.response && error.response.status !== 422) throw error

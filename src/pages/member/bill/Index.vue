@@ -1,60 +1,60 @@
 <script setup>
-import AdminLayouts from '@/layouts/AdminLayouts.vue'
-import { Column, DataTable, IconField, InputIcon, InputText } from 'primevue'
-import { onMounted, ref } from 'vue'
+import MemberLayouts from '@/layouts/MemberLayouts.vue'
+import { Column, DataTable, IconField, InputIcon, InputText, Toast, useToast } from 'primevue'
+import { computed, onMounted, ref } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
-import { useMemberStore } from '@/stores/member'
 import { useRouter } from 'vue-router'
-import ConfirmPopup from 'primevue/confirmpopup'
-import { useConfirm } from 'primevue/useconfirm'
+import { useBillStore } from '@/stores/bill'
 
 const router = useRouter()
-const memberStore = useMemberStore()
-const confirm = useConfirm()
+const billStore = useBillStore()
+const toast = useToast()
 
 const datas = ref([])
-const filters = ref({
-  global: { value: null, matchMode: FilterMatchMode.CONTAINS },
-})
 const loading = ref(true)
 
+const totalAmount = computed(() => {
+  return form.value.checkbox.reduce((total, item) => {
+    return total + Number(item.amount || 0)
+  }, 0)
+})
+
 async function fetchData() {
-  datas.value = memberStore.datas
+  datas.value = billStore.datas
   loading.value = false
 }
 
+const form = ref({
+  checkbox: [],
+  payment_method: 'transfer',
+})
+
 onMounted(async () => {
-  const withVariable = 'file'
-  await memberStore.get(withVariable)
+  const withVariable = 'member'
+  await billStore.getByParentId(withVariable)
   fetchData()
 })
 
-const confirmDelete = (event, id) => {
-  confirm.require({
-    target: event.currentTarget,
-    position: 'right',
-    message: 'Apakah Kamu Yakin Ingin Menghapus Data Ini?',
-    appendTo: 'body',
-    icon: 'fa-regular fa-circle-exclamation',
-    acceptLabel: 'Ya, Hapus',
-    rejectLabel: 'Batal',
-    acceptClass: 'p-button-danger p-button-sm !w-24 shadow-lg',
-    rejectClass: 'p-button-secondary p-button-sm !w-24 shadow-lg',
-    accept: async () => {
-      await memberStore.destroy(id)
-      fetchData()
-    },
-  })
+async function submit() {
+  if (form.value.checkbox.length == 0) {
+    toast.add({ severity: 'error', summary: 'Pilih Minimal 1 Tagihan Untuk Membayar', life: 3000 })
+  } else {
+    await billStore.post(form.value)
+  }
 }
 </script>
 <template>
-  <adminLayouts>
-    <ConfirmPopup
-      :appendTo="'body'"
-      :position="'topleft'"
+  <MemberLayouts>
+    <Toast
       :pt="{
-        root: {
-          class: '!rounded-lg !shadow-lg !text-sm',
+        buttonContainer: {
+          class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
+        },
+        closeButton: {
+          class: '!my-auto',
+        },
+        messageContent: {
+          class: '!items-center',
         },
       }"
     />
@@ -63,20 +63,24 @@ const confirmDelete = (event, id) => {
         <div>
           <div class="flex justify-between items-center">
             <div>
-              <router-link
-                :to="{ name: 'admin.member.create' }"
-                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
-              >
-                Tambahkan Member Baru +
-              </router-link>
+              <p class="text-lg">
+                {{
+                  Number(totalAmount || 0).toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })
+                }}
+              </p>
             </div>
             <div>
-              <input
-                type="text"
-                v-model="filters['global'].value"
-                placeholder="Cari...."
-                class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg"
-              />
+              <button
+                @click="submit"
+                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              >
+                Bayar Sekarang
+              </button>
             </div>
           </div>
         </div>
@@ -103,15 +107,21 @@ const confirmDelete = (event, id) => {
             },
           }"
         >
-          <Column field="name" header="Nama">
+          <Column field="checkbox" header="">
             <template #body="{ data }">
-              {{ data.name }}
+              <div class="flex items-start justify-center">
+                <input type="checkbox" v-model="form.checkbox" class="w-5 h-5" :value="data" />
+              </div>
+            </template>
+          </Column>
+          <Column field="name" header="Nama Member">
+            <template #body="{ data }">
+              {{ data?.member?.name }}
             </template>
           </Column>
           <Column
-            field="ku"
-            header="KU"
-            class="w-20"
+            field="type"
+            header="Jenis Tagihan"
             :pt="{
               columnHeaderContent: {
                 class: '!justify-center',
@@ -120,14 +130,13 @@ const confirmDelete = (event, id) => {
           >
             <template #body="{ data }">
               <p class="text-center">
-                {{ new Date(data.date_of_birth).getFullYear() }}
+                {{ data?.bill_type == 'registration' ? 'Biaya Pendaftaran' : 'Iuran Bulanan' }}
               </p>
             </template>
           </Column>
           <Column
-            field="gender"
-            header="Jenis Kelamin"
-            class="w-40"
+            field="amount"
+            header="Total Tagihan"
             :pt="{
               columnHeaderContent: {
                 class: '!justify-center',
@@ -136,20 +145,16 @@ const confirmDelete = (event, id) => {
           >
             <template #body="{ data }">
               <p class="text-center">
-                {{ data.gender }}
+                {{
+                  Number(data?.amount || 0).toLocaleString('id-ID', {
+                    style: 'currency',
+                    currency: 'IDR',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })
+                }}
               </p>
             </template>
-          </Column>
-          <Column
-            field="status"
-            header="Status"
-            :pt="{
-              columnHeaderContent: {
-                class: '!justify-center',
-              },
-            }"
-          >
-            <template #body> </template>
           </Column>
           <Column field="action" header="">
             <template #body="{ data }">
@@ -157,7 +162,7 @@ const confirmDelete = (event, id) => {
                 <button
                   @click="
                     router.push({
-                      name: 'admin.member.verification',
+                      name: 'member.verification',
                       params: {
                         id: data.id,
                       },
@@ -176,7 +181,7 @@ const confirmDelete = (event, id) => {
                 <button
                   @click="
                     router.push({
-                      name: 'admin.member.edit',
+                      name: 'member.edit',
                       params: {
                         id: data.id,
                       },
@@ -211,5 +216,5 @@ const confirmDelete = (event, id) => {
         </DataTable>
       </div>
     </div>
-  </adminLayouts>
+  </MemberLayouts>
 </template>

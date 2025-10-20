@@ -3,6 +3,7 @@ import api from '@/config/axios.js'
 import { useUIStore } from '@/stores/ui'
 import { useResponseStore } from './response'
 import router from '@/router'
+import { useAuthStore } from './auth'
 
 export const useMemberStore = defineStore('member', {
   state: () => ({
@@ -45,7 +46,7 @@ export const useMemberStore = defineStore('member', {
       uiStore.isLoading = true
       try {
         const response = await api.get('/member/' + (withRelations ? `?with=${withRelations}` : ''))
-        this.data = response.data.data
+        this.datas = response.data.data
       } catch (error) {
         console.log(error)
         if (error.response && error.response.status !== 422) throw error
@@ -53,10 +54,12 @@ export const useMemberStore = defineStore('member', {
         uiStore.isLoading = false
       }
     },
+
     async post(form, isNext) {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       const responseStore = useResponseStore()
+      const authStore = useAuthStore()
 
       try {
         const response = await api.post('/member', form)
@@ -69,7 +72,11 @@ export const useMemberStore = defineStore('member', {
             },
           })
         } else {
-          router.push({ name: 'member.index' })
+          if (authStore.decryptedUserData.role == 'admin') {
+            router.push({ name: 'admin.member.index' })
+          } else {
+            router.push({ name: 'member.index' })
+          }
         }
       } catch (error) {
         console.log(error)
