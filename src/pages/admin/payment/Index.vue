@@ -1,12 +1,11 @@
 <script setup>
-import MemberLayouts from '@/layouts/MemberLayouts.vue'
 import { Column, DataTable, useConfirm } from 'primevue'
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfirmPopup from 'primevue/confirmpopup'
 import { usePaymentStore } from '@/stores/payment'
+import AdminLayouts from '@/layouts/AdminLayouts.vue'
 
-const router = useRouter()
 const paymentStore = usePaymentStore()
 const confirm = useConfirm()
 
@@ -20,7 +19,7 @@ async function fetchData() {
 
 onMounted(async () => {
   const withVariable = ''
-  await paymentStore.getByParentId(withVariable)
+  await paymentStore.get(withVariable)
   fetchData()
 })
 
@@ -44,7 +43,7 @@ const confirmDelete = (event, id) => {
 </script>
 
 <template>
-  <MemberLayouts>
+  <AdminLayouts>
     <ConfirmPopup
       :appendTo="'body'"
       :position="'topleft'"
@@ -146,8 +145,9 @@ const confirmDelete = (event, id) => {
             <template #body="{ data }">
               <div class="flex justify-center gap-3">
                 <router-link
+                  v-if="data?.status == 'PENDING'"
                   :to="{
-                    name: 'payment.show',
+                    name: 'admin.payment.show',
                     params: {
                       id: data?.id,
                     },
@@ -181,5 +181,5 @@ const confirmDelete = (event, id) => {
         </DataTable>
       </div>
     </div>
-  </MemberLayouts>
+  </AdminLayouts>
 </template>

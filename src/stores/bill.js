@@ -43,6 +43,7 @@ export const useBillStore = defineStore('bill', {
         console.log(error)
         if (error.response && error.response.status !== 422) throw error
         const errors = error.response.data?.errors
+        console.log('error', errors)
         Object.values(errors).forEach((fieldErrors) => {
           if (Array.isArray(fieldErrors)) {
             fieldErrors.forEach((err) => responseStore.addError(err))

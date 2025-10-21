@@ -6,18 +6,18 @@ import { useResponseStore } from '@/stores/response'
 export const useTrainingStore = defineStore('training', {
   state: () => ({
     schedules: [],
-    currentSchedule: null
+    currentSchedule: null,
   }),
-  
+
   getters: {
     formattedSchedules: (state) => {
-      return state.schedules.map(schedule => ({
+      return state.schedules.map((schedule) => ({
         ...schedule,
         displayText: `${schedule.title} - ${new Date(schedule.date).toLocaleDateString('id-ID')}`
       }))
-    }
+    },
   },
-  
+
   actions: {
     async fetchSchedules() {
       const uiStore = useUIStore()
@@ -95,10 +95,10 @@ export const useTrainingStore = defineStore('training', {
         uiStore.stopLoading()
       }
     },
-    
+
     setCurrentSchedule(schedule) {
       this.currentSchedule = schedule
-    }
+    },
   },
 })
 
