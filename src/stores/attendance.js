@@ -58,6 +58,38 @@ export const useAttendanceStore = defineStore('attendance', {
         uiStore.isLoading = false
       }
     },
+    
+
+    async scanQRAttendance(encryptedMemberId, trainingScheduleId) {
+      const uiStore = useUIStore()
+      const responseStore = useResponseStore()
+      uiStore.startLoading()
+      try {
+        const res = await api.post('/attendance/scan-qr', {
+          encrypted_member_id: encryptedMemberId,
+          training_schedule_id: trainingScheduleId
+        })
+        responseStore.addSuccess('Absensi QR Scan berhasil!')
+        await this.fetchAttendances()
+        return res.data
+      } catch (error) {
+        console.error('Gagal scan QR absensi:', error)
+        const msg = error.response?.data?.message || 'Gagal melakukan absensi QR Scan'
+        
+        if (error.response?.status === 409) {
+          // Member sudah absen
+          responseStore.addWarning(msg)
+        } else if (error.response?.status === 403) {
+          // Member tidak aktif
+          responseStore.addError(msg)
+        } else {
+          responseStore.addError(msg)
+        }
+        throw error
+      } finally {
+        uiStore.stopLoading()
+      }
+    },
 
     async addAttendance(form) {
       const uiStore = useUIStore()
@@ -71,26 +103,13 @@ export const useAttendanceStore = defineStore('attendance', {
       } catch (error) {
         console.error('Gagal menambah absensi:', error)
         const msg = error.response?.data?.message || 'Gagal menambah absensi'
-        responseStore.addError(msg)
-        throw error
-      } finally {
-        uiStore.stopLoading()
-      }
-    },
-
-    async scanAttendance(form) {
-      const uiStore = useUIStore()
-      const responseStore = useResponseStore()
-      uiStore.startLoading()
-      try {
-        const res = await api.post('/attendance/scan', form)
-        responseStore.addSuccess('Absensi melalui scan berhasil!')
-        await this.fetchAttendances()
-        return res.data
-      } catch (error) {
-        console.error('Gagal scan absensi:', error)
-        const msg = error.response?.data?.message || 'Gagal melakukan absensi melalui scan'
-        responseStore.addError(msg)
+        
+        // Handle khusus untuk member tidak aktif
+        if (error.response?.status === 403) {
+          responseStore.addError(msg)
+        } else {
+          responseStore.addError(msg)
+        }
         throw error
       } finally {
         uiStore.stopLoading()

@@ -63,7 +63,7 @@ const confirmDelete = (event, id) => {
 
 // Fungsi enkripsi member_id
 function encryptMemberId(memberId) {
-  return btoa(memberId.toString()) // base64 encode
+  return btoa(memberId) // base64 encode
 }
 
 // Generate QR code

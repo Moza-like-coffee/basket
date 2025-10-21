@@ -13,7 +13,7 @@ export const useTrainingStore = defineStore('training', {
     formattedSchedules: (state) => {
       return state.schedules.map((schedule) => ({
         ...schedule,
-        displayText: `${schedule.title} - ${new Date(schedule.date).toLocaleDateString('id-ID')}`,
+        displayText: `${schedule.title} - ${new Date(schedule.date).toLocaleDateString('id-ID')}`
       }))
     },
   },

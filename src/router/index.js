@@ -136,13 +136,22 @@ const router = createRouter({
 
     // Coach
 
-    {
+     {
       path: '/coach/attendance',
       name: 'coach.attendance.index',
       component: () => import('@/pages/coach/attendance/Index.vue'),
       meta: {
         auth: true,
         title: 'Absensi',
+      },
+    },
+     {
+      path: '/coach/training',
+      name: 'coach.training.index',
+      component: () => import('@/pages/coach/training/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Jadwal Latihan',
       },
     },
 
