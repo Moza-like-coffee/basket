@@ -137,9 +137,9 @@ const router = createRouter({
     // Coach
 
     {
-      path: '/coach/absensi',
-      name: 'coach.absensi.index',
-      component: () => import('@/pages/coach/absensi/Index.vue'),
+      path: '/coach/attendance',
+      name: 'coach.attendance.index',
+      component: () => import('@/pages/coach/attendance/Index.vue'),
       meta: {
         auth: true,
         title: 'Absensi',

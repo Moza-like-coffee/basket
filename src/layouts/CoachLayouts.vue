@@ -26,13 +26,13 @@ const sideBarItems = ref([
   {
     icon: 'fa-solid fa-users-line',
     label: 'Absensi',
-    to: 'coach.absensi.index',
+    to: 'coach.attendance.index',
   },
-//   {
-//     icon: 'fa-solid fa-users',
-//     label: 'User',
-//     to: 'admin.user.index',
-//   },
+  {
+    icon: 'fa-solid fa-users',
+    label: 'Jadwal Latihan',
+    to: 'coach.training.index',
+  },
 ])
 
 const props = defineProps({
