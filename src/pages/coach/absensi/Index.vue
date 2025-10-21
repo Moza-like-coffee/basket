@@ -6,7 +6,7 @@ import { useAttendanceStore } from '@/stores/attendance'
 import { useTrainingStore } from '@/stores/training'
 import { useMemberStore } from '@/stores/member'
 import { useUIStore } from '@/stores/ui'
-import { QrcodeStream } from 'vue-qrcode-reader'
+import { QrcodeStream, QrcodeDropZone, QrcodeCapture } from 'vue-qrcode-reader'
 
 const attendanceStore = useAttendanceStore()
 const trainingStore = useTrainingStore()
@@ -25,6 +25,8 @@ const searchQuery = ref('')
 const saving = ref(false)
 const cameraPermission = ref(null)
 const qrError = ref('')
+const scanResult = ref(null)
+const scanLoading = ref(false)
 
 // COMPUTED
 const schedules = computed(() => {
@@ -42,8 +44,13 @@ const schedules = computed(() => {
     .sort((a, b) => new Date(b.date) - new Date(a.date))
 })
 
+// Hanya tampilkan member dengan status active
+const activeMembers = computed(() => {
+  return memberStore.datas.filter(member => member.status === 'active')
+})
+
 const mergedAttendances = computed(() => {
-  return memberStore.datas.map(member => {
+  return activeMembers.value.map(member => {
     const attendance = attendanceStore.attendances.find(
       a => a.member_id === member.id && a.training_schedule_id === selectedSchedule.value
     )
@@ -80,54 +87,6 @@ function openAttendanceModal(member) {
   showModal.value = true
 }
 
-function openQRScanner() {
-  if (!selectedSchedule.value) {
-    uiStore.showToast('error', 'Silakan pilih jadwal latihan terlebih dahulu.')
-    return
-  }
-  showQRScanner.value = true
-}
-
-function handleQRScan(result) {
-  if (result && result.member_id) {
-    const member = memberStore.datas.find(m => m.id === result.member_id)
-    if (!member) {
-      uiStore.showToast('error', 'Member tidak ditemukan.')
-      return
-    }
-    const existingAttendance = attendanceStore.attendances.find(
-      a => a.member_id === member.id && a.training_schedule_id === selectedSchedule.value
-    )
-    if (existingAttendance) {
-      uiStore.showToast('info', `${member.name} sudah melakukan absensi.`)
-    } else {
-      processQRAttendance(member.id)
-    }
-  }
-  showQRScanner.value = false
-}
-
-async function processQRAttendance(memberId) {
-  saving.value = true
-  const form = {
-    member_id: memberId,
-    training_schedule_id: selectedSchedule.value,
-    status: 'present',
-    reason: null
-  }
-
-  try {
-    await attendanceStore.addAttendance(form)
-    uiStore.showToast('success', 'Absensi berhasil disimpan via QR code.')
-    await fetchData()
-  } catch (error) {
-    console.error('Gagal menyimpan absensi QR:', error)
-    uiStore.showToast('error', 'Gagal menyimpan absensi. Silakan coba lagi.')
-  } finally {
-    saving.value = false
-  }
-}
-
 async function saveManualAttendance() {
   if (!selectedSchedule.value) {
     uiStore.showToast('error', 'Silakan pilih jadwal latihan terlebih dahulu.')
@@ -157,10 +116,115 @@ async function saveManualAttendance() {
     await fetchData()
   } catch (error) {
     console.error('Gagal menyimpan absensi:', error)
-    uiStore.showToast('error', 'Gagal menyimpan absensi. Silakan coba lagi.')
   } finally {
     saving.value = false
   }
+}
+
+// QR SCANNER METHODS
+function openQRScanner() {
+  if (!selectedSchedule.value) {
+    uiStore.showToast('error', 'Silakan pilih jadwal latihan terlebih dahulu.')
+    return
+  }
+  showQRScanner.value = true
+  qrError.value = ''
+  scanResult.value = null
+}
+
+function closeQRScanner() {
+  showQRScanner.value = false
+  qrError.value = ''
+  scanResult.value = null
+}
+
+async function onQRCodeDetected(detectedCodes) {
+  if (detectedCodes.length === 0) return
+  
+  const detectedCode = detectedCodes[0]
+  const rawValue = detectedCode.rawValue
+  
+  if (!rawValue) {
+    qrError.value = 'QR Code tidak valid'
+    return
+  }
+
+  scanLoading.value = true
+  qrError.value = ''
+
+  try {
+    // Process QR code data
+    await processQRCode(rawValue)
+  } catch (error) {
+    console.error('Error processing QR code:', error)
+    qrError.value = 'Gagal memproses QR Code: ' + error.message
+  } finally {
+    scanLoading.value = false
+  }
+}
+
+async function processQRCode(qrData) {
+  try {
+    // Validasi base64
+    if (!isValidBase64(qrData)) {
+      qrError.value = 'Format QR Code tidak valid'
+      return
+    }
+
+    // Simpan absensi via QR scan
+    const result = await attendanceStore.scanQRAttendance(qrData, selectedSchedule.value)
+    
+    scanResult.value = {
+      success: true,
+      message: result.message,
+      memberName: result.data.member?.name || 'Unknown Member'
+    }
+
+    // Auto close setelah 2 detik jika sukses
+    setTimeout(() => {
+      closeQRScanner()
+      fetchData()
+    }, 2000)
+
+  } catch (error) {
+    scanResult.value = {
+      success: false,
+      message: error.response?.data?.message || 'Gagal melakukan absensi'
+    }
+  }
+}
+
+function isValidBase64(str) {
+  try {
+    return btoa(atob(str)) === str
+  } catch (err) {
+    return false
+  }
+}
+
+function onCameraError(error) {
+  console.error('Camera error:', error)
+  if (error.name === 'NotAllowedError') {
+    qrError.value = 'Akses kamera ditolak. Silakan izinkan akses kamera.'
+  } else if (error.name === 'NotFoundError') {
+    qrError.value = 'Kamera tidak ditemukan.'
+  } else if (error.name === 'NotSupportedError') {
+    qrError.value = 'Browser tidak mendukung akses kamera.'
+  } else if (error.name === 'NotReadableError') {
+    qrError.value = 'Kamera sedang digunakan oleh aplikasi lain.'
+  } else {
+    qrError.value = 'Terjadi error pada kamera: ' + error.message
+  }
+}
+
+function onCameraInit(promise) {
+  promise.then(() => {
+    cameraPermission.value = 'granted'
+    qrError.value = ''
+  }).catch((error) => {
+    onCameraError(error)
+    cameraPermission.value = 'denied'
+  })
 }
 
 async function fetchData() {
@@ -213,7 +277,7 @@ onMounted(() => {
           <span>Scan QR Code</span>
         </button>
       </div>
-
+      
       <!-- TABLE -->
       <div class="rounded-lg overflow-hidden shadow bg-white">
         <DataTable :value="filteredAttendances" paginator :rows="10" dataKey="id" :loading="loading" stripedRows removableSort class="p-datatable-sm">
@@ -239,7 +303,7 @@ onMounted(() => {
           <template #empty>
             <div class="text-center py-8 text-gray-500">
               <i class="pi pi-users" style="font-size:2rem; margin-bottom:0.5rem;"></i>
-              <p>Tidak ada data anggota</p>
+              <p>Tidak ada data anggota aktif</p>
             </div>
           </template>
         </DataTable>
@@ -275,34 +339,89 @@ onMounted(() => {
       </div>
     </Dialog>
 
-    <!-- MODAL SCAN QR -->
-    <Dialog v-model:visible="showQRScanner" header="Scan QR Code Absensi" :modal="true" :closable="true" class="w-full max-w-md">
+    <!-- MODAL QR SCANNER -->
+    <Dialog v-model:visible="showQRScanner" header="Scan QR Code Absensi" :modal="true" :closable="!scanLoading" class="w-full max-w-2xl">
       <div class="space-y-4">
-        <div class="bg-piper-50 border border-piper-200 rounded-lg p-3">
-          <p class="text-sm text-piper-700"><i class="pi pi-info-circle mr-1"></i>Pastikan jadwal latihan sudah dipilih sebelum scan QR code.</p>
+        <!-- Camera Error Message -->
+        <div v-if="qrError && !scanResult" class="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-exclamation-triangle text-red-500" style="font-size:1.2rem"></i>
+            <p class="text-red-700 text-sm">{{ qrError }}</p>
+          </div>
         </div>
 
-        <div class="bg-gray-100 rounded-lg p-4 text-center">
-          <QrcodeStream
-            @decode="handleQRScan"
-            @init="cameraPermission.value = true"
-            @error="qrError.value = $event.message"
-            class="w-full h-64 mx-auto"
-          />
-          <p v-if="qrError" class="text-red-500 text-sm mt-2">{{ qrError }}</p>
+        <!-- Scan Result -->
+        <div v-if="scanResult" :class="['border rounded-lg p-4', scanResult.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200']">
+          <div class="flex items-center gap-2">
+            <i :class="[scanResult.success ? 'pi pi-check-circle text-green-500' : 'pi pi-exclamation-circle text-red-500', 'text-xl']"></i>
+            <div>
+              <p :class="['font-medium', scanResult.success ? 'text-green-800' : 'text-red-800']">
+                {{ scanResult.message }}
+              </p>
+              <p v-if="scanResult.memberName" class="text-sm text-green-600 mt-1">
+                Member: <strong>{{ scanResult.memberName }}</strong>
+              </p>
+            </div>
+          </div>
         </div>
 
-         <div class="text-sm text-gray-600">
-          <p class="font-medium">Cara penggunaan:</p>
-          <ul class="list-disc list-inside mt-1 space-y-1">
-            <li>Pastikan QR code anggota terlihat jelas di kamera</li>
-            <li>Scan QR code untuk mencatat kehadiran secara otomatis</li>
-            <li>Status akan berubah menjadi "Hadir" setelah berhasil scan</li>
+        <!-- QR Scanner -->
+        <div v-if="!scanResult" class="relative">
+          <div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
+            <qrcode-stream
+              v-if="showQRScanner && !scanLoading"
+              @detect="onQRCodeDetected"
+              @error="onCameraError"
+              @init="onCameraInit"
+              :camera="cameraPermission === 'denied' ? 'off' : 'auto'"
+              class="w-full h-64 md:h-96"
+            >
+              <div v-if="scanLoading" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                <div class="text-white text-center">
+                  <i class="pi pi-spin pi-spinner text-2xl mb-2"></i>
+                  <p>Memproses QR Code...</p>
+                </div>
+              </div>
+            </qrcode-stream>
+            
+            <!-- Camera Placeholder jika error -->
+            <div v-if="cameraPermission === 'denied'" class="h-64 md:h-96 flex items-center justify-center flex-col gap-3">
+              <i class="pi pi-video text-4xl text-gray-400"></i>
+              <p class="text-gray-500 text-center px-4">Tidak dapat mengakses kamera. Pastikan Anda memberikan izin akses kamera.</p>
+              <button @click="closeQRScanner" class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600 transition-colors">
+                Tutup
+              </button>
+            </div>
+          </div>
+
+          <!-- Scanner Guide -->
+          <div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+            <div class="border-2 border-piper-500 rounded-lg w-48 h-48 md:w-64 md:h-64 bg-transparent"></div>
+          </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <h3 class="font-medium text-blue-800 mb-2 flex items-center gap-2">
+            <i class="pi pi-info-circle"></i> Petunjuk Scan QR
+          </h3>
+          <ul class="text-blue-700 text-sm space-y-1">
+            <li>• Pastikan QR Code berada dalam area kotak scanner</li>
+            <li>• Pastikan pencahayaan cukup</li>
+            <li>• Jaga jarak yang tepat dari kamera</li>
+            <li>• Absensi otomatis tersimpan ketika QR terdeteksi</li>
           </ul>
         </div>
 
+        <!-- Action Buttons -->
         <div class="flex justify-end gap-2 pt-2">
-          <button @click="showQRScanner=false" class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors">Tutup</button>
+          <button 
+            @click="closeQRScanner" 
+            :disabled="scanLoading"
+            class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Tutup
+          </button>
         </div>
       </div>
     </Dialog>
