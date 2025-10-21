@@ -145,6 +145,15 @@ const router = createRouter({
         title: 'Absensi',
       },
     },
+     {
+      path: '/coach/training',
+      name: 'coach.training.index',
+      component: () => import('@/pages/coach/training/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Jadwal Latihan',
+      },
+    },
 
     
     {
