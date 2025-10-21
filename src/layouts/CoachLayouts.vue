@@ -26,7 +26,7 @@ const sideBarItems = ref([
   {
     icon: 'fa-solid fa-users-line',
     label: 'Absensi',
-    to: 'coach.absensi.index',
+    to: 'coach.attendance.index',
   },
   {
     icon: 'fa-solid fa-users',
