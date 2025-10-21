@@ -20,7 +20,9 @@ const totalAmount = computed(() => {
 })
 
 async function fetchData() {
-  datas.value = billStore.datas
+  datas.value = billStore.datas.filter((data) => {
+    return data.status == 'UNPAID'
+  })
   loading.value = false
 }
 
@@ -74,7 +76,13 @@ async function submit() {
                 }}
               </p>
             </div>
-            <div>
+            <div class="flex gap-3">
+              <router-link
+                :to="{ name: 'payment.index' }"
+                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              >
+                Riwayat Pembayaran
+              </router-link>
               <button
                 @click="submit"
                 class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"

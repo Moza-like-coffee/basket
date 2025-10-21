@@ -46,7 +46,7 @@ const router = createRouter({
       meta: {
         auth: true,
         title: 'Coach Dashboard',
-        allowedRoles: ['coach']
+        allowedRoles: ['coach'],
       },
     },
     {
@@ -118,7 +118,7 @@ const router = createRouter({
     {
       path: '/payment',
       name: 'payment.index',
-      component: () => import('@/pages/member/Payment/Index.vue'),
+      component: () => import('@/pages/member/payment/Index.vue'),
       meta: {
         auth: true,
         title: 'Pembayaran',
@@ -127,7 +127,7 @@ const router = createRouter({
     {
       path: '/payment/:id',
       name: 'payment.show',
-      component: () => import('@/pages/member/Payment/Show.vue'),
+      component: () => import('@/pages/member/payment/Show.vue'),
       meta: {
         auth: true,
         title: 'Pembayaran',
@@ -136,7 +136,7 @@ const router = createRouter({
 
     // Coach
 
-     {
+    {
       path: '/coach/absensi',
       name: 'coach.absensi.index',
       component: () => import('@/pages/coach/absensi/Index.vue'),
@@ -146,7 +146,6 @@ const router = createRouter({
       },
     },
 
-    
     {
       path: '/member',
       name: 'member.index',
@@ -183,7 +182,6 @@ const router = createRouter({
         title: 'Verifikasi Data Member',
       },
     },
-
 
     //admin
     {
@@ -248,6 +246,33 @@ const router = createRouter({
       meta: {
         auth: true,
         title: 'Edit Data User',
+      },
+    },
+    {
+      path: '/admin/payment',
+      name: 'admin.payment.index',
+      component: () => import('@/pages/admin/payment/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Pembayaran',
+      },
+    },
+    {
+      path: '/admin/payment/:id',
+      name: 'admin.payment.show',
+      component: () => import('@/pages/admin/payment/Show.vue'),
+      meta: {
+        auth: true,
+        title: 'Pembayaran',
+      },
+    },
+    {
+      path: '/admin/bill',
+      name: 'admin.bill.index',
+      component: () => import('@/pages/admin/bill/Index.vue'),
+      meta: {
+        auth: true,
+        title: 'Tagihan',
       },
     },
   ],

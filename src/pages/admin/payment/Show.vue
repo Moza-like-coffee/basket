@@ -1,49 +1,55 @@
 <script setup>
-import MemberLayouts from '@/layouts/MemberLayouts.vue'
 import { usePaymentStore } from '@/stores/payment'
 import { onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import QRISImage from '@/assets/images/payment/QRIS.jpg'
 import Dialog from 'primevue/dialog'
+import AdminLayouts from '@/layouts/AdminLayouts.vue'
+import { ConfirmPopup, Image, useConfirm } from 'primevue'
 
 const route = useRoute()
 const paymentStore = usePaymentStore()
 const payment = ref()
-const dialogPayment = ref(false)
-
-const form = ref({
-  payment_method: '',
-  file: null,
-})
+const confirm = useConfirm()
 
 onMounted(async () => {
   await paymentStore.show(route.params.id)
   payment.value = paymentStore.data
 })
 
-const handleUploadFile = (event) => {
-  const file = event.target.files[0]
-  if (file) {
-    form.value.file = file
-  }
-}
+const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
 
-async function submit() {
-  const formData = new FormData()
-  formData.append('id', payment.value.id)
-  formData.append('payment_method', form.value.payment_method)
-  formData.append('file', form.value.file)
+const confirmPayment = (event) => {
+  confirm.require({
+    target: event.currentTarget,
+    position: 'right',
+    message: 'Apakah Kamu Yakin Ingin Mengkonfirmasi Pembayaran?',
+    appendTo: 'body',
+    icon: 'fa-regular fa-circle-exclamation',
+    acceptLabel: 'Ya, Konfirmasi',
+    rejectLabel: 'Batal',
+    acceptClass: 'p-button-success p-button-sm !w-32 shadow-lg',
+    rejectClass: 'p-button-secondary p-button-sm !w-32 shadow-lg',
+    accept: async () => {
+      const formData = new FormData()
+      formData.append('id', payment.value.id)
 
-  await paymentStore.post(formData)
+      await paymentStore.confirmPayment(formData)
+    },
+  })
 }
 </script>
 <template>
-  <MemberLayouts>
-    <div
-      class="py-3"
-      :class="payment?.status == 'UNPAID' ? 'grid grid-cols-3 gap-5' : ''"
-      v-if="payment"
-    >
+  <AdminLayouts>
+    <ConfirmPopup
+      :appendTo="'body'"
+      :position="'topleft'"
+      :pt="{
+        root: {
+          class: '!rounded-lg !shadow-lg !text-sm',
+        },
+      }"
+    />
+    <div class="py-3 grid grid-cols-3 gap-5" v-if="payment">
       <div class="col-span-2">
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="flex items-center justify-between border-b border-gray-300 pb-3">
@@ -129,95 +135,32 @@ async function submit() {
           </div>
         </div>
       </div>
-      <div v-if="payment?.status == 'UNPAID'">
+      <div>
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="border-b border-gray-300 pb-3">
-            <p class="font-semibold text-lg">Informasi Pembayaran</p>
+            <p class="font-semibold text-lg">Bukti Pembayaran</p>
           </div>
           <div class="space-y-3 py-3 border-b border-gray-300">
-            <div>
-              <select
-                v-model="form.payment_method"
-                class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
-              >
-                <option value="" disabled>Pilih Metode Pembayaran</option>
-                <option value="transfer">Transfer</option>
-                <option value="qris">QRIS</option>
-              </select>
-            </div>
-            <div class="space-y-3" v-if="form.payment_method == 'transfer'">
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
-                <p>Bank BCA</p>
-                <p>376123123</p>
-              </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
-                <p>Bank BRI</p>
-                <p>376123123</p>
-              </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
-                <p>Bank BNI</p>
-                <p>376123123</p>
-              </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
-                <p>Bank BSI</p>
-                <p>376123123</p>
-              </div>
-            </div>
-            <div
-              v-if="form.payment_method == 'qris'"
-              class="text-sm flex justify-between border rounded-lg p-3 border-gray-300"
-            >
-              <img :src="QRISImage" alt="" class="w-full" />
-            </div>
+            <Image
+              :src="
+                backendUrl + 'storage/files/payment/' + payment?.parent_id + '/' + payment?.file
+              "
+              alt="Bukti Pembayaran"
+              class="w-full"
+              preview
+            />
           </div>
           <div class="flex gap-3 justify-end pt-3">
             <button
-              @click="dialogPayment = true"
-              v-if="payment?.status == 'UNPAID' && form.payment_method !== ''"
+              @click="confirmPayment"
+              v-if="payment?.status == 'PENDING'"
               class="text-green-500 border border-green-500 bg-green-100 rounded-lg px-3 py-2 w-full text-sm hover:opacity-90 duration-300 transition-all cursor-pointer"
             >
-              Saya Sudah Membayar
+              Konfirmasi Pembayaran
             </button>
-
-            <Dialog
-              v-model:visible="dialogPayment"
-              modal
-              header="Upload Bukti Pembayaran"
-              :style="{ width: '25rem' }"
-              :pt="{
-                title: {
-                  class: '!text-lg',
-                },
-                header: {
-                  class: '!py-2 border-b border-gray-200',
-                },
-                content: {
-                  class: '!py-3',
-                },
-              }"
-            >
-              <form class="space-y-3" @submit.prevent="submit">
-                <div>
-                  <input
-                    id="form-family-card"
-                    type="file"
-                    accept="image/*"
-                    class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
-                    @change="handleUploadFile"
-                    required
-                  />
-                </div>
-                <button
-                  type="submit"
-                  class="w-full text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Simpan
-                </button>
-              </form>
-            </Dialog>
           </div>
         </div>
       </div>
     </div>
-  </MemberLayouts>
+  </AdminLayouts>
 </template>

@@ -33,6 +33,16 @@ const sideBarItems = ref([
     label: 'User',
     to: 'admin.user.index',
   },
+  {
+    icon: 'fa-solid fa-money-bills',
+    label: 'Tagihan',
+    to: 'admin.bill.index',
+  },
+  {
+    icon: 'fa-solid fa-money-check-dollar-pen',
+    label: 'Pembayaran',
+    to: 'admin.payment.index',
+  },
 ])
 
 const props = defineProps({
