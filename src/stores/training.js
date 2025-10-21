@@ -33,7 +33,7 @@ export const useTrainingStore = defineStore('training', {
       }
     },
 
-    async addSchedule(form) {
+    async create(form) {
       const uiStore = useUIStore()
       const responseStore = useResponseStore()
       uiStore.startLoading()
@@ -44,14 +44,42 @@ export const useTrainingStore = defineStore('training', {
         return res.data
       } catch (error) {
         console.error('Gagal menambah jadwal:', error)
-        responseStore.addError('Gagal menambah jadwal latihan')
+        if (error.response?.data?.errors) {
+          const errors = Object.values(error.response.data.errors).flat()
+          responseStore.addError(errors.join(', '))
+        } else {
+          responseStore.addError('Gagal menambah jadwal latihan')
+        }
         throw error
       } finally {
         uiStore.stopLoading()
       }
     },
 
-    async deleteSchedule(id) {
+    async update(id, form) {
+      const uiStore = useUIStore()
+      const responseStore = useResponseStore()
+      uiStore.startLoading()
+      try {
+        const res = await api.put(`/training/schedule/${id}`, form)
+        responseStore.addSuccess('Jadwal latihan berhasil diupdate!')
+        await this.fetchSchedules()
+        return res.data
+      } catch (error) {
+        console.error('Gagal mengupdate jadwal:', error)
+        if (error.response?.data?.errors) {
+          const errors = Object.values(error.response.data.errors).flat()
+          responseStore.addError(errors.join(', '))
+        } else {
+          responseStore.addError('Gagal mengupdate jadwal latihan')
+        }
+        throw error
+      } finally {
+        uiStore.stopLoading()
+      }
+    },
+
+    async destroy(id) {
       const uiStore = useUIStore()
       const responseStore = useResponseStore()
       uiStore.startLoading()
