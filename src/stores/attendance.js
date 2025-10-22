@@ -36,21 +36,14 @@ export const useAttendanceStore = defineStore('attendance', {
   },
 
   actions: {
-    async get(params = {}) {
+    async get(withRelations = '') {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       try {
-        const queryParams = new URLSearchParams()
-        queryParams.append('with', 'member')
-        queryParams.append('with', 'trainingSchedule')
-        queryParams.append('with', 'coach')
-
-        if (params.schedule) queryParams.append('training_schedule_id', params.schedule)
-        if (params.date) queryParams.append('date', params.date)
-        if (params.status) queryParams.append('status', params.status)
-
-        const res = await api.get(`/attendance?${queryParams.toString()}`)
-        this.attendances = res.data
+        const response = await api.get(
+          '/attendance' + (withRelations ? `?with=${withRelations}` : ''),
+        )
+        this.datas = response.data.data
       } catch (error) {
         console.error('Gagal mengambil data absensi:', error)
         throw error
