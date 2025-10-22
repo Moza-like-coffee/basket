@@ -3,131 +3,58 @@ import CoachLayouts from '@/layouts/CoachLayouts.vue'
 import { DataTable, Column, Dialog, ConfirmPopup, useConfirm } from 'primevue'
 import { ref, computed, onMounted } from 'vue'
 import { useTrainingStore } from '@/stores/training'
-import { useToast } from 'primevue/usetoast'
 import { FilterMatchMode } from '@primevue/core/api'
 
-const toast = useToast()
 const confirm = useConfirm()
 const trainingStore = useTrainingStore()
-
 const datas = ref([])
+
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
+
 const loading = ref(true)
 const saving = ref(false)
 const visible = ref(false)
-const selectedItem = ref(null)
-const formErrors = ref({})
-
-const schedules = computed(() =>
-  trainingStore.schedules
-    .map(schedule => ({
-      label: new Date(schedule.date).toLocaleDateString('id-ID', {
-        weekday: 'long',
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-      }),
-      value: schedule.id,
-      ...schedule,
-    }))
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-)
+const form = ref(null)
 
 async function fetchData() {
-  loading.value = true
-  try {
-    await trainingStore.fetchSchedules()
-    datas.value = trainingStore.schedules
-  } catch (err) {
-    console.error(err)
-    toast.add({
-      severity: 'error',
-      summary: 'Gagal memuat data jadwal',
-      life: 3000,
-    })
-  } finally {
-    loading.value = false
-  }
+  datas.value = trainingStore.datas
 }
 
-onMounted(fetchData)
+onMounted(async () => {
+  loading.value = true
+  await trainingStore.get()
+  loading.value = false
+  fetchData()
+})
 
 function openDialog(item = null) {
-  selectedItem.value = item
-    ? { ...item }
-    : { title: '', date: '' }
-  formErrors.value = {}
+  form.value = item ? { ...item } : { title: '', date: '' }
   visible.value = true
 }
 
 function closeDialog() {
   visible.value = false
-  selectedItem.value = null
-  formErrors.value = {}
+  form.value = null
 }
 
 async function saveSchedule() {
-  formErrors.value = {}
-  
-  // Validasi form
-  if (!selectedItem.value.title?.trim()) {
-    formErrors.value.title = 'Judul jadwal wajib diisi'
-  }
-  if (!selectedItem.value.date) {
-    formErrors.value.date = 'Tanggal wajib diisi'
-  }
-  
-  if (Object.keys(formErrors.value).length > 0) {
-    return
-  }
-
   saving.value = true
-  try {
-    if (selectedItem.value.id) {
-      await trainingStore.update(selectedItem.value.id, {
-        title: selectedItem.value.title,
-        date: selectedItem.value.date
-      })
-      toast.add({ 
-        severity: 'success', 
-        summary: 'Berhasil!', 
-        detail: 'Jadwal berhasil diupdate',
-        life: 3000 
-      })
-    } else {
-      await trainingStore.create({
-        title: selectedItem.value.title,
-        date: selectedItem.value.date
-      })
-      toast.add({ 
-        severity: 'success', 
-        summary: 'Berhasil!', 
-        detail: 'Jadwal berhasil ditambahkan',
-        life: 3000 
-      })
-    }
-    fetchData()
-    closeDialog()
-  } catch (err) {
-    console.error(err)
-    if (err.response?.data?.errors) {
-      const errors = err.response.data.errors
-      Object.keys(errors).forEach(key => {
-        formErrors.value[key] = errors[key][0]
-      })
-    } else {
-      toast.add({ 
-        severity: 'error', 
-        summary: 'Error', 
-        detail: 'Gagal menyimpan jadwal',
-        life: 3000 
-      })
-    }
-  } finally {
-    saving.value = false
+  if (form.value.id) {
+    await trainingStore.update(form.value.id, {
+      title: form.value.title,
+      date: form.value.date,
+    })
+  } else {
+    await trainingStore.create({
+      title: form.value.title,
+      date: form.value.date,
+    })
   }
+  saving.value = false
+  fetchData()
+  closeDialog()
 }
 
 const confirmDelete = (event, id) => {
@@ -141,34 +68,18 @@ const confirmDelete = (event, id) => {
     acceptClass: 'p-button-danger p-button-sm !w-24 shadow-lg',
     rejectClass: 'p-button-secondary p-button-sm !w-24 shadow-lg',
     accept: async () => {
-      try {
-        await trainingStore.destroy(id)
-        toast.add({
-          severity: 'success',
-          summary: 'Berhasil!',
-          detail: 'Jadwal berhasil dihapus',
-          life: 3000,
-        })
-        fetchData()
-      } catch (err) {
-        toast.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Gagal menghapus jadwal',
-          life: 3000,
-        })
-      }
+      await trainingStore.destroy(id)
+      fetchData()
     },
   })
 }
 
-// Format tanggal untuk tampilan
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   })
 }
 </script>
@@ -193,13 +104,12 @@ const formatDate = (dateString) => {
             <i class="fa-solid fa-plus"></i>
             Tambah Jadwal
           </button>
-          <div class="relative">
-            <i class="fa-solid fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+          <div>
             <input
               type="text"
               v-model="filters['global'].value"
-              placeholder="Cari jadwal..."
-              class="border border-gray-300 rounded-lg pl-10 pr-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-piper-500 focus:border-transparent shadow-lg w-64"
+              placeholder="Cari...."
+              class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg"
             />
           </div>
         </div>
@@ -215,9 +125,17 @@ const formatDate = (dateString) => {
           dataKey="id"
           :loading="loading"
           :pt="{
-            thead: { class: 'text-sm font-light bg-gray-50' },
-            tbody: { class: 'text-sm font-light' },
-            pcPaginator: { content: { class: 'text-xs' } },
+            thead: {
+              class: 'text-sm font-light',
+            },
+            tbody: {
+              class: 'text-sm font-light',
+            },
+            pcPaginator: {
+              content: {
+                class: 'text-xs',
+              },
+            },
           }"
         >
           <Column field="title" header="Judul Jadwal" class="min-w-48">
@@ -225,14 +143,14 @@ const formatDate = (dateString) => {
               <div class="font-medium text-gray-900">{{ data.title }}</div>
             </template>
           </Column>
-          
+
           <Column field="date" header="Tanggal" class="min-w-48">
             <template #body="{ data }">
               <div class="text-gray-700">{{ formatDate(data.date) }}</div>
             </template>
           </Column>
-         
-          <Column field="action" header="Aksi" class="w-32">
+
+          <Column field="action" header="" class="w-32">
             <template #body="{ data }">
               <div class="flex justify-center gap-2">
                 <button
@@ -259,7 +177,7 @@ const formatDate = (dateString) => {
               <div class="text-gray-500 text-sm">Tidak ada jadwal ditemukan.</div>
             </div>
           </template>
-          
+
           <template #loading>
             <div class="text-center py-6">
               <span class="text-sm text-gray-600">Memuat data jadwal...</span>
@@ -272,35 +190,26 @@ const formatDate = (dateString) => {
     <!-- DIALOG FORM - IMPROVED -->
     <Dialog
       v-model:visible="visible"
-      :header="selectedItem?.id ? 'Edit Jadwal Latihan' : 'Tambah Jadwal Latihan'"
+      :header="form?.id ? 'Edit Jadwal Latihan' : 'Tambah Jadwal Latihan'"
       modal
       class="w-full max-w-md"
       :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
       :pt="{
         root: { class: '!rounded-xl' },
-        content: { class: 'pt-4' }
+        content: { class: 'pt-4' },
       }"
     >
-      <div class="space-y-4">
+      <div class="space-y-3">
         <!-- Judul Jadwal -->
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Judul Jadwal <span class="text-red-500">*</span>
           </label>
           <input
-            v-model="selectedItem.title"
-            placeholder="Masukkan judul jadwal latihan"
-            :class="[
-              'border rounded-lg px-4 py-3 w-full transition-all duration-200 focus:outline-none focus:ring-2',
-              formErrors.title 
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                : 'border-gray-300 focus:ring-piper-500 focus:border-piper-500'
-            ]"
+            v-model="form.title"
+            class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+            placeholder="Masukkan Judul"
           />
-          <div v-if="formErrors.title" class="text-red-500 text-xs mt-1 flex items-center gap-1">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            {{ formErrors.title }}
-          </div>
         </div>
 
         <!-- Tanggal -->
@@ -309,67 +218,34 @@ const formatDate = (dateString) => {
             Tanggal <span class="text-red-500">*</span>
           </label>
           <input
-            v-model="selectedItem.date"
+            v-model="form.date"
+            class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
             type="date"
-            :class="[
-              'border rounded-lg px-4 py-3 w-full transition-all duration-200 focus:outline-none focus:ring-2',
-              formErrors.date 
-                ? 'border-red-300 focus:ring-red-500 focus:border-red-500' 
-                : 'border-gray-300 focus:ring-piper-500 focus:border-piper-500'
-            ]"
           />
-          <div v-if="formErrors.date" class="text-red-500 text-xs mt-1 flex items-center gap-1">
-            <i class="fa-solid fa-circle-exclamation"></i>
-            {{ formErrors.date }}
-          </div>
         </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <button 
-            @click="closeDialog" 
+          <button
+            @click="closeDialog"
             :disabled="saving"
-            class="px-5 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors duration-200 font-medium disabled:opacity-50"
+            class="text-sm bg-gray-200 rounded-lg px-5 py-2 font-medium cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34"
           >
             Batal
           </button>
           <button
             @click="saveSchedule"
             :disabled="saving"
-            class="px-5 py-2.5 rounded-lg bg-piper-600 text-white hover:bg-piper-700 transition-colors duration-200 font-medium disabled:opacity-50 flex items-center gap-2"
+            class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34 font-medium flex items-center gap-2 justify-center"
           >
             <i v-if="saving" class="fa-solid fa-spinner fa-spin"></i>
             <i v-else class="fa-solid fa-check"></i>
-            {{ saving ? 'Menyimpan...' : (selectedItem?.id ? 'Update' : 'Simpan') }}
+            <p>
+              {{ saving ? 'Menyimpan...' : form?.id ? 'Update' : 'Simpan' }}
+            </p>
           </button>
         </div>
       </div>
     </Dialog>
   </CoachLayouts>
 </template>
-
-<style scoped>
-/* Custom scrollbar untuk tabel */
-:deep(.p-datatable-wrapper) {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-:deep(.p-datatable-wrapper)::-webkit-scrollbar {
-  height: 6px;
-  width: 6px;
-}
-
-:deep(.p-datatable-wrapper)::-webkit-scrollbar-track {
-  background: #f1f5f9;
-}
-
-:deep(.p-datatable-wrapper)::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 3px;
-}
-
-:deep(.p-datatable-wrapper)::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-</style>

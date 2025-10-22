@@ -5,7 +5,7 @@ import { useResponseStore } from '@/stores/response'
 
 export const useTrainingStore = defineStore('training', {
   state: () => ({
-    schedules: [],
+    datas: [],
     currentSchedule: null,
   }),
 
@@ -13,18 +13,18 @@ export const useTrainingStore = defineStore('training', {
     formattedSchedules: (state) => {
       return state.schedules.map((schedule) => ({
         ...schedule,
-        displayText: `${schedule.title} - ${new Date(schedule.date).toLocaleDateString('id-ID')}`
+        displayText: `${schedule.title} - ${new Date(schedule.date).toLocaleDateString('id-ID')}`,
       }))
     },
   },
 
   actions: {
-    async fetchSchedules() {
+    async get() {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       try {
-        const res = await api.get('/training/schedule')
-        this.schedules = res.data
+        const response = await api.get('/training/schedule')
+        this.datas = response.data.data
       } catch (error) {
         console.error('Gagal mengambil jadwal latihan:', error)
         throw error
@@ -38,19 +38,18 @@ export const useTrainingStore = defineStore('training', {
       const responseStore = useResponseStore()
       uiStore.startLoading()
       try {
-        const res = await api.post('/training/schedule', form)
-        responseStore.addSuccess('Jadwal latihan berhasil ditambahkan!')
-        await this.fetchSchedules()
-        return res.data
+        const response = await api.post('/training/schedule', form)
+        responseStore.addSuccess(response.data.message)
+        this.datas.push(response.data.data)
       } catch (error) {
-        console.error('Gagal menambah jadwal:', error)
-        if (error.response?.data?.errors) {
-          const errors = Object.values(error.response.data.errors).flat()
-          responseStore.addError(errors.join(', '))
-        } else {
-          responseStore.addError('Gagal menambah jadwal latihan')
-        }
-        throw error
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+        const errors = error.response.data?.errors
+        Object.values(errors).forEach((fieldErrors) => {
+          if (Array.isArray(fieldErrors)) {
+            fieldErrors.forEach((err) => responseStore.addError(err))
+          }
+        })
       } finally {
         uiStore.stopLoading()
       }
@@ -61,18 +60,23 @@ export const useTrainingStore = defineStore('training', {
       const responseStore = useResponseStore()
       uiStore.startLoading()
       try {
-        const res = await api.put(`/training/schedule/${id}`, form)
-        responseStore.addSuccess('Jadwal latihan berhasil diupdate!')
-        await this.fetchSchedules()
-        return res.data
-      } catch (error) {
-        console.error('Gagal mengupdate jadwal:', error)
-        if (error.response?.data?.errors) {
-          const errors = Object.values(error.response.data.errors).flat()
-          responseStore.addError(errors.join(', '))
-        } else {
-          responseStore.addError('Gagal mengupdate jadwal latihan')
+        const response = await api.put(`/training/schedule/${id}`, form)
+
+        const updatedItem = response.data.data
+        const index = this.datas.findIndex((item) => item.id === id)
+        if (index !== -1) {
+          this.datas[index] = updatedItem
         }
+        responseStore.addSuccess(response.data.message)
+      } catch (error) {
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+        const errors = error.response.data?.errors
+        Object.values(errors).forEach((fieldErrors) => {
+          if (Array.isArray(fieldErrors)) {
+            fieldErrors.forEach((err) => responseStore.addError(err))
+          }
+        })
         throw error
       } finally {
         uiStore.stopLoading()
@@ -84,13 +88,20 @@ export const useTrainingStore = defineStore('training', {
       const responseStore = useResponseStore()
       uiStore.startLoading()
       try {
-        await api.delete(`/training/schedule/${id}`)
-        responseStore.addSuccess('Jadwal latihan berhasil dihapus!')
-        await this.fetchSchedules()
+        const response = await api.delete(`/training/schedule/${id}`)
+        responseStore.addSuccess(response.data.message)
+        this.datas = this.datas.filter((data) => {
+          return data.id !== id
+        })
       } catch (error) {
-        console.error('Gagal menghapus jadwal:', error)
-        responseStore.addError('Gagal menghapus jadwal latihan')
-        throw error
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+        const errors = error.response.data?.errors
+        Object.values(errors).forEach((fieldErrors) => {
+          if (Array.isArray(fieldErrors)) {
+            fieldErrors.forEach((err) => responseStore.addError(err))
+          }
+        })
       } finally {
         uiStore.stopLoading()
       }
