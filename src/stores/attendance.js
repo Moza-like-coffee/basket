@@ -5,17 +5,17 @@ import { useResponseStore } from '@/stores/response'
 
 export const useAttendanceStore = defineStore('attendance', {
   state: () => ({
-    attendances: [],
+    datas: [],
     filters: {
       schedule: '',
       date: '',
-      status: ''
-    }
+      status: '',
+    },
   }),
 
   getters: {
     filteredAttendances: (state) => {
-      return state.attendances.filter(attendance => {
+      return state.datas.filter((attendance) => {
         let matches = true
 
         if (state.filters.schedule) {
@@ -32,11 +32,11 @@ export const useAttendanceStore = defineStore('attendance', {
 
         return matches
       })
-    }
+    },
   },
 
   actions: {
-    async fetchAttendances(params = {}) {
+    async get(params = {}) {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       try {
@@ -58,7 +58,6 @@ export const useAttendanceStore = defineStore('attendance', {
         uiStore.isLoading = false
       }
     },
-    
 
     async scanQRAttendance(encryptedMemberId, trainingScheduleId) {
       const uiStore = useUIStore()
@@ -67,7 +66,7 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         const res = await api.post('/attendance/scan-qr', {
           encrypted_member_id: encryptedMemberId,
-          training_schedule_id: trainingScheduleId
+          training_schedule_id: trainingScheduleId,
         })
         responseStore.addSuccess('Absensi QR Scan berhasil!')
         await this.fetchAttendances()
@@ -75,7 +74,7 @@ export const useAttendanceStore = defineStore('attendance', {
       } catch (error) {
         console.error('Gagal scan QR absensi:', error)
         const msg = error.response?.data?.message || 'Gagal melakukan absensi QR Scan'
-        
+
         if (error.response?.status === 409) {
           // Member sudah absen
           responseStore.addWarning(msg)
@@ -103,7 +102,7 @@ export const useAttendanceStore = defineStore('attendance', {
       } catch (error) {
         console.error('Gagal menambah absensi:', error)
         const msg = error.response?.data?.message || 'Gagal menambah absensi'
-        
+
         // Handle khusus untuk member tidak aktif
         if (error.response?.status === 403) {
           responseStore.addError(msg)
@@ -161,9 +160,9 @@ export const useAttendanceStore = defineStore('attendance', {
       this.filters = {
         schedule: '',
         date: '',
-        status: ''
+        status: '',
       }
-    }
+    },
   },
 })
 
