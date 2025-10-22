@@ -62,7 +62,7 @@ export const useAttendanceStore = defineStore('attendance', {
           training_schedule_id: trainingScheduleId,
         })
         responseStore.addSuccess('Absensi QR Scan berhasil!')
-        await this.fetchAttendances()
+        await this.get()
         return res.data
       } catch (error) {
         console.error('Gagal scan QR absensi:', error)
@@ -73,6 +73,9 @@ export const useAttendanceStore = defineStore('attendance', {
           responseStore.addWarning(msg)
         } else if (error.response?.status === 403) {
           // Member tidak aktif
+          responseStore.addError(msg)
+        } else if (error.response?.status === 422) {
+          // KU tidak sesuai
           responseStore.addError(msg)
         } else {
           responseStore.addError(msg)
@@ -90,14 +93,17 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         const res = await api.post('/attendance', form)
         responseStore.addSuccess('Absensi berhasil ditambahkan!')
-        await this.fetchAttendances()
+        await this.get()
         return res.data
       } catch (error) {
         console.error('Gagal menambah absensi:', error)
         const msg = error.response?.data?.message || 'Gagal menambah absensi'
 
-        // Handle khusus untuk member tidak aktif
         if (error.response?.status === 403) {
+          // Member tidak aktif
+          responseStore.addError(msg)
+        } else if (error.response?.status === 422) {
+          // KU tidak sesuai
           responseStore.addError(msg)
         } else {
           responseStore.addError(msg)
@@ -115,7 +121,7 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         const res = await api.put(`/attendance/${id}`, form)
         responseStore.addSuccess('Data absensi berhasil diperbarui!')
-        await this.fetchAttendances()
+        await this.get()
         return res.data
       } catch (error) {
         console.error('Gagal update absensi:', error)
@@ -134,7 +140,7 @@ export const useAttendanceStore = defineStore('attendance', {
       try {
         await api.delete(`/attendance/${id}`)
         responseStore.addSuccess('Absensi berhasil dihapus!')
-        await this.fetchAttendances()
+        await this.get()
       } catch (error) {
         console.error('Gagal menghapus absensi:', error)
         const msg = error.response?.data?.message || 'Gagal menghapus data absensi'

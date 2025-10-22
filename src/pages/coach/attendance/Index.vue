@@ -38,6 +38,66 @@ const scanResult = ref(null)
 const scanLoading = ref(false)
 const cameraPermission = ref('')
 
+// Fungsi untuk menghitung KU dari data
+function calculateAgeGroup(dateOfBirth) {
+  if (dateOfBirth) {
+    const thisYear = new Date().getFullYear()
+    const birthYear = new Date(dateOfBirth).getFullYear()
+    const age = thisYear - birthYear
+    return age
+  } else {
+    return ''
+  }
+}
+
+// Fungsi universal untuk mendapatkan KU dari berbagai tipe data
+function getKUsFromData(data, dataType = 'member') {
+  if (!data || data.length === 0) {
+    return dataType === 'member' ? [] : '-'
+  }
+
+  const kuSet = new Set()
+
+  data.forEach(item => {
+    const dateOfBirth = dataType === 'member'
+      ? item.date_of_birth
+      : item.member?.date_of_birth
+
+    const ku = calculateAgeGroup(dateOfBirth)
+    if (ku) kuSet.add(ku)
+  })
+
+  const kus = Array.from(kuSet).sort((a, b) => a - b)
+
+  return dataType === 'member' ? kus : (kus.length > 0 ? kus.join(', ') : '-')
+}
+
+// Fungsi untuk mendapatkan KUs dari data pivots
+function getMemberKUs(pivots) {
+  return getKUsFromData(pivots, 'pivot')
+}
+
+// Fungsi untuk mendapatkan KU yang dipilih dari schedule
+function getSelectedScheduleKUs() {
+  if (!selectedSchedule.value) return []
+  
+  const schedule = training.value.find(s => s.id === selectedSchedule.value)
+  if (!schedule || !schedule.pivots) return []
+  
+  const kuString = getKUsFromData(schedule.pivots, 'pivot')
+  return kuString === '-' ? [] : kuString.split(', ').map(ku => parseInt(ku))
+}
+
+// Fungsi untuk memeriksa apakah member memiliki KU yang sesuai dengan jadwal
+function isMemberKUValid(memberData) {
+  if (!selectedSchedule.value || !memberData) return false
+  
+  const selectedKUs = getSelectedScheduleKUs()
+  const memberKU = calculateAgeGroup(memberData.date_of_birth)
+  
+  return selectedKUs.includes(memberKU)
+}
+
 const schedules = computed(() => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -57,47 +117,58 @@ const schedules = computed(() => {
       }),
       value: schedule.id,
       date: schedule.date,
+      title: schedule.title,
+      ku: getMemberKUs(schedule.pivots) // Ambil KU dari pivots
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
 
 const datas = computed(() => {
-  return member.value.map((member, index) => {
-    const attendance = attendanceStore.datas.find(
-      (a) => a.member_id === member.id && a.training_schedule_id === selectedSchedule.value,
-    )
-    return {
-      id: member.id,
-      name: member.name,
-      gender: member.gender === 'Laki Laki' ? 'Laki-laki' : 'Perempuan',
-      date_of_birth: member.date_of_birth,
-      status: attendance
-        ? attendance.status === 'present'
-          ? 'Hadir'
-          : attendance.status === 'absent'
-            ? 'Tidak Hadir'
-            : attendance.status
-        : 'Belum Absen',
-      reason: attendance?.reason || '',
-      attendance_id: attendance?.id || null,
-    }
-  })
+  if (!selectedSchedule.value) return []
+  
+  // dapatkan schedule yang dipilih
+  const selectedScheduleData = training.value.find(s => s.id === selectedSchedule.value)
+  if (!selectedScheduleData || !selectedScheduleData.pivots) return []
+  
+  // dapatkan member_ids dari pivot schedule
+  const scheduleMemberIds = selectedScheduleData.pivots.map(pivot => pivot.member_id)
+  
+  return member.value
+    .filter(memberItem => {
+      // member harus aktif dan ada dalam pivot schedule
+      return memberItem.status === 'active' && scheduleMemberIds.includes(memberItem.id)
+    })
+    .map((memberItem) => {
+      const attendance = attendanceStore.datas.find(
+        (a) => a.member_id === memberItem.id && a.training_schedule_id === selectedSchedule.value,
+      )
+      return {
+        id: memberItem.id,
+        name: memberItem.name,
+        gender: memberItem.gender === 'Laki Laki' ? 'Laki-laki' : 'Perempuan',
+        date_of_birth: memberItem.date_of_birth,
+        status: attendance
+          ? attendance.status === 'present'
+            ? 'Hadir'
+            : attendance.status === 'absent'
+              ? 'Tidak Hadir'
+              : attendance.status
+          : 'Belum Absen',
+        reason: attendance?.reason || '',
+        attendance_id: attendance?.id || null,
+      }
+    })
+})
+
+// computed untuk mendapatkan informasi jadwal yang dipilih
+const selectedScheduleInfo = computed(() => {
+  if (!selectedSchedule.value) return null
+  return schedules.value.find(s => s.value === selectedSchedule.value)
 })
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
 })
-
-function calculateAgeGroup(date) {
-  if (date) {
-    const thisYear = new Date().getFullYear()
-    const birthYear = new Date(date).getFullYear()
-    const age = thisYear - birthYear
-    return age
-  } else {
-    return ''
-  }
-}
 
 function openAttendanceModal(member) {
   selectedMember.value = member
@@ -195,6 +266,7 @@ async function processQRCode(qrData) {
 
     const result = await attendanceStore.scanQRAttendance(qrData, selectedSchedule.value)
 
+    // Jika berhasil, tampilkan pesan sukses
     scanResult.value = {
       success: true,
       message: result.message,
@@ -207,9 +279,17 @@ async function processQRCode(qrData) {
       fetchData()
     }, 2000)
   } catch (error) {
-    scanResult.value = {
-      success: false,
-      message: error.response?.data?.message || 'Gagal melakukan absensi',
+    // Handle error response dari server
+    if (error.response?.data?.message) {
+      scanResult.value = {
+        success: false,
+        message: error.response.data.message,
+      }
+    } else {
+      scanResult.value = {
+        success: false,
+        message: 'Gagal melakukan absensi: ' + (error.message || 'Terjadi kesalahan'),
+      }
     }
   }
 }
@@ -266,17 +346,21 @@ onMounted(async () => {
 <template>
   <CoachLayouts>
     <div class="py-3 space-y-3">
-      <div
+      <!-- Header Section - Always show when schedule is selected -->
+      <div 
+        v-if="selectedSchedule"
         class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white rounded-lg shadow px-5 py-4 gap-4"
       >
-        <button
-          @click="openQRScanner"
-          :disabled="!selectedSchedule"
-          class="flex items-center gap-2 bg-piper-600 hover:bg-piper-700 text-white px-5 py-2 rounded-lg transition disabled:opacity-50 shadow cursor-pointer"
-        >
-          <i class="pi pi-qrcode"></i>
-          <span>Scan QR Code</span>
-        </button>
+        <div class="flex items-center gap-4">
+          <button
+            @click="openQRScanner"
+            :disabled="!selectedSchedule"
+            class="flex items-center gap-2 bg-piper-600 hover:bg-piper-700 text-white px-5 py-2 rounded-lg transition disabled:opacity-50 shadow cursor-pointer"
+          >
+            <i class="pi pi-qrcode"></i>
+            <span>Scan QR Code</span>
+          </button>
+        </div>
 
         <div class="relative w-full md:w-48">
           <input
@@ -291,33 +375,74 @@ onMounted(async () => {
         </div>
       </div>
 
-      <div class="bg-white rounded-lg shadow px-5 py-4">
-        <h3 class="font-semibold text-gray-700 mb-3">Pilih Jadwal Latihan</h3>
-        <div
-          v-if="schedules.length > 0"
-          class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3"
-        >
-          <div
-            v-for="s in schedules"
-            :key="s.value"
-            @click="selectedSchedule = s.value"
-            class="cursor-pointer rounded-lg border shadow-sm p-3 text-center text-sm transition-all"
-            :class="[
-              selectedSchedule === s.value
-                ? 'bg-piper-600 text-white border-piper-600 shadow-md'
-                : 'bg-white hover:bg-gray-50 border-gray-300 text-gray-700',
-            ]"
-          >
-            <p class="font-medium">{{ s.label }}</p>
+      <!-- Schedule Selection Section - Hide when schedule is selected -->
+      <div v-if="!selectedSchedule" class="bg-white rounded-lg shadow px-5 py-6">
+        <h3 class="font-semibold text-gray-700 mb-4 text-lg">Pilih Jadwal Latihan</h3>
+        
+        <div v-if="loading" class="text-center py-8">
+          <i class="pi pi-spin pi-spinner text-2xl text-gray-400 mb-2"></i>
+          <p class="text-gray-500">Memuat jadwal latihan...</p>
+        </div>
+
+        <div v-else-if="schedules.length > 0" class="space-y-4">
+          <p class="text-sm text-gray-600 mb-4">
+            Pilih jadwal latihan untuk melihat dan mengelola absensi anggota
+          </p>
+          
+          <!-- Changed to 2x2 grid with larger cards showing title and KU -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div
+              v-for="s in schedules"
+              :key="s.value"
+              @click="selectedSchedule = s.value"
+              class="cursor-pointer rounded-xl border-2 shadow-sm p-6 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 min-h-[160px] flex flex-col justify-between"
+              :class="[
+                selectedSchedule === s.value
+                  ? 'bg-piper-600 text-white border-piper-600 shadow-lg scale-105'
+                  : 'bg-white border-gray-200 text-gray-700',
+              ]"
+            >
+              <div class="flex flex-col w-full">
+                <!-- Title -->
+                <div class="mb-3">
+                  <i 
+                    class="pi pi-calendar text-xl mb-2" 
+                    :class="selectedSchedule === s.value ? 'text-white' : 'text-piper-500'"
+                  ></i>
+                  <p class="font-semibold text-base leading-tight line-clamp-2">{{ s.title }}</p>
+                </div>
+
+                <!-- Date -->
+                <p class="text-sm mb-2" :class="selectedSchedule === s.value ? 'text-piper-100' : 'text-gray-600'">
+                  {{ s.label }}
+                </p>
+
+                <!-- KU Information -->
+                <div class="mt-auto">
+                  <span 
+                    class="inline-block px-3 py-1 rounded-full text-xs font-medium"
+                    :class="[
+                      selectedSchedule === s.value 
+                        ? 'bg-piper-500 text-white' 
+                        : 'bg-rhino-100 text-grey-600'
+                    ]"
+                  >
+                    KU: {{ s.ku }}
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <div v-else class="text-center py-4 text-gray-500">
-          <i class="pi pi-calendar-times text-2xl mb-2"></i>
-          <p>Tidak ada jadwal latihan yang akan datang</p>
+        
+        <div v-else class="text-center py-8 text-gray-500">
+          <i class="pi pi-calendar-times text-3xl mb-3 text-gray-400"></i>
+          <p class="text-lg font-medium mb-2">Tidak ada jadwal latihan</p>
+          <p class="text-sm">Tidak ada jadwal latihan yang akan datang</p>
         </div>
       </div>
 
-      <!-- TABLE -->
+      <!-- TABLE - Only show when schedule is selected -->
       <div v-if="selectedSchedule" class="!rounded-lg !overflow-hidden shadow bg-white">
         <DataTable
           :value="datas"
@@ -425,7 +550,7 @@ onMounted(async () => {
           <template #empty>
             <div class="text-center py-8 text-gray-500">
               <i class="pi pi-users" style="font-size: 2rem; margin-bottom: 0.5rem"></i>
-              <p>Tidak ada data anggota aktif</p>
+              <p>Tidak ada data anggota untuk KU {{ selectedScheduleInfo?.ku }}</p>
             </div>
           </template>
 
@@ -435,11 +560,6 @@ onMounted(async () => {
             </div>
           </template>
         </DataTable>
-      </div>
-
-      <div v-else class="bg-white rounded-lg shadow px-5 py-8 text-center">
-        <i class="pi pi-info-circle text-2xl text-gray-400 mb-2"></i>
-        <p class="text-gray-500">Silakan pilih jadwal latihan untuk melihat data absensi</p>
       </div>
 
       <!-- MODAL ABSENSI -->
@@ -551,8 +671,12 @@ onMounted(async () => {
                 <p :class="['font-medium', scanResult.success ? 'text-green-800' : 'text-red-800']">
                   {{ scanResult.message }}
                 </p>
-                <p v-if="scanResult.memberName" class="text-sm text-green-600 mt-1">
+                <p v-if="scanResult.memberName" class="text-sm mt-1" :class="scanResult.success ? 'text-green-600' : 'text-red-600'">
                   Member: <strong>{{ scanResult.memberName }}</strong>
+                  <span v-if="scanResult.memberKU" class="ml-2">(KU: {{ scanResult.memberKU }})</span>
+                </p>
+                <p v-if="!scanResult.success && scanResult.scheduleKU" class="text-xs text-red-600 mt-1">
+                  Jadwal ini hanya untuk KU: {{ scanResult.scheduleKU }}
                 </p>
               </div>
             </div>
@@ -610,8 +734,21 @@ onMounted(async () => {
               <li>• Pastikan QR Code berada dalam area kotak scanner</li>
               <li>• Pastikan pencahayaan cukup</li>
               <li>• Jaga jarak yang tepat dari kamera</li>
+              <li>• Hanya member dengan KU yang sesuai yang dapat melakukan absensi</li>
               <li>• Absensi otomatis tersimpan ketika QR terdeteksi</li>
             </ul>
+          </div>
+
+          <!-- Current Schedule Info -->
+          <div v-if="selectedScheduleInfo" class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <h3 class="font-medium text-yellow-800 mb-2 flex items-center gap-2">
+              <i class="pi pi-calendar"></i> Jadwal Saat Ini
+            </h3>
+            <p class="text-sm text-yellow-700">
+              <strong>{{ selectedScheduleInfo.title }}</strong><br>
+              {{ selectedScheduleInfo.label }}<br>
+              <strong>KU: {{ selectedScheduleInfo.ku }}</strong>
+            </p>
           </div>
 
           <!-- Action Buttons -->
