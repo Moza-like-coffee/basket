@@ -133,15 +133,27 @@ const datas = computed(() => {
   // dapatkan member_ids dari members schedule
   const scheduleMemberIds = selectedScheduleData.members.map(member => member.id)
   
+  // Pastikan attendanceStore.datas adalah array
+  const attendanceData = Array.isArray(attendanceStore.datas) ? attendanceStore.datas : []
+  
   return member.value
     .filter(memberItem => {
       // member harus aktif dan ada dalam members schedule
       return memberItem.status === 'active' && scheduleMemberIds.includes(memberItem.id)
     })
     .map((memberItem) => {
-      const attendance = attendanceStore.datas.find(
-        (a) => a.member_id === memberItem.id && a.training_schedule_id === selectedSchedule.value,
+      // Cari attendance yang sesuai
+      const attendance = attendanceData.find(
+        (a) => a.member_id === memberItem.id && a.training_schedule_id === selectedSchedule.value
       )
+      
+      console.log('Debug attendance:', {
+        memberId: memberItem.id,
+        scheduleId: selectedSchedule.value,
+        attendanceFound: attendance,
+        allAttendances: attendanceData
+      })
+      
       return {
         id: memberItem.id,
         name: memberItem.name,
