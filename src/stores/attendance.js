@@ -43,7 +43,7 @@ export const useAttendanceStore = defineStore('attendance', {
         const response = await api.get(
           '/attendance' + (withRelations ? `?with=${withRelations}` : ''),
         )
-        this.datas = response.data.data
+        this.datas = response.data
       } catch (error) {
         console.error('Gagal mengambil data absensi:', error)
         throw error
