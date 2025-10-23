@@ -189,8 +189,11 @@ function onKUChange(ku) {
 // Save schedule
 async function saveSchedule() {
   if (!form.value.title || !form.value.date || !form.value.ku) {
-    alert('Harap lengkapi semua field yang wajib diisi!')
-    return
+    return toast.add({
+      severity: 'error',
+      summary: 'Silahkan lengkapi terlebih dahulu.',
+      life: 3000,
+    })
   }
 
   saving.value = true
