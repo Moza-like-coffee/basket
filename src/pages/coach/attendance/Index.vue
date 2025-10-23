@@ -53,7 +53,7 @@ function calculateAgeGroup(dateOfBirth) {
 // Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
-    return dataType === 'member' ? [] : '-'
+    return '-'
   }
 
   const kuSet = new Set()
@@ -69,12 +69,12 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kus = Array.from(kuSet).sort((a, b) => a - b)
 
-  return dataType === 'member' ? kus : (kus.length > 0 ? kus.join(', ') : '-')
+  return kus.length > 0 ? kus.join(', ') : '-'
 }
 
-// Fungsi untuk mendapatkan KUs dari data pivots
-function getMemberKUs(pivots) {
-  return getKUsFromData(pivots, 'pivot')
+// Fungsi untuk mendapatkan KUs dari data member
+function getMemberKUs(members) {
+  return getKUsFromData(members, 'member')
 }
 
 // Fungsi untuk mendapatkan KU yang dipilih dari schedule
@@ -82,9 +82,9 @@ function getSelectedScheduleKUs() {
   if (!selectedSchedule.value) return []
   
   const schedule = training.value.find(s => s.id === selectedSchedule.value)
-  if (!schedule || !schedule.pivots) return []
+  if (!schedule || !schedule.members) return []
   
-  const kuString = getKUsFromData(schedule.pivots, 'pivot')
+  const kuString = getKUsFromData(schedule.members, 'member')
   return kuString === '-' ? [] : kuString.split(', ').map(ku => parseInt(ku))
 }
 
@@ -118,7 +118,7 @@ const schedules = computed(() => {
       value: schedule.id,
       date: schedule.date,
       title: schedule.title,
-      ku: getMemberKUs(schedule.pivots) // Ambil KU dari pivots
+      ku: getMemberKUs(schedule.members) // Ambil KU dari members
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
@@ -128,20 +128,32 @@ const datas = computed(() => {
   
   // dapatkan schedule yang dipilih
   const selectedScheduleData = training.value.find(s => s.id === selectedSchedule.value)
-  if (!selectedScheduleData || !selectedScheduleData.pivots) return []
+  if (!selectedScheduleData || !selectedScheduleData.members) return []
   
-  // dapatkan member_ids dari pivot schedule
-  const scheduleMemberIds = selectedScheduleData.pivots.map(pivot => pivot.member_id)
+  // dapatkan member_ids dari members schedule
+  const scheduleMemberIds = selectedScheduleData.members.map(member => member.id)
+  
+  // Pastikan attendanceStore.datas adalah array
+  const attendanceData = Array.isArray(attendanceStore.datas) ? attendanceStore.datas : []
   
   return member.value
     .filter(memberItem => {
-      // member harus aktif dan ada dalam pivot schedule
+      // member harus aktif dan ada dalam members schedule
       return memberItem.status === 'active' && scheduleMemberIds.includes(memberItem.id)
     })
     .map((memberItem) => {
-      const attendance = attendanceStore.datas.find(
-        (a) => a.member_id === memberItem.id && a.training_schedule_id === selectedSchedule.value,
+      // Cari attendance yang sesuai
+      const attendance = attendanceData.find(
+        (a) => a.member_id === memberItem.id && a.training_schedule_id === selectedSchedule.value
       )
+      
+      console.log('Debug attendance:', {
+        memberId: memberItem.id,
+        scheduleId: selectedSchedule.value,
+        attendanceFound: attendance,
+        allAttendances: attendanceData
+      })
+      
       return {
         id: memberItem.id,
         name: memberItem.name,
