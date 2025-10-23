@@ -5,7 +5,9 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useTrainingStore } from '@/stores/training'
 import { useMemberStore } from '@/stores/member'
 import { FilterMatchMode } from '@primevue/core/api'
+import { useToast } from 'primevue/usetoast'
 
+const toast = useToast()
 const confirm = useConfirm()
 const trainingStore = useTrainingStore()
 const memberStore = useMemberStore()
@@ -40,7 +42,7 @@ function calculateAgeGroup(dateOfBirth) {
 // Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
-    return dataType === 'member' ? [] : '-'
+    return '-'
   }
 
   const kuSet = new Set()
@@ -56,17 +58,22 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kus = Array.from(kuSet).sort((a, b) => a - b)
 
-  return dataType === 'member' ? kus : (kus.length > 0 ? kus.join(', ') : '-')
+  return kus.length > 0 ? kus.join(', ') : '-'
 }
+
 
 // Fungsi untuk mendapatkan available KUs dari data member
 function getAvailableKUs(membersData) {
-  return getKUsFromData(membersData, 'member')
+  const kusString = getKUsFromData(membersData, 'member')
+  if (kusString === '-') return []
+
+  // Convert string to array and ensure it's properly formatted
+  return kusString.split(',').map(ku => ku.trim())
 }
 
-// Fungsi untuk mendapatkan KUs dari data pivots
-function getMemberKUs(pivots) {
-  return getKUsFromData(pivots, 'pivot')
+// Fungsi untuk mendapatkan KUs dari data member
+function getMemberKUs(members) {
+  return getKUsFromData(members, 'member')
 }
 
 // Filter member berdasarkan KU yang dipilih
@@ -78,9 +85,9 @@ function filterMembersByKU(ku) {
 
   filteredMembers.value = members.value.filter(member => {
     const memberKU = calculateAgeGroup(member.date_of_birth)
-    return memberKU === ku
+    return memberKU === parseInt(ku)
   })
-  
+
   // Reset select all ketika filter berubah
   selectAllChecked.value = false
 }
@@ -102,11 +109,11 @@ watch(() => form.value?.member_ids, (newMemberIds) => {
     selectAllChecked.value = false
     return
   }
-  
+
   // Cek apakah semua member terpilih
   const allMemberIds = filteredMembers.value.map(member => member.id)
-  selectAllChecked.value = newMemberIds?.length === allMemberIds.length && 
-                           allMemberIds.every(id => newMemberIds.includes(id))
+  selectAllChecked.value = newMemberIds?.length === allMemberIds.length &&
+    allMemberIds.every(id => newMemberIds.includes(id))
 }, { deep: true })
 
 // Ambil data training
@@ -114,7 +121,7 @@ async function getData() {
   datas.value = trainingStore.datas
 }
 
-// Ambil data member - MODIFIKASI: Hanya ambil yang status aktif
+// Ambil data member
 async function getMembers() {
   try {
     const withVariable = 'file'
@@ -153,12 +160,12 @@ function openDialog(item = null) {
   // Jika edit, filter member berdasarkan KU yang sudah ada
   if (item?.ku) {
     filterMembersByKU(item.ku)
-    
+
     // Set select all status jika dalam mode edit
     if (item.member_ids && filteredMembers.value.length) {
       const allMemberIds = filteredMembers.value.map(member => member.id)
-      selectAllChecked.value = item.member_ids.length === allMemberIds.length && 
-                              allMemberIds.every(id => item.member_ids.includes(id))
+      selectAllChecked.value = item.member_ids.length === allMemberIds.length &&
+        allMemberIds.every(id => item.member_ids.includes(id))
     }
   }
 }
@@ -182,8 +189,11 @@ function onKUChange(ku) {
 // Save schedule
 async function saveSchedule() {
   if (!form.value.title || !form.value.date || !form.value.ku) {
-    alert('Harap lengkapi semua field yang wajib diisi!')
-    return
+    return toast.add({
+      severity: 'error',
+      summary: 'Silahkan lengkapi terlebih dahulu.',
+      life: 3000,
+    })
   }
 
   saving.value = true
@@ -238,14 +248,33 @@ const formatDate = (dateString) => {
   })
 }
 
-// Computed untuk menampilkan nama member yang dipilih
+// Computed untuk menampilkan maksimal 3 nama member
+const getLimitedMemberNames = computed(() => {
+  if (!form.value?.member_ids?.length) return []
+  
+  const selectedMembers = members.value.filter(member =>
+    form.value.member_ids.includes(member.id)
+  )
+  return selectedMembers.slice(0, 3)
+})
+
+const getRemainingMemberNames = computed(() => {
+  if (!form.value?.member_ids?.length || getSelectedMemberNames.length <= 3) return ''
+  
+  const selectedMembers = members.value.filter(member =>
+    form.value.member_ids.includes(member.id)
+  )
+  const remainingMembers = selectedMembers.slice(3)
+  return remainingMembers.map(member => member.name).join(', ')
+})
+
 const getSelectedMemberNames = computed(() => {
-  if (!form.value?.member_ids?.length) return 'Belum ada member dipilih'
+  if (!form.value?.member_ids?.length) return []
 
   const selectedMembers = members.value.filter(member =>
     form.value.member_ids.includes(member.id)
   )
-  return selectedMembers.map(member => member.name).join(', ')
+  return selectedMembers
 })
 </script>
 
@@ -294,7 +323,7 @@ const getSelectedMemberNames = computed(() => {
 
           <Column field="ku" header="KU" class="min-w-48">
             <template #body="{ data }">
-              <div class="font-medium text-gray-900">{{ getMemberKUs(data.pivots) }}</div>
+              <div class="font-medium text-gray-900">{{ getMemberKUs(data.members) }}</div>
             </template>
           </Column>
 
@@ -368,10 +397,14 @@ const getSelectedMemberNames = computed(() => {
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Kelompok Umur (KU) <span class="text-red-500">*</span>
           </label>
-          <Dropdown v-model="selectedKU" :options="availableKUs" optionLabel="" placeholder="Pilih KU" class="w-full"
+          <Dropdown v-model="selectedKU" :options="availableKUs" placeholder="Pilih KU" class="w-full"
             @change="onKUChange($event.value)" :pt="{
-              root: { class: 'w-full' },
-              input: { class: 'w-full text-sm py-2 px-2.5' }
+              root: { 
+                class: 'w-full h-9 flex items-center rounded-lg border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500',
+                style: 'border-radius: 0.5rem;'
+              },
+              input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
+              trigger: { class: 'bg-transparent pr-2' }
             }">
             <template #value="slotProps">
               <span v-if="slotProps.value">{{ slotProps.value }}</span>
@@ -389,7 +422,7 @@ const getSelectedMemberNames = computed(() => {
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Pilih Member
           </label>
-          
+
           <!-- Select All Checkbox -->
           <div v-if="filteredMembers.length > 0" class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
             <div class="flex items-center space-x-3">
@@ -421,13 +454,36 @@ const getSelectedMemberNames = computed(() => {
               </div>
             </div>
           </div>
-          
+
           <div v-if="form.member_ids?.length" class="mt-2 p-3 bg-piper-200 rounded-lg">
-            <p class="text-sm font-medium text-rhino-800">
-              Terpilih: {{ form.member_ids.length }} dari {{ filteredMembers.length }} member aktif
-            </p>
-            <p class="text-xs text-rhino-600 mt-1 truncate">{{ getSelectedMemberNames }}</p>
-          </div>
+  <p class="text-sm font-medium text-rhino-800 mb-2">
+    Terpilih: {{ form.member_ids.length }} dari {{ filteredMembers.length }} member aktif
+  </p>
+  
+  <!-- Tampilkan maksimal 3 nama member, sisanya dalam tooltip -->
+  <div class="flex flex-wrap gap-1">
+    <span 
+      v-for="(member, index) in getLimitedMemberNames" 
+      :key="member.id"
+      class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
+    >
+      {{ member.name }}
+    </span>
+    
+    <!-- Tampilkan indikator jika ada member lebih dari 3 -->
+    <span 
+      v-if="getSelectedMemberNames.length > 3"
+      v-tooltip="{
+        value: getRemainingMemberNames,
+        showDelay: 500,
+        hideDelay: 300
+      }"
+      class="text-xs bg-piper-300 text-rhino-800 px-2 py-1 rounded-full border border-piper-400 cursor-help"
+    >
+      +{{ getSelectedMemberNames.length - 3 }} lainnya
+    </span>
+  </div>
+</div>
         </div>
 
         <!-- Action Buttons -->
