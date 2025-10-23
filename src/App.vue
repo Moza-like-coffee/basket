@@ -16,7 +16,6 @@ watch(
       errors.forEach((msg) => {
         toast.add({ severity: 'error', summary: msg, life: 3000 })
       })
-
       responseStore.clearErrors()
     }
   },
@@ -36,20 +35,20 @@ watch(
 </script>
 
 <template>
-  <Toast
-    :pt="{
-      buttonContainer: {
-        class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
-      },
-      closeButton: {
-        class: '!my-auto',
-      },
-      messageContent: {
-        class: '!items-center',
-      },
-    }"
-  />
   <div>
+    <Toast
+      :pt="{
+        buttonContainer: {
+          class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
+        },
+        closeButton: {
+          class: '!my-auto',
+        },
+        messageContent: {
+          class: '!items-center',
+        },
+      }"
+    />
     <ProgressBar :isLoading="ui.isLoading" :mode="'indeterminate'" :value="ui.loadingValue" />
     <router-view :key="$route.fullPath" v-slot="{ Component }">
       <Transition name="fade" mode="out-in">
