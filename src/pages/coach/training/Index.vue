@@ -40,7 +40,7 @@ function calculateAgeGroup(dateOfBirth) {
 // Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
-    return dataType === 'member' ? [] : '-'
+    return '-'
   }
 
   const kuSet = new Set()
@@ -56,17 +56,22 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kus = Array.from(kuSet).sort((a, b) => a - b)
 
-  return dataType === 'member' ? kus : (kus.length > 0 ? kus.join(', ') : '-')
+  return kus.length > 0 ? kus.join(', ') : '-'
 }
+
 
 // Fungsi untuk mendapatkan available KUs dari data member
 function getAvailableKUs(membersData) {
-  return getKUsFromData(membersData, 'member')
+  const kusString = getKUsFromData(membersData, 'member')
+  if (kusString === '-') return []
+  
+  // Convert string to array and ensure it's properly formatted
+  return kusString.split(',').map(ku => ku.trim())
 }
 
-// Fungsi untuk mendapatkan KUs dari data pivots
-function getMemberKUs(pivots) {
-  return getKUsFromData(pivots, 'pivot')
+// Fungsi untuk mendapatkan KUs dari data member
+function getMemberKUs(members) {
+  return getKUsFromData(members, 'member')
 }
 
 // Filter member berdasarkan KU yang dipilih
@@ -78,7 +83,7 @@ function filterMembersByKU(ku) {
 
   filteredMembers.value = members.value.filter(member => {
     const memberKU = calculateAgeGroup(member.date_of_birth)
-    return memberKU === ku
+      return memberKU === parseInt(ku)
   })
   
   // Reset select all ketika filter berubah
@@ -114,7 +119,7 @@ async function getData() {
   datas.value = trainingStore.datas
 }
 
-// Ambil data member - MODIFIKASI: Hanya ambil yang status aktif
+// Ambil data member
 async function getMembers() {
   try {
     const withVariable = 'file'
@@ -294,7 +299,7 @@ const getSelectedMemberNames = computed(() => {
 
           <Column field="ku" header="KU" class="min-w-48">
             <template #body="{ data }">
-              <div class="font-medium text-gray-900">{{ getMemberKUs(data.pivots) }}</div>
+              <div class="font-medium text-gray-900">{{ getMemberKUs(data.members) }}</div>
             </template>
           </Column>
 
@@ -364,25 +369,31 @@ const getSelectedMemberNames = computed(() => {
         </div>
 
         <!-- KU Selection -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Kelompok Umur (KU) <span class="text-red-500">*</span>
-          </label>
-          <Dropdown v-model="selectedKU" :options="availableKUs" optionLabel="" placeholder="Pilih KU" class="w-full"
-            @change="onKUChange($event.value)" :pt="{
-              root: { class: 'w-full' },
-              input: { class: 'w-full text-sm py-2 px-2.5' }
-            }">
-            <template #value="slotProps">
-              <span v-if="slotProps.value">{{ slotProps.value }}</span>
-              <span v-else class="text-gray-400">Pilih KU</span>
-            </template>
-            <template #option="slotProps">
-              <span>{{ slotProps.option }}</span>
-            </template>
-          </Dropdown>
-          <p class="text-xs text-gray-500 mt-1">Pilih Kelompok Umur untuk menampilkan daftar member</p>
-        </div>
+<div>
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    Kelompok Umur (KU) <span class="text-red-500">*</span>
+  </label>
+  <Dropdown 
+    v-model="selectedKU" 
+    :options="availableKUs" 
+    placeholder="Pilih KU" 
+    class="w-full"
+    @change="onKUChange($event.value)"
+    :pt="{
+      root: { class: 'w-full' },
+      input: { class: 'w-full text-sm py-2 px-2.5' }
+    }"
+  >
+    <template #value="slotProps">
+      <span v-if="slotProps.value">{{ slotProps.value }}</span>
+      <span v-else class="text-gray-400">Pilih KU</span>
+    </template>
+    <template #option="slotProps">
+      <span>{{ slotProps.option }}</span>
+    </template>
+  </Dropdown>
+  <p class="text-xs text-gray-500 mt-1">Pilih Kelompok Umur untuk menampilkan daftar member</p>
+</div>
 
         <!-- Member Selection -->
         <div v-if="selectedKU">
