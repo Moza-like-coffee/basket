@@ -136,16 +136,27 @@ const router = createRouter({
 
     // Coach
 
-     {
+    {
       path: '/coach/attendance',
       name: 'coach.attendance.index',
       component: () => import('@/pages/coach/attendance/Index.vue'),
       meta: {
         auth: true,
-        title: 'Absensi',
+        title: 'Pilih Jadwal Absensi',
+        allowedRoles: ['coach'],
       },
     },
-     {
+    {
+      path: '/coach/attendance/:scheduleId',
+      name: 'coach.attendance.show',
+      component: () => import('@/pages/coach/attendance/Show.vue'),
+      meta: {
+        auth: true,
+        title: 'Absensi',
+        allowedRoles: ['coach'],
+      },
+    },
+    {
       path: '/coach/training',
       name: 'coach.training.index',
       component: () => import('@/pages/coach/training/Index.vue'),
