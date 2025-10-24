@@ -43,7 +43,10 @@ export const useAttendanceStore = defineStore('attendance', {
         const response = await api.get(
           '/attendance' + (withRelations ? `?with=${withRelations}` : ''),
         )
-        this.datas = response.data
+        this.datas = Array.isArray(response.data)
+          ? response.data
+          : response.data.data || []
+
       } catch (error) {
         console.error('Gagal mengambil data absensi:', error)
         throw error
@@ -91,7 +94,12 @@ export const useAttendanceStore = defineStore('attendance', {
       const responseStore = useResponseStore()
       uiStore.startLoading()
       try {
-        const res = await api.post('/attendance', form)
+        const payload = {
+          ...form,
+          training_schedule_id: form.training_schedule_id.toString()
+        }
+
+        const res = await api.post('/attendance', payload)
         responseStore.addSuccess('Absensi berhasil ditambahkan!')
         await this.get()
         return res.data
@@ -103,8 +111,18 @@ export const useAttendanceStore = defineStore('attendance', {
           // Member tidak aktif
           responseStore.addError(msg)
         } else if (error.response?.status === 422) {
-          // KU tidak sesuai
-          responseStore.addError(msg)
+          // KU tidak sesuai atau validation error
+          const errors = error.response?.data?.errors
+          if (errors) {
+            // Handle specific field errors
+            Object.values(errors).forEach(errorArray => {
+              errorArray.forEach(errorMsg => {
+                responseStore.addError(errorMsg)
+              })
+            })
+          } else {
+            responseStore.addError(msg)
+          }
         } else {
           responseStore.addError(msg)
         }
