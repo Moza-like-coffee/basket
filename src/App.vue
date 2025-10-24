@@ -50,9 +50,9 @@ watch(
       }"
     />
     <ProgressBar :isLoading="ui.isLoading" :mode="'indeterminate'" :value="ui.loadingValue" />
-    <router-view :key="$route.fullPath" v-slot="{ Component }">
+    <router-view v-slot="{ Component }">
       <Transition name="fade" mode="out-in">
-        <component :is="Component" />
+        <component :is="Component" :key="$route.fullPath" />
       </Transition>
     </router-view>
   </div>
