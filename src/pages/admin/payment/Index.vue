@@ -18,28 +18,10 @@ async function fetchData() {
 }
 
 onMounted(async () => {
-  const withVariable = ''
+  const withVariable = 'parent'
   await paymentStore.get(withVariable)
   fetchData()
 })
-
-const confirmDelete = (event, id) => {
-  confirm.require({
-    target: event.currentTarget,
-    position: 'right',
-    message: 'Apakah Kamu Yakin Ingin Menghapus Data Ini?',
-    appendTo: 'body',
-    icon: 'fa-regular fa-circle-exclamation',
-    acceptLabel: 'Ya, Hapus',
-    rejectLabel: 'Batal',
-    acceptClass: 'p-button-danger p-button-sm !w-24 shadow-lg',
-    rejectClass: 'p-button-secondary p-button-sm !w-24 shadow-lg',
-    accept: async () => {
-      await memberStore.destroy(id)
-      fetchData()
-    },
-  })
-}
 </script>
 
 <template>
@@ -78,6 +60,11 @@ const confirmDelete = (event, id) => {
           <Column field="reference_code" header="Kode Pembayaran">
             <template #body="{ data }">
               {{ data.reference_code }}
+            </template>
+          </Column>
+          <Column field="reference_code" header="Nama Orang Tua">
+            <template #body="{ data }">
+              {{ data?.parent?.name }}
             </template>
           </Column>
           <Column
@@ -145,7 +132,6 @@ const confirmDelete = (event, id) => {
             <template #body="{ data }">
               <div class="flex justify-center gap-3">
                 <router-link
-                  v-if="data?.status == 'PENDING'"
                   :to="{
                     name: 'admin.payment.show',
                     params: {
@@ -157,13 +143,6 @@ const confirmDelete = (event, id) => {
                 >
                   <i class="fa-solid fa-eye"></i>
                 </router-link>
-                <button
-                  @click="confirmDelete($event, data.id)"
-                  v-tooltip.left="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
               </div>
             </template>
           </Column>

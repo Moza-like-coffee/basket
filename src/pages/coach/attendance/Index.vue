@@ -15,7 +15,6 @@ const memberStore = useMemberStore()
 const training = ref([])
 const loading = ref(true)
 
-// Fungsi untuk menghitung KU dari data
 function calculateAgeGroup(dateOfBirth) {
   if (dateOfBirth) {
     const thisYear = new Date().getFullYear()
@@ -27,7 +26,6 @@ function calculateAgeGroup(dateOfBirth) {
   }
 }
 
-// Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
     return '-'
@@ -35,10 +33,8 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kuSet = new Set()
 
-  data.forEach(item => {
-    const dateOfBirth = dataType === 'member'
-      ? item.date_of_birth
-      : item.member?.date_of_birth
+  data.forEach((item) => {
+    const dateOfBirth = dataType === 'member' ? item.date_of_birth : item.member?.date_of_birth
 
     const ku = calculateAgeGroup(dateOfBirth)
     if (ku) kuSet.add(ku)
@@ -48,7 +44,6 @@ function getKUsFromData(data, dataType = 'member') {
   return kus.length > 0 ? kus.join(', ') : '-'
 }
 
-// Fungsi untuk mendapatkan KUs dari data member
 function getMemberKUs(members) {
   return getKUsFromData(members, 'member')
 }
@@ -73,13 +68,18 @@ const schedules = computed(() => {
       value: schedule.id,
       date: schedule.date,
       title: schedule.title,
-      ku: getMemberKUs(schedule.members)
+      ku: getMemberKUs(schedule.members),
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
 
 function selectSchedule(scheduleId) {
-  router.push(`/coach/attendance/${scheduleId}`)
+  router.push({
+    name: 'coach.attendance.show',
+    params: {
+      id: scheduleId,
+    },
+  })
 }
 
 async function fetchData() {
@@ -97,10 +97,7 @@ onMounted(async () => {
 <template>
   <CoachLayouts>
     <div class="py-3 space-y-3">
-      <!-- Schedule Selection Section -->
       <div class="bg-white rounded-lg shadow px-5 py-6">
-        <h3 class="font-semibold text-gray-700 mb-4 text-lg">Pilih Jadwal Latihan</h3>
-        
         <div v-if="loading" class="text-center py-8">
           <i class="pi pi-spin pi-spinner text-2xl text-gray-400 mb-2"></i>
           <p class="text-gray-500">Memuat jadwal latihan...</p>
@@ -110,29 +107,33 @@ onMounted(async () => {
           <p class="text-sm text-gray-600 mb-4">
             Pilih jadwal latihan untuk melihat dan mengelola absensi anggota
           </p>
-          
+
           <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
             <div
               v-for="s in schedules"
               :key="s.value"
               @click="selectSchedule(s.value)"
-              class="cursor-pointer rounded-xl border-2 shadow-sm p-6 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
+              class="cursor-pointer rounded-xl border-2 shadow-sm p-3 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 flex flex-col justify-between bg-white border-gray-200 text-gray-700"
             >
-              <div class="flex flex-col w-full">
+              <div class="justify-center w-full">
                 <!-- Title -->
-                <div class="mb-3">
-                  <i class="pi pi-calendar text-xl mb-2 text-piper-500"></i>
-                  <p class="font-semibold text-base leading-tight line-clamp-2">{{ s.title }}</p>
+                <div class="mb-3 flex gap-2 items-center">
+                  <i class="fa-solid fa-calendar text-xl text-piper-500"></i>
+                  <p class="font-semibold text-base !align-middle line-clamp-1">
+                    {{ s.title }}
+                  </p>
                 </div>
 
                 <!-- Date -->
-                <p class="text-sm mb-2 text-gray-600">
+                <p class="text-sm mb-1 text-gray-600">
                   {{ s.label }}
                 </p>
 
                 <!-- KU Information -->
                 <div class="mt-auto">
-                  <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-rhino-100 text-grey-600">
+                  <span
+                    class="inline-block px-3 py-1 rounded-lg text-xs font-medium bg-rhino-100 text-grey-600"
+                  >
                     KU: {{ s.ku }}
                   </span>
                 </div>
@@ -140,7 +141,7 @@ onMounted(async () => {
             </div>
           </div>
         </div>
-        
+
         <div v-else class="text-center py-8 text-gray-500">
           <i class="pi pi-calendar-times text-3xl mb-3 text-gray-400"></i>
           <p class="text-lg font-medium mb-2">Tidak ada jadwal latihan</p>

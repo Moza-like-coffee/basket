@@ -1,12 +1,22 @@
 <script setup>
 import MemberLayouts from '@/layouts/MemberLayouts.vue'
-import { Column, DataTable, IconField, InputIcon, InputText, useConfirm, Dialog } from 'primevue'
+import {
+  Column,
+  DataTable,
+  IconField,
+  InputIcon,
+  InputText,
+  useConfirm,
+  Dialog,
+  Image,
+} from 'primevue'
 import { onMounted, ref } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useMemberStore } from '@/stores/member'
 import { useRouter } from 'vue-router'
 import ConfirmPopup from 'primevue/confirmpopup'
 import QRCode from 'qrcode'
+import placeholderImage from '@/assets/images/placeholder-person.webp'
 
 const router = useRouter()
 const memberStore = useMemberStore()
@@ -59,7 +69,7 @@ const confirmDelete = (event, id) => {
       fetchData()
     },
   })
-} 
+}
 
 // Fungsi enkripsi member_id
 function encryptMemberId(memberId) {
@@ -90,8 +100,9 @@ function downloadQR() {
   link.download = `${selectedMember.value.name}_QR.png`
   link.click()
 }
-</script>
 
+const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
+</script>
 
 <template>
   <MemberLayouts>
@@ -109,53 +120,110 @@ function downloadQR() {
         <div>
           <div class="flex justify-between items-center">
             <div>
-              <router-link :to="{ name: 'member.create' }"
-                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg">
+              <router-link
+                :to="{ name: 'member.create' }"
+                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              >
                 Tambahkan Member Baru +
               </router-link>
             </div>
             <div>
-              <input type="text" v-model="filters['global'].value" placeholder="Cari...."
-                class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg" />
+              <input
+                type="text"
+                v-model="filters['global'].value"
+                placeholder="Cari...."
+                class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg"
+              />
             </div>
           </div>
         </div>
       </div>
       <div class="!rounded-lg !overflow-hidden shadow bg-white">
-        <DataTable v-model:filters="filters" :value="datas" paginator :rows="10" dataKey="id" :loading="loading" :pt="{
-          thead: {
-            class: 'text-sm font-light',
-          },
-          tbody: {
-            class: 'text-sm font-light',
-          },
-          pcPaginator: {
-            content: {
-              class: 'text-xs',
+        <DataTable
+          v-model:filters="filters"
+          :value="datas"
+          paginator
+          :rows="10"
+          dataKey="id"
+          :loading="loading"
+          :pt="{
+            thead: {
+              class: 'text-sm font-light',
             },
-          },
-        }">
-          <Column field="name" header="Nama">
+            tbody: {
+              class: 'text-sm font-light',
+            },
+            pcPaginator: {
+              content: {
+                class: 'text-xs',
+              },
+            },
+          }"
+        >
+          <Column field="image" header="" class="w-24">
             <template #body="{ data }">
-              {{ data.name }}
+              <div class="flex items-center">
+                <Image
+                  preview
+                  :pt="{
+                    image: {
+                      class:
+                        '!w-20 !h-20 shadow-lg border border-gray-300 !object-cover rounded-lg',
+                    },
+                  }"
+                  class="!w-20 !h-20 shadow-lg border border-gray-300 !object-cover rounded-lg"
+                  :src="
+                    data?.file?.photo
+                      ? backendUrl + 'storage/images/files/' + data?.id + '/' + data?.file?.photo
+                      : placeholderImage
+                  "
+                  alt="Image"
+                />
+                <!-- <img
+                  class="w-20 h-20 shadow-lg border border-gray-300 object-cover rounded-lg"
+                  :src="
+                    data?.file?.photo
+                      ? backendUrl + 'storage/images/files/' + data?.id + '/' + data?.file?.photo
+                      : placeholderImage
+                  "
+                  alt=""
+                /> -->
+              </div>
             </template>
           </Column>
-          <Column field="ku" header="KU" class="w-20" :pt="{
-            columnHeaderContent: {
-              class: '!justify-center',
-            },
-          }">
+          <Column field="name" header="Nama">
+            <template #body="{ data }">
+              <p>
+                {{ data.name }}
+              </p>
+            </template>
+          </Column>
+          <Column
+            field="ku"
+            header="KU"
+            class="w-20"
+            :pt="{
+              columnHeaderContent: {
+                class: '!justify-center',
+              },
+            }"
+          >
             <template #body="{ data }">
               <p class="text-center">
                 {{ calculateAgeGroup(data.date_of_birth) }}
               </p>
             </template>
           </Column>
-          <Column field="gender" header="Jenis Kelamin" class="w-40" :pt="{
-            columnHeaderContent: {
-              class: '!justify-center',
-            },
-          }">
+          <Column
+            field="gender"
+            header="Jenis Kelamin"
+            class="w-40"
+            :pt="{
+              columnHeaderContent: {
+                class: '!justify-center',
+              },
+            }"
+          >
             <template #body="{ data }">
               <p class="text-center">
                 {{ data.gender }}
@@ -210,40 +278,53 @@ function downloadQR() {
           <Column field="action" header="">
             <template #body="{ data }">
               <div class="flex justify-center gap-3">
-                <button @click="showQRCode(data)" v-tooltip.left="{ value: 'QR Code', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950">
+                <button
+                  @click="showQRCode(data)"
+                  v-if="data?.status == 'active'"
+                  v-tooltip.left="{ value: 'QR Code', showDelay: 1000, hideDelay: 300 }"
+                  class="cursor-pointer text-rhino-950"
+                >
                   <i class="fa-solid fa-qrcode"></i>
                 </button>
 
-                <button @click="
-                  router.push({
-                    name: 'member.verification',
-                    params: {
-                      id: data.id,
-                    },
-                  })
-                  " v-if="!data?.file" v-tooltip.left="{
+                <button
+                  @click="
+                    router.push({
+                      name: 'member.verification',
+                      params: {
+                        id: data.id,
+                      },
+                    })
+                  "
+                  v-if="!data?.file"
+                  v-tooltip.left="{
                     value: 'Complete Verification',
                     showDelay: 1000,
                     hideDelay: 300,
-                  }" class="cursor-pointer text-rhino-950">
+                  }"
+                  class="cursor-pointer text-rhino-950"
+                >
                   <i class="fa-solid fa-badge-check"></i>
                 </button>
-                <button @click="
-                  router.push({
-                    name: 'member.edit',
-                    params: {
-                      id: data.id,
-                    },
-                  })
-                  " v-tooltip.left="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950">
+                <button
+                  @click="
+                    router.push({
+                      name: 'member.edit',
+                      params: {
+                        id: data.id,
+                      },
+                    })
+                  "
+                  v-tooltip.left="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }"
+                  class="cursor-pointer text-rhino-950"
+                >
                   <i class="fa-solid fa-pen"></i>
                 </button>
                 <button
                   @click="confirmDelete($event, data.id)"
                   v-tooltip.left="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950">
+                  class="cursor-pointer text-rhino-950"
+                >
                   <i class="fa-solid fa-trash"></i>
                 </button>
               </div>
@@ -265,8 +346,13 @@ function downloadQR() {
     </div>
 
     <!-- Dialog QR Code -->
-    <Dialog v-model:visible="visible" modal header="QR Code Member" :style="{ width: '350px' }"
-      :breakpoints="{ '960px': '75vw', '641px': '90vw' }">
+    <Dialog
+      v-model:visible="visible"
+      modal
+      header="QR Code Member"
+      :style="{ width: '350px' }"
+      :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
+    >
       <div class="flex flex-col items-center gap-4">
         <div v-if="selectedMember">
           <p class="text-center font-semibold">{{ selectedMember.name }}</p>
@@ -281,15 +367,19 @@ function downloadQR() {
         </div>
 
         <div class="flex justify-center gap-2 mt-4">
-          <button @click="visible = false"
-            class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600 transition-colors">
+          <button
+            @click="visible = false"
+            class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600 transition-colors"
+          >
             Tutup
           </button>
-          <button v-if="qrCodeUrl" @click="downloadQR"
-            class="px-4 py-2 bg-piper-600 text-white rounded-lg text-sm hover:bg-piper-700 transition-colors">
+          <button
+            v-if="qrCodeUrl"
+            @click="downloadQR"
+            class="px-4 py-2 bg-piper-600 text-white rounded-lg text-sm hover:bg-piper-700 transition-colors"
+          >
             Download QR
           </button>
-
         </div>
       </div>
     </Dialog>

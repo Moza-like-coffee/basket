@@ -100,7 +100,6 @@ function toggleSelectAll() {
   }
 }
 
-// Watch perubahan pada member_ids untuk update selectAllChecked
 watch(
   () => form.value?.member_ids,
   (newMemberIds) => {
@@ -188,7 +187,6 @@ function onKUChange(ku) {
   filterMembersByKU(ku)
 }
 
-// Save schedule
 async function saveSchedule() {
   if (!form.value.title || !form.value.date || !form.value.ku) {
     return toast.add({
@@ -222,7 +220,6 @@ async function saveSchedule() {
   }
 }
 
-// Delete confirmation
 const confirmDelete = (event, id) => {
   confirm.require({
     target: event.currentTarget,
@@ -240,7 +237,6 @@ const confirmDelete = (event, id) => {
   })
 }
 
-// Format date untuk display
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -440,11 +436,16 @@ const getSelectedMemberNames = computed(() => {
             :pt="{
               root: {
                 class:
-                  'w-full h-9 flex items-center rounded-lg border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500',
-                style: 'border-radius: 0.5rem;',
+                  'w-full h-9 flex items-center border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500 !rounded-lg',
               },
               input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
               trigger: { class: 'bg-transparent pr-2' },
+              label: {
+                class: '!text-sm',
+              },
+              option: {
+                class: '!text-sm',
+              },
             }"
           >
             <template #value="slotProps">
@@ -523,7 +524,7 @@ const getSelectedMemberNames = computed(() => {
             <!-- Tampilkan maksimal 3 nama member, sisanya dalam tooltip -->
             <div class="flex flex-wrap gap-1">
               <span
-                v-for="(member, index) in getLimitedMemberNames"
+                v-for="member in getLimitedMemberNames"
                 :key="member.id"
                 class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
               >

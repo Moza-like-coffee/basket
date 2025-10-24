@@ -178,52 +178,6 @@ async function submit() {
               </p>
             </template>
           </Column>
-          <Column field="action" header="">
-            <template #body="{ data }">
-              <div class="flex justify-center gap-3">
-                <button
-                  @click="
-                    router.push({
-                      name: 'member.verification',
-                      params: {
-                        id: data.id,
-                      },
-                    })
-                  "
-                  v-if="!data?.file"
-                  v-tooltip.left="{
-                    value: 'Complete Verification',
-                    showDelay: 1000,
-                    hideDelay: 300,
-                  }"
-                  class="cursor-pointer text-rhino-950"
-                >
-                  <i class="fa-solid fa-badge-check"></i>
-                </button>
-                <button
-                  @click="
-                    router.push({
-                      name: 'member.edit',
-                      params: {
-                        id: data.id,
-                      },
-                    })
-                  "
-                  v-tooltip.left="{ value: 'Edit', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950"
-                >
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button
-                  @click="confirmDelete($event, data.id)"
-                  v-tooltip.left="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
-            </template>
-          </Column>
 
           <template #empty>
             <div class="text-center text-sm">
