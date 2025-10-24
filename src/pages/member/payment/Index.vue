@@ -23,24 +23,6 @@ onMounted(async () => {
   await paymentStore.getByParentId(withVariable)
   fetchData()
 })
-
-const confirmDelete = (event, id) => {
-  confirm.require({
-    target: event.currentTarget,
-    position: 'right',
-    message: 'Apakah Kamu Yakin Ingin Menghapus Data Ini?',
-    appendTo: 'body',
-    icon: 'fa-regular fa-circle-exclamation',
-    acceptLabel: 'Ya, Hapus',
-    rejectLabel: 'Batal',
-    acceptClass: 'p-button-danger p-button-sm !w-24 shadow-lg',
-    rejectClass: 'p-button-secondary p-button-sm !w-24 shadow-lg',
-    accept: async () => {
-      await memberStore.destroy(id)
-      fetchData()
-    },
-  })
-}
 </script>
 
 <template>
@@ -157,13 +139,6 @@ const confirmDelete = (event, id) => {
                 >
                   <i class="fa-solid fa-eye"></i>
                 </router-link>
-                <button
-                  @click="confirmDelete($event, data.id)"
-                  v-tooltip.left="{ value: 'Delete', showDelay: 1000, hideDelay: 300 }"
-                  class="cursor-pointer text-rhino-950"
-                >
-                  <i class="fa-solid fa-trash"></i>
-                </button>
               </div>
             </template>
           </Column>

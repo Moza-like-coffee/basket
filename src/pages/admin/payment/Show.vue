@@ -102,6 +102,15 @@ const confirmPayment = (event) => {
                         : 'Iuran Bulanan'
                     }}
                   </p>
+                  <p v-if="item?.bill?.bill_type == 'monthly'" class="text-xs text-gray-500">
+                    Periode
+                    {{
+                      new Date(item?.bill?.period_from).toLocaleDateString('id-ID', {
+                        year: 'numeric',
+                        month: 'long',
+                      })
+                    }}
+                  </p>
                 </div>
                 <div>
                   <p>

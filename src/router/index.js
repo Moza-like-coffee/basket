@@ -2,10 +2,292 @@ import { useAuthStore } from '@/stores/auth'
 import { useUIStore } from '@/stores/ui'
 import { createRouter, createWebHistory } from 'vue-router'
 
+const adminRoutes = [
+  {
+    path: '/admin/dashboard',
+    name: 'admin.dashboard',
+    component: () => import('@/pages/admin/Dashboard.vue'),
+    meta: {
+      auth: true,
+      title: 'Admin Dashboard',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/member',
+    name: 'admin.member.index',
+    component: () => import('@/pages/admin/member/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Admin Member',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/member/create',
+    name: 'admin.member.create',
+    component: () => import('@/pages/admin/member/Create.vue'),
+    meta: {
+      auth: true,
+      title: 'Tambah Member',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/member/:id/edit',
+    name: 'admin.member.edit',
+    component: () => import('@/pages/admin/member/Edit.vue'),
+    meta: {
+      auth: true,
+      title: 'Edit Data Member',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/member/:id/verification',
+    name: 'admin.member.verification',
+    component: () => import('@/pages/admin/member/Verification.vue'),
+    meta: {
+      auth: true,
+      title: 'Verifikasi Data Member',
+      allowedRoles: ['admin'],
+    },
+  },
+
+  {
+    path: '/admin/user',
+    name: 'admin.user.index',
+    component: () => import('@/pages/admin/user/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Admin User',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/user/create',
+    name: 'admin.user.create',
+    component: () => import('@/pages/admin/user/Create.vue'),
+    meta: {
+      auth: true,
+      title: 'Tambah Admin User',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/user/:id/edit',
+    name: 'admin.user.edit',
+    component: () => import('@/pages/admin/user/Edit.vue'),
+    meta: {
+      auth: true,
+      title: 'Edit Data User',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/payment',
+    name: 'admin.payment.index',
+    component: () => import('@/pages/admin/payment/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Pembayaran',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/payment/:id',
+    name: 'admin.payment.show',
+    component: () => import('@/pages/admin/payment/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Pembayaran',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
+    path: '/admin/bill',
+    name: 'admin.bill.index',
+    component: () => import('@/pages/admin/bill/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Tagihan',
+      allowedRoles: ['admin'],
+    },
+  },
+]
+
+const parentRoutes = [
+  {
+    path: '/dashboard',
+    name: 'dashboard',
+    component: () => import('@/pages/member/Dashboard.vue'),
+    meta: {
+      auth: true,
+      title: 'Dashboard',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member',
+    name: 'member.index',
+    component: () => import('@/pages/member/member/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/create',
+    name: 'member.create',
+    component: () => import('@/pages/member/member/Create.vue'),
+    meta: {
+      auth: true,
+      title: 'Tambah Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/:id/edit',
+    name: 'member.edit',
+    component: () => import('@/pages/member/member/Edit.vue'),
+    meta: {
+      auth: true,
+      title: 'Edit Data Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/:id/verification',
+    name: 'member.verification',
+    component: () => import('@/pages/member/member/Verification.vue'),
+    meta: {
+      auth: true,
+      title: 'Verifikasi Data Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/bill',
+    name: 'bill.index',
+    component: () => import('@/pages/member/bill/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Tagihan',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/payment',
+    name: 'payment.index',
+    component: () => import('@/pages/member/payment/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Pembayaran',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/payment/:id',
+    name: 'payment.show',
+    component: () => import('@/pages/member/payment/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Pembayaran',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member',
+    name: 'member.index',
+    component: () => import('@/pages/member/member/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/create',
+    name: 'member.create',
+    component: () => import('@/pages/member/member/Create.vue'),
+    meta: {
+      auth: true,
+      title: 'Tambah Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/:id/edit',
+    name: 'member.edit',
+    component: () => import('@/pages/member/member/Edit.vue'),
+    meta: {
+      auth: true,
+      title: 'Edit Data Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/member/:id/verification',
+    name: 'member.verification',
+    component: () => import('@/pages/member/member/Verification.vue'),
+    meta: {
+      auth: true,
+      title: 'Verifikasi Data Member',
+      allowedRoles: ['parent'],
+    },
+  },
+]
+
+const coachRoutes = [
+  {
+    path: '/coach/dashboard',
+    name: 'coach.dashboard',
+    component: () => import('@/pages/coach/Dashboard.vue'),
+    meta: {
+      auth: true,
+      title: 'Coach Dashboard',
+      allowedRoles: ['coach'],
+    },
+  },
+  {
+    path: '/coach/attendance',
+    name: 'coach.attendance.index',
+    component: () => import('@/pages/coach/attendance/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Jadwal Absensi',
+      allowedRoles: ['coach'],
+    },
+  },
+  {
+    path: '/coach/attendance/:id',
+    name: 'coach.attendance.show',
+    component: () => import('@/pages/coach/attendance/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Absensi',
+      allowedRoles: ['coach'],
+    },
+  },
+  {
+    path: '/coach/training',
+    name: 'coach.training.index',
+    component: () => import('@/pages/coach/training/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Jadwal Latihan',
+      allowedRoles: ['coach'],
+    },
+  },
+]
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    // MAIN
+    ...parentRoutes,
+    ...adminRoutes,
+    ...coachRoutes,
     {
       path: '/',
       name: 'welcome',
@@ -30,269 +312,12 @@ const router = createRouter({
       },
     },
     {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/pages/member/Dashboard.vue'),
-      meta: {
-        auth: true,
-        title: 'Dashboard',
-        allowedRoles: ['parent'],
-      },
-    },
-    {
-      path: '/coach/dashboard',
-      name: 'coach.dashboard',
-      component: () => import('@/pages/coach/Dashboard.vue'),
-      meta: {
-        auth: true,
-        title: 'Coach Dashboard',
-        allowedRoles: ['coach'],
-      },
-    },
-    {
-      path: '/admin/dashboard',
-      name: 'admin.dashboard',
-      component: () => import('@/pages/admin/Dashboard.vue'),
-      meta: {
-        auth: true,
-        title: 'Admin Dashboard',
-        allowedRoles: ['admin'],
-      },
-    },
-    {
       path: '/profile',
       name: 'profile',
       component: () => import('@/pages/Profile.vue'),
       meta: {
         auth: true,
         title: 'Profile',
-      },
-    },
-
-    // Member
-    {
-      path: '/member',
-      name: 'member.index',
-      component: () => import('@/pages/member/member/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Member',
-      },
-    },
-    {
-      path: '/member/create',
-      name: 'member.create',
-      component: () => import('@/pages/member/member/Create.vue'),
-      meta: {
-        auth: true,
-        title: 'Tambah Member',
-      },
-    },
-    {
-      path: '/member/:id/edit',
-      name: 'member.edit',
-      component: () => import('@/pages/member/member/Edit.vue'),
-      meta: {
-        auth: true,
-        title: 'Edit Data Member',
-      },
-    },
-    {
-      path: '/member/:id/verification',
-      name: 'member.verification',
-      component: () => import('@/pages/member/member/Verification.vue'),
-      meta: {
-        auth: true,
-        title: 'Verifikasi Data Member',
-      },
-    },
-    {
-      path: '/bill',
-      name: 'bill.index',
-      component: () => import('@/pages/member/bill/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Tagihan',
-      },
-    },
-    {
-      path: '/payment',
-      name: 'payment.index',
-      component: () => import('@/pages/member/payment/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Pembayaran',
-      },
-    },
-    {
-      path: '/payment/:id',
-      name: 'payment.show',
-      component: () => import('@/pages/member/payment/Show.vue'),
-      meta: {
-        auth: true,
-        title: 'Pembayaran',
-      },
-    },
-
-    // Coach
-
-    {
-      path: '/coach/attendance',
-      name: 'coach.attendance.index',
-      component: () => import('@/pages/coach/attendance/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Pilih Jadwal Absensi',
-        allowedRoles: ['coach'],
-      },
-    },
-    {
-      path: '/coach/attendance/:scheduleId',
-      name: 'coach.attendance.show',
-      component: () => import('@/pages/coach/attendance/Show.vue'),
-      meta: {
-        auth: true,
-        title: 'Absensi',
-        allowedRoles: ['coach'],
-      },
-    },
-    {
-      path: '/coach/training',
-      name: 'coach.training.index',
-      component: () => import('@/pages/coach/training/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Jadwal Latihan',
-      },
-    },
-
-    {
-      path: '/member',
-      name: 'member.index',
-      component: () => import('@/pages/member/member/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Member',
-      },
-    },
-    {
-      path: '/member/create',
-      name: 'member.create',
-      component: () => import('@/pages/member/member/Create.vue'),
-      meta: {
-        auth: true,
-        title: 'Tambah Member',
-      },
-    },
-    {
-      path: '/member/:id/edit',
-      name: 'member.edit',
-      component: () => import('@/pages/member/member/Edit.vue'),
-      meta: {
-        auth: true,
-        title: 'Edit Data Member',
-      },
-    },
-    {
-      path: '/member/:id/verification',
-      name: 'member.verification',
-      component: () => import('@/pages/member/member/Verification.vue'),
-      meta: {
-        auth: true,
-        title: 'Verifikasi Data Member',
-      },
-    },
-
-    //admin
-    {
-      path: '/admin/member',
-      name: 'admin.member.index',
-      component: () => import('@/pages/admin/member/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Admin Member',
-      },
-    },
-    {
-      path: '/admin/member/create',
-      name: 'admin.member.create',
-      component: () => import('@/pages/admin/member/Create.vue'),
-      meta: {
-        auth: true,
-        title: 'Tambah Member',
-      },
-    },
-    {
-      path: '/admin/member/:id/edit',
-      name: 'admin.member.edit',
-      component: () => import('@/pages/admin/member/Edit.vue'),
-      meta: {
-        auth: true,
-        title: 'Edit Data Member',
-      },
-    },
-    {
-      path: '/admin/member/:id/verification',
-      name: 'admin.member.verification',
-      component: () => import('@/pages/admin/member/Verification.vue'),
-      meta: {
-        auth: true,
-        title: 'Verifikasi Data Member',
-      },
-    },
-
-    {
-      path: '/admin/user',
-      name: 'admin.user.index',
-      component: () => import('@/pages/admin/user/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Admin User',
-      },
-    },
-    {
-      path: '/admin/user/create',
-      name: 'admin.user.create',
-      component: () => import('@/pages/admin/user/Create.vue'),
-      meta: {
-        auth: true,
-        title: 'Tambah Admin User',
-      },
-    },
-    {
-      path: '/admin/user/:id/edit',
-      name: 'admin.user.edit',
-      component: () => import('@/pages/admin/user/Edit.vue'),
-      meta: {
-        auth: true,
-        title: 'Edit Data User',
-      },
-    },
-    {
-      path: '/admin/payment',
-      name: 'admin.payment.index',
-      component: () => import('@/pages/admin/payment/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Pembayaran',
-      },
-    },
-    {
-      path: '/admin/payment/:id',
-      name: 'admin.payment.show',
-      component: () => import('@/pages/admin/payment/Show.vue'),
-      meta: {
-        auth: true,
-        title: 'Pembayaran',
-      },
-    },
-    {
-      path: '/admin/bill',
-      name: 'admin.bill.index',
-      component: () => import('@/pages/admin/bill/Index.vue'),
-      meta: {
-        auth: true,
-        title: 'Tagihan',
       },
     },
   ],

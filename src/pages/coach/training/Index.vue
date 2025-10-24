@@ -47,10 +47,8 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kuSet = new Set()
 
-  data.forEach(item => {
-    const dateOfBirth = dataType === 'member'
-      ? item.date_of_birth
-      : item.member?.date_of_birth
+  data.forEach((item) => {
+    const dateOfBirth = dataType === 'member' ? item.date_of_birth : item.member?.date_of_birth
 
     const ku = calculateAgeGroup(dateOfBirth)
     if (ku) kuSet.add(ku)
@@ -61,14 +59,13 @@ function getKUsFromData(data, dataType = 'member') {
   return kus.length > 0 ? kus.join(', ') : '-'
 }
 
-
 // Fungsi untuk mendapatkan available KUs dari data member
 function getAvailableKUs(membersData) {
   const kusString = getKUsFromData(membersData, 'member')
   if (kusString === '-') return []
 
   // Convert string to array and ensure it's properly formatted
-  return kusString.split(',').map(ku => ku.trim())
+  return kusString.split(',').map((ku) => ku.trim())
 }
 
 // Fungsi untuk mendapatkan KUs dari data member
@@ -83,7 +80,7 @@ function filterMembersByKU(ku) {
     return
   }
 
-  filteredMembers.value = members.value.filter(member => {
+  filteredMembers.value = members.value.filter((member) => {
     const memberKU = calculateAgeGroup(member.date_of_birth)
     return memberKU === parseInt(ku)
   })
@@ -96,25 +93,29 @@ function filterMembersByKU(ku) {
 function toggleSelectAll() {
   if (selectAllChecked.value) {
     // Select all members
-    form.value.member_ids = filteredMembers.value.map(member => member.id)
+    form.value.member_ids = filteredMembers.value.map((member) => member.id)
   } else {
     // Deselect all members
     form.value.member_ids = []
   }
 }
 
-// Watch perubahan pada member_ids untuk update selectAllChecked
-watch(() => form.value?.member_ids, (newMemberIds) => {
-  if (!form.value || !filteredMembers.value.length) {
-    selectAllChecked.value = false
-    return
-  }
+watch(
+  () => form.value?.member_ids,
+  (newMemberIds) => {
+    if (!form.value || !filteredMembers.value.length) {
+      selectAllChecked.value = false
+      return
+    }
 
-  // Cek apakah semua member terpilih
-  const allMemberIds = filteredMembers.value.map(member => member.id)
-  selectAllChecked.value = newMemberIds?.length === allMemberIds.length &&
-    allMemberIds.every(id => newMemberIds.includes(id))
-}, { deep: true })
+    // Cek apakah semua member terpilih
+    const allMemberIds = filteredMembers.value.map((member) => member.id)
+    selectAllChecked.value =
+      newMemberIds?.length === allMemberIds.length &&
+      allMemberIds.every((id) => newMemberIds.includes(id))
+  },
+  { deep: true },
+)
 
 // Ambil data training
 async function getData() {
@@ -127,7 +128,7 @@ async function getMembers() {
     const withVariable = 'file'
     await memberStore.getByParentId(withVariable)
     // Filter hanya member dengan status aktif
-    members.value = memberStore.datas.filter(member => member.status === 'active')
+    members.value = memberStore.datas.filter((member) => member.status === 'active')
     availableKUs.value = getAvailableKUs(members.value)
   } catch (error) {
     console.error('Error fetching members:', error)
@@ -137,10 +138,7 @@ async function getMembers() {
 // Lifecycle
 onMounted(async () => {
   loading.value = true
-  await Promise.all([
-    trainingStore.get(),
-    getMembers()
-  ])
+  await Promise.all([trainingStore.get(), getMembers()])
   loading.value = false
   getData()
 })
@@ -253,7 +251,6 @@ async function saveSchedule() {
   }
 }
 
-// Delete confirmation
 const confirmDelete = (event, id) => {
   confirm.require({
     target: event.currentTarget,
@@ -271,7 +268,6 @@ const confirmDelete = (event, id) => {
   })
 }
 
-// Format date untuk display
 const formatDate = (dateString) => {
   return new Date(dateString).toLocaleDateString('id-ID', {
     weekday: 'long',
@@ -281,12 +277,12 @@ const formatDate = (dateString) => {
   })
 }
 
-// Computed untuk menampilkan informasi member yang dipilih - PERBAIKAN
+// Computed untuk menampilkan informasi member yang dipilih
 const getSelectedMemberNames = computed(() => {
   if (!form.value?.member_ids?.length) return []
 
-  const selectedMembers = members.value.filter(member =>
-    form.value.member_ids.includes(member.id)
+  const selectedMembers = members.value.filter((member) =>
+    form.value.member_ids.includes(member.id),
   )
   return selectedMembers
 })
@@ -474,17 +470,20 @@ const getRemainingMemberNames = computed(() => {
               <span>{{ slotProps.option }}</span>
             </template>
           </Dropdown>
-          <p class="text-xs text-gray-500 mt-1">Pilih Kelompok Umur untuk menampilkan daftar member</p>
+          <p class="text-xs text-gray-500 mt-1">
+            Pilih Kelompok Umur untuk menampilkan daftar member
+          </p>
         </div>
 
         <!-- Member Selection -->
         <div v-if="selectedKU">
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Pilih Member
-          </label>
+          <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>
 
           <!-- Select All Checkbox -->
-          <div v-if="filteredMembers.length > 0" class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div
+            v-if="filteredMembers.length > 0"
+            class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+          >
             <div class="flex items-center space-x-3">
               <input
                 type="checkbox"
@@ -495,7 +494,9 @@ const getRemainingMemberNames = computed(() => {
               />
               <label for="select-all" class="flex-1 text-sm font-medium cursor-pointer">
                 <span class="text-rhino-800">Pilih Semua Member</span>
-                <span class="text-gray-500 text-xs ml-2">({{ filteredMembers.length }} member aktif tersedia)</span>
+                <span class="text-gray-500 text-xs ml-2"
+                  >({{ filteredMembers.length }} member aktif tersedia)</span
+                >
               </label>
             </div>
           </div>
@@ -521,7 +522,8 @@ const getRemainingMemberNames = computed(() => {
                 <label :for="`member-${member.id}`" class="flex-1 text-sm cursor-pointer">
                   <div class="font-medium">{{ member.name }}</div>
                   <div class="text-xs text-gray-500">
-                    {{ member.gender }} • Status: <span class="text-green-600 font-medium">Aktif</span>
+                    {{ member.gender }} • Status:
+                    <span class="text-green-600 font-medium">Aktif</span>
                   </div>
                 </label>
               </div>

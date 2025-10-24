@@ -13,7 +13,6 @@ const memberStore = useMemberStore()
 const training = ref([])
 const loading = ref(true)
 
-// Fungsi untuk menghitung KU dari data
 function calculateAgeGroup(dateOfBirth) {
   if (dateOfBirth) {
     const thisYear = new Date().getFullYear()
@@ -25,7 +24,6 @@ function calculateAgeGroup(dateOfBirth) {
   }
 }
 
-// Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
     return '-'
@@ -33,10 +31,8 @@ function getKUsFromData(data, dataType = 'member') {
 
   const kuSet = new Set()
 
-  data.forEach(item => {
-    const dateOfBirth = dataType === 'member'
-      ? item.date_of_birth
-      : item.member?.date_of_birth
+  data.forEach((item) => {
+    const dateOfBirth = dataType === 'member' ? item.date_of_birth : item.member?.date_of_birth
 
     const ku = calculateAgeGroup(dateOfBirth)
     if (ku) kuSet.add(ku)
@@ -46,7 +42,6 @@ function getKUsFromData(data, dataType = 'member') {
   return kus.length > 0 ? kus.join(', ') : '-'
 }
 
-// Fungsi untuk mendapatkan KUs dari data member
 function getMemberKUs(members) {
   return getKUsFromData(members, 'member')
 }
@@ -71,7 +66,7 @@ const schedules = computed(() => {
       value: schedule.id,
       date: schedule.date,
       title: schedule.title,
-      ku: getMemberKUs(schedule.members)
+      ku: getMemberKUs(schedule.members),
     }))
     .sort((a, b) => new Date(a.date) - new Date(b.date))
 })
@@ -91,7 +86,6 @@ onMounted(async () => {
 <template>
   <CoachLayouts>
     <div class="py-3 space-y-3">
-      <!-- Schedule Selection Section -->
       <div class="bg-white rounded-lg shadow px-5 py-6">
         
         <div v-if="loading" class="text-center py-8">
@@ -114,13 +108,15 @@ onMounted(async () => {
                 </div>
 
                 <!-- Date -->
-                <p class="text-sm mb-2 text-gray-600">
+                <p class="text-sm mb-1 text-gray-600">
                   {{ s.label }}
                 </p>
 
                 <!-- KU Information -->
                 <div class="mt-auto">
-                  <span class="inline-block px-3 py-1 rounded-full text-xs font-medium bg-rhino-100 text-grey-600">
+                  <span
+                    class="inline-block px-3 py-1 rounded-lg text-xs font-medium bg-rhino-100 text-grey-600"
+                  >
                     KU: {{ s.ku }}
                   </span>
                 </div>
@@ -128,7 +124,7 @@ onMounted(async () => {
             </router-link>
           </div>
         </div>
-        
+
         <div v-else class="text-center py-8 text-gray-500">
           <i class="far fa-calendar-times text-3xl mb-3 text-gray-400"></i>
           <p class="text-lg font-medium mb-2">Tidak ada jadwal latihan</p>
