@@ -171,7 +171,7 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
                         '!w-20 !h-20 shadow-lg border border-gray-300 !object-cover rounded-lg',
                     },
                   }"
-                  class="!w-20 !h-20 shadow-lg border border-gray-300 !object-cover rounded-lg"
+                  class="!w-20 !h-20 shadow-lg !object-cover rounded-lg"
                   :src="
                     data?.file?.photo
                       ? backendUrl + 'storage/images/files/' + data?.id + '/' + data?.file?.photo
@@ -179,15 +179,6 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
                   "
                   alt="Image"
                 />
-                <!-- <img
-                  class="w-20 h-20 shadow-lg border border-gray-300 object-cover rounded-lg"
-                  :src="
-                    data?.file?.photo
-                      ? backendUrl + 'storage/images/files/' + data?.id + '/' + data?.file?.photo
-                      : placeholderImage
-                  "
-                  alt=""
-                /> -->
               </div>
             </template>
           </Column>

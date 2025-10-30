@@ -6,8 +6,72 @@ import spot2 from '@/assets/path/spot-2.svg'
 import spot3 from '@/assets/path/spot-3.svg'
 import { ref } from 'vue'
 import Carousel from 'primevue/carousel'
+import coach1Image from '@/assets/images/coach/coach-1.avif'
+import coach2Image from '@/assets/images/coach/coach-2.avif'
+import coach3Image from '@/assets/images/coach/coach-3.avif'
+import coach4Image from '@/assets/images/coach/coach-4.avif'
+import { Image } from 'primevue'
 
-// Data testimoni
+const coachesList = ref([
+  {
+    name: 'Cuk Kustanto',
+    position: 'Direktur Teknik',
+    image: coach1Image,
+    achievements: [
+      'Pelatih Kepala dan Direktur Teknik Victoria.',
+      'Pelatih Tamu beberapa klub dan istansi di Jakarta.',
+      'Mantan Pelatih Kepala tim Kobanita Jakarta.',
+      'Pelatih Tim Nasional Junior dan Senior pada era 1990an.',
+      'Sertifikat Pelatih Nasional dan juga beberapa sertifikasi penataran pelatih di luar negeri.',
+      'Pelatih kepala beberapa tim PON.',
+      'Salahsatu penggagas, pembina dan pelatih Victoria sejak awal.',
+      'Pelatih referensi pada pendidikan kepelatihan maupun kuliah olahraga di Fakultas Pendidikan Olahraga.',
+    ],
+  },
+  {
+    name: 'Ivan Harold',
+    position: 'Senior Coach',
+    image: coach2Image,
+    achievements: [
+      'Sarjana S1 Ekonomi Universitas Pancasila.',
+      'Pemain terbaik Libama DKI th 2006 saat kuliah di Universitas Pancasila.',
+      'Sertifikat Pelatih Perbasi B.',
+      'Kapten tim Div2 Victoria.',
+      'Pembuka ekstra kurikuler baru di salahsatu SD-SMP di Pasar Minggu.',
+      'Pelatih Porseni kecamatan Pasar Minggu th 2007 dan Jagakarsa th 2009-1010.',
+      'Pelatih POR Wilayah Jakarta Selatan th 2014.',
+      'Pelatih beberapa sekolah di Jakarta Selatan.',
+    ],
+  },
+  {
+    name: 'Ahmad Rizaldi',
+    position: 'Coach',
+    image: coach3Image,
+    achievements: [
+      'Sertifikat Pelatih Perbasi B.',
+      'Tim Statistik Timnas basket putra SEA GAMES Myanmar 2013.',
+      'Sertifikat Pelatih Perbasi B. ',
+      'Tim monitoring POMNAS XIII Yogyakarta 2013.',
+      'Aktif bermain di Divisi II Victoria.Kejurnas IEC2012, Libama Div Utama, Campus League 2013.Juara 2 IBS2012, Juara1 KU18 JakTim.',
+      'Debut melatih Victoria KU12-14 sejak th 2012.',
+      'Pembuka ekstra kurikuler baru di salahsatu SD-SMP di Pasar Minggu.',
+      'Konsisten dengan pemanfaatan statistik untuk evaluasi team dan pemain.',
+    ],
+  },
+  {
+    name: 'Abdul Nizar',
+    position: 'Assistant Coach',
+    image: coach4Image,
+    achievements: [
+      'Sarjana Politeknik Swadharma BNI Jakarta.',
+      'Pelatih Sertifikat Perbasi B.',
+      'Aktif bermain di Divisi II Victoria.',
+      'Asisten Pelatih KU12-14 th 2013.  ',
+      'Pelatih Kepala KU12 th 2014-2015-2016.',
+      'Pelatih beberapa sekolah di Jakarta Selatan.',
+    ],
+  },
+])
 const testimonials = ref([
   {
     name: 'Patrick Kluivert',
@@ -27,12 +91,24 @@ const testimonials = ref([
     image: 'https://i.pinimg.com/1200x/c0/73/79/c073794f46ab97ec9e98d91d48f87b41.jpg',
     text: 'Awalnya hanya coba-coba, tapi sekarang jadi semangat latihan setiap minggu. Suasana latihan ramah dan penuh motivasi.',
   },
-])
-
-// Responsive (mobile/tablet/desktop)
-const responsiveOptions = ref([
-  { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-  { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+  {
+    name: 'Patrick Kluivert',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/736x/7c/65/03/7c65036ddbb602fd22ffd243fe147402.jpg',
+    text: 'Pelatihnya sabar banget, teknik dasar jadi lebih mudah dipahami. Anak saya jadi lebih percaya diri saat main basket.',
+  },
+  {
+    name: 'Indra Sjafri',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/736x/c3/f3/ce/c3f3cef6d4e1c9b9db157a6571bfd789.jpg',
+    text: 'Kursus ini benar-benar membantu meningkatkan stamina dan skill anak saya. Latihannya seru dan nggak membosankan.',
+  },
+  {
+    name: 'Gordon Ramsay',
+    role: 'Orang Tua Siswa',
+    image: 'https://i.pinimg.com/1200x/c0/73/79/c073794f46ab97ec9e98d91d48f87b41.jpg',
+    text: 'Awalnya hanya coba-coba, tapi sekarang jadi semangat latihan setiap minggu. Suasana latihan ramah dan penuh motivasi.',
+  },
 ])
 
 const achievements = ref([
@@ -165,16 +241,16 @@ const achievements = ref([
           class="absolute z-20 md:h-full top-1/2 md:translate-y-0 -translate-y-1/2 md:top-0 md:py-0 py-10 md:rounded-none rounded-lg md:w-1/2 w-[90%] md:left-0 left-[5%] bg-gradient-to-r from-white/70 from-80% backdrop-blur-sm px-10"
         >
           <div class="h-full flex flex-col items-start justify-center gap-3 text-black">
-            <p class="text-4xl font-bold font-basketball">Let's Play Basketball</p>
-            <p class="text-xs font-medium font-basketball">
+            <p class="text-5xl font-basketball">Let's Play Basketball</p>
+            <p class="text-xs font-medium font-comicsans">
               Bukan sekedar perkumpulan bola basket biasa, dan tidak hanya sekedar bermain basket,
               kami merupakan komunitas olahraga basket milik bersama setiap insan keluarga besar
               Victoria, untuk menyalurkan bakat dan minat nya serta bersosialisasi dalam semangat
-              kekeluargaan dan sportifitas
+              kekeluargaan dan sportifitas.
             </p>
             <router-link
               :to="{ name: 'register' }"
-              class="bg-piper-600 px-5 shadow-lg py-2 rounded-lg text-white font-medium uppercase font-basketball"
+              class="bg-piper-600 px-5 shadow-lg py-2 rounded-lg text-gray-100 font-medium uppercase font-basketball tracking-widest"
             >
               Bergabung Sekarang
             </router-link>
@@ -189,22 +265,57 @@ const achievements = ref([
       <div class="w-full grid md:grid-cols-2 grid-cols-1 gap-10 p-10 relative z-30 h-full">
         <div class="relative order-2 md:order-1">
           <img :src="spot3" alt="" class="absolute z-20 bottom-0 right-0 w-full opacity-20" />
-          <div class="grid grid-cols-2 grid-rows-2 md:gap-10 gap-5 h-full relative z-20">
-            <div v-for="(item, index) in 4" :key="index" class="relative z-30">
-              <img
-                class="rounded-lg h-full w-full object-cover"
-                src="https://asset.kompas.com/crops/B944QqBLOcgRw4IokyR_Ll41uiQ=/0x0:4732x3155/1200x800/data/photo/2024/06/11/66687618bb34e.jpeg"
+          <div class="grid md:grid-cols-2 grid-rows-2 md:gap-10 gap-5 h-full relative z-20">
+            <div v-for="(item, index) in coachesList" :key="index" class="relative z-30 group">
+              <div class="absolute top-2 left-2 z-20 hidden group-hover:block">
+                <p class="font-medium text-white text-sm">{{ item.name }}</p>
+                <p class="text-xs text-piper-600 font-medium">{{ item.position }}</p>
+              </div>
+              <Image
+                :pt="{
+                  image: {
+                    class: '!rounded-lg h-full w-full object-cover',
+                  },
+                  original: {
+                    class: '!rounded-lg',
+                  },
+                }"
+                preview
+                class="!rounded-lg h-full w-full object-cover"
+                :src="item.image"
                 alt=""
-              />
+              >
+                <template #preview>
+                  <div class="px-3">
+                    <div class="bg-white grid md:grid-cols-2 gap-5 py-5 px-7 max-w-xl rounded-lg">
+                      <div class="flex items-center">
+                        <img :src="item.image" class="rounded-lg" alt="preview" />
+                      </div>
+                      <div>
+                        <p
+                          class="font-basketball text-lg text-rhino-950 tracking-widest border-b pb-1 mb-2 border-gray-300"
+                        >
+                          Pencapaian
+                        </p>
+                        <ul class="list-disc pl-3 text-xs text-gray-700">
+                          <li v-for="(achievements, i) in item?.achievements" :key="i">
+                            <p>{{ achievements }}</p>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </Image>
             </div>
           </div>
         </div>
         <div class="order-1 md:order-2 flex justify-center flex-col h-full text-black">
-          <p class="font-poppins font-bold md:text-4xl text-2xl">
+          <p class="font-basketball tracking-wide font-bold md:text-4xl text-2xl">
             Temui Sosok di Balik <br />
             <span class="text-piper-600">Transformasi</span> Bola Basket
           </p>
-          <p class="font-basketball md:text-sm text-xs mt-5">
+          <p class="font-comicsans md:text-sm text-xs mt-5">
             Para pelatih juga selalu menekankan pentingnya disiplin, konsistensi, dan sportivitas.
             Bagi kami, kemenangan bukan hanya soal skor akhir, tetapi juga hasil dari proses
             panjang, kerja keras, serta dedikasi penuh. Melalui pendekatan yang menyenangkan namun
@@ -219,12 +330,12 @@ const achievements = ref([
     <div class="w-full md:h-[calc(100vh-64px)] bg-gray-100 relative z-10 p-10">
       <div class="md:flex block gap-5 items-center h-full">
         <div class="md:max-w-2/3 w-full space-y-3">
-          <p class="font-poppins font-bold md:text-4xl text-2xl max-w-sm text-black">
+          <p class="font-basketball font-bold md:text-4xl text-2xl max-w-sm text-black">
             Kenapa Harus <span class="text-piper-600">Bergabung</span> Dengan Kami?
           </p>
           <div class="grid md:grid-cols-2 md:grid-rows-2 gap-5">
             <div class="bg-rhino-900 w-full h-24 rounded-lg px-5 py-3">
-              <div class="flex gap-3 h-full">
+              <div class="flex gap-3 h-full items-center">
                 <div class="flex items-center h-full">
                   <div class="bg-white rounded-full p-2 shadow shadow-piper-100">
                     <svg viewBox="0 0 24 24" class="w-7 stroke-piper-600 fill-none">
@@ -240,17 +351,17 @@ const achievements = ref([
                   </div>
                 </div>
                 <div>
-                  <p class="text-white font-basketball">
+                  <p class="text-white font-comicsans">
                     <span class="text-piper-600 font-bold">52</span> Tahun Pengalaman
                   </p>
-                  <p class="text-xs text-gray-300">
+                  <p class="text-[10px] font-comicsans text-gray-300">
                     Sejak 1972, kami konsisten membina dan mengembangkan bakat basket.
                   </p>
                 </div>
               </div>
             </div>
             <div class="bg-rhino-900 w-full h-24 rounded-lg px-5 py-3">
-              <div class="flex gap-3 h-full">
+              <div class="flex gap-3 h-full items-center">
                 <div class="flex items-center h-full">
                   <div class="bg-white rounded-full p-2 shadow shadow-piper-100">
                     <svg viewBox="0 0 32 32" class="w-7 fill-piper-600">
@@ -264,17 +375,17 @@ const achievements = ref([
                   </div>
                 </div>
                 <div>
-                  <p class="text-white font-basketball">
+                  <p class="text-white font-comicsans">
                     <span class="text-piper-600 font-bold">76</span> Trofi
                   </p>
-                  <p class="text-xs text-gray-300">
+                  <p class="text-[10px] font-comicsans text-gray-300">
                     Pencapaian luar biasa hingga tahun 2023, bukti nyata kualitas pembinaan.
                   </p>
                 </div>
               </div>
             </div>
             <div class="bg-rhino-900 w-full h-24 rounded-lg px-5 py-3">
-              <div class="flex gap-3 h-full">
+              <div class="flex gap-3 h-full items-center">
                 <div class="flex items-center h-full">
                   <div class="bg-white rounded-full p-2 shadow shadow-piper-100">
                     <svg viewBox="0 0 16 16" class="w-7 fill-piper-600">
@@ -304,17 +415,17 @@ const achievements = ref([
                   </div>
                 </div>
                 <div>
-                  <p class="text-white font-basketball">
+                  <p class="text-white font-comicsans">
                     <span class="text-piper-600 font-bold">7</span> Kelas Pembinaan
                   </p>
-                  <p class="text-xs text-gray-300">
+                  <p class="text-[10px] font-comicsans text-gray-300">
                     Mulai dari U8 hingga Senior, sesuai jenjang usia dan kemampuan.
                   </p>
                 </div>
               </div>
             </div>
             <div class="bg-rhino-900 w-full h-24 rounded-lg px-5 py-3">
-              <div class="flex gap-3 h-full">
+              <div class="flex gap-3 h-full items-center">
                 <div class="flex items-center h-full">
                   <div class="bg-white rounded-full p-2 shadow shadow-piper-100">
                     <svg viewBox="0 0 197.667 197.667" class="w-7 fill-piper-600">
@@ -333,10 +444,10 @@ const achievements = ref([
                   </div>
                 </div>
                 <div>
-                  <p class="text-white font-basketball">
+                  <p class="text-white font-comicsans">
                     <span class="text-piper-600 font-bold">12</span> Coaches
                   </p>
-                  <p class="text-xs text-gray-300">
+                  <p class="text-[10px] font-comicsans text-gray-300">
                     Didukung 7 pelatih senior dan 5 junior yang berpengalaman.
                   </p>
                 </div>
@@ -357,9 +468,9 @@ const achievements = ref([
     <!-- Section 4 -->
     <div class="w-full md:min-h-[calc(100vh-64px)] bg-noise relative z-10 p-10">
       <p
-        class="text-center font-poppins font-bold md:text-4xl text-2xl text-black border-b-2 w-min mx-auto whitespace-nowrap border-piper-600"
+        class="text-center font-basketball tracking-widest font-bold md:text-4xl text-2xl text-black border-b-2 w-min mx-auto whitespace-nowrap border-piper-600"
       >
-        Visi & <span class="text-piper-600">Misi</span>
+        Visi <span class="font-poppins">&</span> <span class="text-piper-600">Misi</span>
       </p>
       <div class="grid md:grid-cols-3 mt-5 gap-5 h-full">
         <div class="space-y-5 h-full">
@@ -417,7 +528,7 @@ const achievements = ref([
             <p class="text-2xl text-piper-600 font-bold tracking-widest font-basketball">VISI</p>
           </div>
           <div class="bg-white w-full min-h-20 md:h-full md:max-h-52 rounded-lg shadow-lg p-5">
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-sm font-comicsans">
               Menjadikan pembinaan pemain muda dan usia dini sebagai fondasi utama dalam
               pengembangan basket. Kami percaya bahwa mencetak generasi penerus yang memiliki
               keterampilan, kedisiplinan, dan semangat sportivitas sejak awal merupakan langkah
@@ -446,7 +557,7 @@ const achievements = ref([
             <p class="text-2xl text-piper-600 font-bold tracking-widest font-basketball">MISI</p>
           </div>
           <div class="bg-white w-full min-h-20 md:h-full md:max-h-52 rounded-lg shadow-lg p-5">
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-sm font-comicsans">
               Sejak tahun 1972, kami konsisten aktif berkompetisi di berbagai ajang dan terus
               berupaya menghadirkan prestasi demi prestasi. Semangat inilah yang menjadi misi kami
               untuk selalu menjaga eksistensi serta memberikan kontribusi nyata bagi perkembangan
@@ -469,11 +580,11 @@ const achievements = ref([
               </svg>
             </div>
             <p class="text-2xl text-piper-600 font-bold tracking-widest font-basketball">
-              TIPS & TRICK
+              TIPS <span class="font-poppins">&</span> TRICK
             </p>
           </div>
           <div class="bg-white w-full min-h-20 md:h-full md:max-h-52 rounded-lg shadow-lg p-5">
-            <p class="text-gray-600 text-sm">
+            <p class="text-gray-600 text-sm font-comicsans">
               Selain itu, kami juga berkomitmen untuk berbagi pengalaman dan informasi melalui tips
               serta trik yang dapat membantu meningkatkan kemampuan bermain basket. Dengan saling
               mendukung dan berbagi pengetahuan, kami ingin menciptakan lingkungan yang positif,
@@ -488,46 +599,52 @@ const achievements = ref([
     <!-- Section 5 - Testimoni -->
     <div class="w-full md:min-h-[calc(100vh-64px)] bg-gray-100 relative z-10 py-16 px-6">
       <div class="max-w-6xl mx-auto text-center">
-        <h2 class="text-3xl font-bold text-rhino-900 font-basketball mb-4">Testimoni</h2>
-        <div class="w-24 h-1 bg-piper-600 mx-auto rounded-full"></div>
-        <p class="text-gray-600 max-w-2xl mx-auto mb-12 mt-6">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt
-          ut labore et dolore magna aliqua.
-        </p>
+        <h2
+          class="text-2xl md:text-4xl font-bold font-basketball tracking-widest border-b-2 border-piper-600 w-min mx-auto mb-4"
+        >
+          Testimoni
+        </h2>
 
         <Carousel
           :value="testimonials"
           :numVisible="3"
           :numScroll="1"
-          :responsiveOptions="responsiveOptions"
-          circular
+          :responsiveOptions="[
+            { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+            { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+          ]"
           autoplayInterval="5000"
           class="px-4"
+          :show-navigators="false"
         >
           <template #item="slotProps">
-            <div
-              class="relative bg-white shadow-xl border border-gray-200 rounded-xl p-6 pt-16 mx-3"
-            >
-              <div class="flex justify-center -mt-14">
-                <img
-                  :src="slotProps.data.image"
-                  :alt="slotProps.data.name"
-                  class="w-20 h-20 object-cover rounded-full border-4 border-white shadow-lg"
-                />
-              </div>
-              <div class="mt-2">
-                <h3 class="font-semibold text-gray-900">{{ slotProps.data.name }}</h3>
-                <p class="text-sm text-gray-500">{{ slotProps.data.role }}</p>
-              </div>
-              <div class="mt-8">
-                <div class="flex justify-center mb-4">
-                  <div class="w-12 h-12 rounded-full bg-piper-500 flex items-center justify-center">
-                    <span class="font-bold text-black text-3xl mt-2">“</span>
-                  </div>
+            <div class="pb-9 h-full">
+              <div
+                class="relative bg-white shadow-xl border border-gray-200 rounded-xl p-6 pt-16 h-full md:mx-3"
+              >
+                <div class="flex justify-center -mt-14">
+                  <img
+                    :src="slotProps.data.image"
+                    :alt="slotProps.data.name"
+                    class="w-20 h-20 object-cover rounded-full border-4 border-white shadow-lg"
+                  />
                 </div>
-                <p class="text-gray-700 mt-6">
-                  {{ slotProps.data.text }}
-                </p>
+                <div class="mt-2">
+                  <h3 class="font-semibold text-gray-900">{{ slotProps.data.name }}</h3>
+                  <p class="text-sm text-gray-500">{{ slotProps.data.role }}</p>
+                </div>
+                <div class="mt-8">
+                  <div class="flex justify-center mb-4">
+                    <div
+                      class="w-12 h-12 rounded-full bg-piper-500 flex items-center justify-center"
+                    >
+                      <span class="font-bold text-black text-3xl mt-2">“</span>
+                    </div>
+                  </div>
+                  <p class="text-gray-700 mt-6 font-comicsans text-sm">
+                    {{ slotProps.data.text }}
+                  </p>
+                </div>
               </div>
             </div>
           </template>
@@ -536,57 +653,60 @@ const achievements = ref([
     </div>
 
     <!-- Section 6 - Prestasi -->
-    <div class="w-full bg-noise relative z-10 py-16 px-4 md:px-10">
-      <div class="max-w-6xl mx-auto text-center">
-        <h2 class="text-3xl md:text-5xl font-extrabold text-rhino-900 font-basketball mb-3 md:mb-4">
-          Prestasi
-        </h2>
-        <div class="w-20 md:w-32 h-1.5 bg-piper-600 rounded mx-auto mb-10 md:mb-16"></div>
+    <div class="px-5 bg-gray-100">
+      <div class="w-full bg-noise relative z-10 md:pt-16 pt-8 pb-8 px-4 md:px-10 rounded-xl">
+        <div class="max-w-6xl mx-auto text-center">
+          <h2
+            class="text-2xl md:text-4xl font-extrabold font-basketball mb-3 md:mb-4 border-b-2 border-piper-600 w-min mx-auto"
+          >
+            Prestasi
+          </h2>
 
-        <Carousel
-          :value="achievements"
-          :numVisible="2"
-          :numScroll="1"
-          :responsiveOptions="[
-            { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
-            { breakpoint: '768px', numVisible: 1, numScroll: 1 },
-          ]"
-          circular
-          autoplayInterval="5000"
-          class="px-2 sm:px-4"
-        >
-          <template #item="slotProps">
-            <div
-              class="relative group bg-white border border-gray-200 rounded-xl sm:rounded-2xl p-5 sm:p-8 shadow-md hover:shadow-xl transition duration-300 overflow-hidden text-left h-full flex flex-col mx-2 sm:mx-3"
-            >
-              <div
-                class="absolute inset-0 rounded-xl sm:rounded-2xl border-2 border-transparent bg-gradient-to-r from-piper-400/20 to-piper-600/20 opacity-0 group-hover:opacity-100 transition"
-              ></div>
-
-              <div class="relative flex items-start gap-4 sm:gap-6">
+          <Carousel
+            :value="achievements"
+            :numVisible="2"
+            :numScroll="1"
+            :responsiveOptions="[
+              { breakpoint: '1024px', numVisible: 2, numScroll: 1 },
+              { breakpoint: '768px', numVisible: 1, numScroll: 1 },
+            ]"
+            autoplayInterval="5000"
+            class="px-2 sm:px-4"
+            :show-navigators="false"
+          >
+            <template #item="slotProps">
+              <div class="pb-10 h-full">
                 <div
-                  class="flex-shrink-0 w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-yellow-100 flex items-center justify-center shadow-inner"
-                  v-html="slotProps.data.icon"
-                />
-                <div>
-                  <h3
-                    class="text-lg sm:text-2xl font-bold text-rhino-900 flex items-center gap-2 sm:gap-3"
-                  >
-                    {{ slotProps.data.title }}
-                    <span
-                      class="text-xs sm:text-sm font-medium text-piper-600 bg-yellow-100 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full"
-                    >
-                      {{ slotProps.data.year }}
-                    </span>
-                  </h3>
-                  <p class="text-gray-600 mt-2 sm:mt-3 leading-relaxed text-sm sm:text-base">
-                    {{ slotProps.data.desc }}
-                  </p>
+                  class="relative group bg-white border border-gray-200 rounded-xl md:rounded-2xl p-5 md:p-8 shadow-md hover:shadow-xl transition duration-300 overflow-hidden text-left h-full flex flex-col mx-2 md:mx-3"
+                >
+                  <div class="relative flex items-start gap-4 md:gap-6">
+                    <div
+                      class="flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-lg md:rounded-xl bg-yellow-100 flex items-center justify-center shadow-inner"
+                      v-html="slotProps.data.icon"
+                    />
+                    <div>
+                      <h3
+                        class="text-sm md:text-2xl font-bold text-rhino-900 flex items-start justify-between gap-2 md:gap-3"
+                      >
+                        <p class="text-sm md:text-xl">
+                          {{ slotProps.data.title }}
+                        </p>
+                        <span
+                          class="!text-[8px] md:text-sm font-medium text-piper-600 bg-yellow-100 px-2 py-0.5 md:px-3 md:py-1 rounded-full"
+                        >
+                          {{ slotProps.data.year }}
+                        </span>
+                      </h3>
+                      <p class="text-gray-600 mt-2 md:mt-3 leading-4 text-xs md:text-base">
+                        {{ slotProps.data.desc }}
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
-          </template>
-        </Carousel>
+            </template>
+          </Carousel>
+        </div>
       </div>
     </div>
 
@@ -668,8 +788,8 @@ const achievements = ref([
               alt="KU 8-12"
               class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
             />
-            <h3 class="text-2xl font-bold mb-2 text-black">KU 8 - 10 - 12</h3>
-            <p class="text-gray-700 text-lg leading-relaxed">
+            <h3 class="text-lg md:text-2xl font-bold mb-2 text-black">KU 8 - 10 - 12</h3>
+            <p class="text-gray-700 text-sm md:text-lg leading-relaxed">
               Putera dan puteri dari usia 7-12 tahun<br />
               Lap Basket Antam<br />
               Kamis, Jumat, Sabtu & Minggu
@@ -682,8 +802,8 @@ const achievements = ref([
               alt="KU 14-16"
               class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
             />
-            <h3 class="text-2xl font-bold mb-2 text-black">KU 14 - 16</h3>
-            <p class="text-gray-700 text-lg leading-relaxed">
+            <h3 class="text-lg md:text-2xl font-bold mb-2 text-black">KU 14 - 16</h3>
+            <p class="text-gray-700 text-sm md:text-lg leading-relaxed">
               Putera dan puteri dari usia 13-16 tahun<br />
               Lap Basket Antam<br />
               Kamis, Jumat, Sabtu & Minggu
@@ -696,8 +816,8 @@ const achievements = ref([
               alt="KU 18 Divisi 2"
               class="w-48 h-48 object-cover rounded-full shadow-lg mb-6"
             />
-            <h3 class="text-2xl font-bold mb-2 text-black">KU 18 - Divisi 2</h3>
-            <p class="text-gray-700 text-lg leading-relaxed">
+            <h3 class="text-lg md:text-2xl font-bold mb-2 text-black">KU 18 - Divisi 2</h3>
+            <p class="text-gray-700 text-sm md:text-lg leading-relaxed">
               Putera dan puteri dari usia 17-30 tahun<br />
               Lap Basket Antam<br />
               Jumat, Sabtu & Minggu
@@ -712,25 +832,24 @@ const achievements = ref([
       <div class="max-w-7xl mx-auto">
         <div class="text-center mb-12">
           <h2
-            class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-rhino-900 font-basketball"
+            class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-rhino-900 font-basketball border-b-2 w-min mx-auto border-piper-600 whitespace-nowrap"
           >
             Hubungi Kami
           </h2>
-          <div class="w-20 sm:w-24 h-1 bg-piper-600 mx-auto mt-6 rounded-full"></div>
-          <p class="mt-4 text-base sm:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p class="mt-2 text-xs md:text-base text-gray-600 max-w-2xl mx-auto">
             Ada pertanyaan atau butuh bantuan? Jangan ragu untuk menghubungi kami.
           </p>
         </div>
 
         <div class="flex flex-col md:flex-row md:justify-between gap-y-12 md:gap-x-12 items-start">
-          <div class="md:w-5/12 space-y-10">
+          <div class="md:w-5/12 w-full md:space-y-5 space-y-3">
             <div class="flex items-start gap-5">
               <div
-                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+                class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  class="w-4 h-4 md:w-5 md:h-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -740,18 +859,18 @@ const achievements = ref([
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Atas Nama</h3>
-                <p class="text-base sm:text-lg text-gray-600">Erfan Bachtiar</p>
+                <h3 class="text-base md:text-lg font-bold text-gray-900">Atas Nama</h3>
+                <p class="text-sm md:text-base text-gray-600">Erfan Bachtiar</p>
               </div>
             </div>
 
             <div class="flex items-start gap-5">
               <div
-                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+                class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  class="w-4 h-4 md:w-5 md:h-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -763,18 +882,18 @@ const achievements = ref([
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Email</h3>
-                <p class="text-base sm:text-lg text-gray-600">victoria.basketballclub@gmail.com</p>
+                <h3 class="text-base md:text-lg font-bold text-gray-900">Email</h3>
+                <p class="text-sm md:text-base text-gray-600">victoria.basketballclub@gmail.com</p>
               </div>
             </div>
 
             <div class="flex items-start gap-5">
               <div
-                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+                class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  class="w-6 h-6 sm:w-7 sm:h-7"
+                  class="w-4 h-4 md:w-5 md:h-5"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -784,14 +903,14 @@ const achievements = ref([
                 </svg>
               </div>
               <div>
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Whatsapp</h3>
-                <p class="text-base sm:text-lg text-gray-600">+62 816 781 026</p>
+                <h3 class="text-base md:text-lg font-bold text-gray-900">Whatsapp</h3>
+                <p class="text-sm md:text-base text-gray-600">+62 816 781 026</p>
               </div>
             </div>
 
             <div class="flex items-start gap-5">
               <div
-                class="flex items-center justify-center w-12 h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
+                class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#CC6633]/10 text-piper-600 flex-shrink-0"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -805,8 +924,8 @@ const achievements = ref([
                 </svg>
               </div>
               <div class="max-w-md">
-                <h3 class="text-lg sm:text-xl font-bold text-gray-900">Alamat</h3>
-                <p class="text-base sm:text-lg text-gray-600 leading-relaxed">
+                <h3 class="text-base md:text-lg font-bold text-gray-900">Alamat</h3>
+                <p class="text-sm md:text-base text-gray-600">
                   GOR Basket Gedung Antam, Jl. TB Simatupang Jl. KH. Guru Amin,<br />
                   RT.9/RW.7, West Tanjung, Jagakarsa,<br />
                   South Jakarta City, Jakarta 12550
@@ -815,7 +934,7 @@ const achievements = ref([
             </div>
           </div>
 
-          <div class="md:w-7/12">
+          <div class="md:w-7/12 w-full">
             <form class="bg-white shadow-md rounded-xl p-6 space-y-4 border border-gray-100 w-full">
               <div>
                 <label class="block text-sm font-semibold mb-1 text-gray-800">Nama Lengkap</label>

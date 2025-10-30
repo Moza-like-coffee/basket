@@ -27,7 +27,22 @@ const selectedKU = ref(null)
 const filteredMembers = ref([])
 const selectAllChecked = ref(false)
 
-// Fungsi utama untuk menghitung KU dari data
+async function fetchData() {
+  datas.value = trainingStore.datas
+
+  members.value = memberStore.datas.filter((member) => member.status === 'active')
+  availableKUs.value = getAvailableKUs(members.value)
+}
+
+onMounted(async () => {
+  loading.value = true
+  const withVariable = 'file'
+  await trainingStore.get()
+  await memberStore.getByParentId(withVariable)
+  loading.value = false
+  fetchData()
+})
+
 function calculateAgeGroup(dateOfBirth) {
   if (dateOfBirth) {
     const thisYear = new Date().getFullYear()
@@ -39,7 +54,6 @@ function calculateAgeGroup(dateOfBirth) {
   }
 }
 
-// Fungsi universal untuk mendapatkan KU dari berbagai tipe data
 function getKUsFromData(data, dataType = 'member') {
   if (!data || data.length === 0) {
     return '-'
@@ -59,21 +73,17 @@ function getKUsFromData(data, dataType = 'member') {
   return kus.length > 0 ? kus.join(', ') : '-'
 }
 
-// Fungsi untuk mendapatkan available KUs dari data member
 function getAvailableKUs(membersData) {
   const kusString = getKUsFromData(membersData, 'member')
   if (kusString === '-') return []
 
-  // Convert string to array and ensure it's properly formatted
   return kusString.split(',').map((ku) => ku.trim())
 }
 
-// Fungsi untuk mendapatkan KUs dari data member
 function getMemberKUs(members) {
   return getKUsFromData(members, 'member')
 }
 
-// Filter member berdasarkan KU yang dipilih
 function filterMembersByKU(ku) {
   if (!ku) {
     filteredMembers.value = []
@@ -85,17 +95,13 @@ function filterMembersByKU(ku) {
     return memberKU === parseInt(ku)
   })
 
-  // Reset select all ketika filter berubah
   selectAllChecked.value = false
 }
 
-// Fungsi untuk select all / deselect all
 function toggleSelectAll() {
   if (selectAllChecked.value) {
-    // Select all members
     form.value.member_ids = filteredMembers.value.map((member) => member.id)
   } else {
-    // Deselect all members
     form.value.member_ids = []
   }
 }
@@ -117,33 +123,6 @@ watch(
   { deep: true },
 )
 
-// Ambil data training
-async function getData() {
-  datas.value = trainingStore.datas
-}
-
-// Ambil data member
-async function getMembers() {
-  try {
-    const withVariable = 'file'
-    await memberStore.getByParentId(withVariable)
-    // Filter hanya member dengan status aktif
-    members.value = memberStore.datas.filter((member) => member.status === 'active')
-    availableKUs.value = getAvailableKUs(members.value)
-  } catch (error) {
-    console.error('Error fetching members:', error)
-  }
-}
-
-// Lifecycle
-onMounted(async () => {
-  loading.value = true
-  await Promise.all([trainingStore.get(), getMembers()])
-  loading.value = false
-  getData()
-})
-
-// Dialog functions
 function openDialog(item = null) {
   form.value = item
     ? { ...item }
@@ -154,10 +133,10 @@ function openDialog(item = null) {
         member_ids: [],
       }
   selectedKU.value = item?.ku || null
+
   visible.value = true
   selectAllChecked.value = false
 
-  // Jika edit, filter member berdasarkan KU yang sudah ada
   if (item?.ku) {
     filterMembersByKU(item.ku)
 
@@ -188,15 +167,8 @@ function onKUChange(ku) {
 }
 
 async function saveSchedule() {
-  if (!form.value.title || !form.value.date || !form.value.ku) {
-    return toast.add({
-      severity: 'error',
-      summary: 'Silahkan lengkapi terlebih dahulu.',
-      life: 3000,
-    })
-  }
-
   saving.value = true
+
   try {
     const payload = {
       title: form.value.title,
@@ -246,7 +218,6 @@ const formatDate = (dateString) => {
   })
 }
 
-// Computed untuk menampilkan maksimal 3 nama member
 const getLimitedMemberNames = computed(() => {
   if (!form.value?.member_ids?.length) return []
 
@@ -390,6 +361,8 @@ const getSelectedMemberNames = computed(() => {
       v-model:visible="visible"
       :header="form?.id ? 'Edit Jadwal Latihan' : 'Tambah Jadwal Latihan'"
       modal
+      dismissableMask
+      v-on:hide="closeDialog"
       class="w-full max-w-2xl"
       :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
       :pt="{
@@ -397,178 +370,183 @@ const getSelectedMemberNames = computed(() => {
         content: { class: 'pt-4' },
       }"
     >
-      <div class="space-y-4">
-        <!-- Judul Jadwal -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Judul Jadwal <span class="text-red-500">*</span>
-          </label>
-          <input
-            v-model="form.title"
-            class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-            placeholder="Masukkan Judul"
-          />
-        </div>
-
-        <!-- Tanggal -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Tanggal <span class="text-red-500">*</span>
-          </label>
-          <input
-            v-model="form.date"
-            class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-            type="date"
-          />
-        </div>
-
-        <!-- KU Selection -->
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">
-            Kelompok Umur (KU) <span class="text-red-500">*</span>
-          </label>
-          <Dropdown
-            v-model="selectedKU"
-            :options="availableKUs"
-            placeholder="Pilih KU"
-            class="w-full"
-            @change="onKUChange($event.value)"
-            :pt="{
-              root: {
-                class:
-                  'w-full h-9 flex items-center border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500 !rounded-lg',
-              },
-              input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
-              trigger: { class: 'bg-transparent pr-2' },
-              label: {
-                class: '!text-sm',
-              },
-              option: {
-                class: '!text-sm',
-              },
-            }"
-          >
-            <template #value="slotProps">
-              <span v-if="slotProps.value">{{ slotProps.value }}</span>
-              <span v-else class="text-gray-400">Pilih KU</span>
-            </template>
-            <template #option="slotProps">
-              <span>{{ slotProps.option }}</span>
-            </template>
-          </Dropdown>
-          <p class="text-xs text-gray-500 mt-1">
-            Pilih Kelompok Umur untuk menampilkan daftar member
-          </p>
-        </div>
-
-        <!-- Member Selection -->
-        <div v-if="selectedKU">
-          <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>
-
-          <!-- Select All Checkbox -->
-          <div
-            v-if="filteredMembers.length > 0"
-            class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
-          >
-            <div class="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                id="select-all"
-                v-model="selectAllChecked"
-                @change="toggleSelectAll"
-                class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
-              />
-              <label for="select-all" class="flex-1 text-sm font-medium cursor-pointer">
-                <span class="text-rhino-800">Pilih Semua Member</span>
-                <span class="text-gray-500 text-xs ml-2"
-                  >({{ filteredMembers.length }} member aktif tersedia)</span
-                >
-              </label>
-            </div>
+      <form @submit.prevent="saveSchedule">
+        <div class="space-y-4">
+          <!-- Judul Jadwal -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Judul Jadwal <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.title"
+              class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+              placeholder="Masukkan Judul"
+              required
+            />
           </div>
 
-          <div class="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
-            <div v-if="filteredMembers.length === 0" class="text-center text-gray-500 py-4">
-              <i class="fa-solid fa-users-slash text-xl mb-2"></i>
-              <p class="text-sm">Tidak ada member aktif untuk KU {{ selectedKU }}</p>
-            </div>
-            <div v-else class="space-y-2">
-              <div
-                v-for="member in filteredMembers"
-                :key="member.id"
-                class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
-              >
+          <!-- Tanggal -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Tanggal <span class="text-red-500">*</span>
+            </label>
+            <input
+              v-model="form.date"
+              class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+              type="date"
+              required
+            />
+          </div>
+
+          <!-- KU Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+              Kelompok Umur (KU) <span class="text-red-500">*</span>
+            </label>
+            <Dropdown
+              v-model="selectedKU"
+              :options="availableKUs"
+              placeholder="Pilih KU"
+              class="w-full"
+              @change="onKUChange($event.value)"
+              :pt="{
+                root: {
+                  class:
+                    'w-full h-9 flex items-center border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500 !rounded-lg',
+                },
+                input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
+                trigger: { class: 'bg-transparent pr-2' },
+                label: {
+                  class: '!text-sm',
+                },
+                option: {
+                  class: '!text-sm',
+                },
+              }"
+            >
+              <template #value="slotProps">
+                <span v-if="slotProps.value">{{ slotProps.value }}</span>
+                <span v-else class="text-gray-400">Pilih KU</span>
+              </template>
+              <template #option="slotProps">
+                <span>{{ slotProps.option }}</span>
+              </template>
+            </Dropdown>
+            <p class="text-xs text-gray-500 mt-1">
+              Pilih Kelompok Umur untuk menampilkan daftar member
+            </p>
+          </div>
+
+          <!-- Member Selection -->
+          <div v-if="selectedKU">
+            <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>
+
+            <!-- Select All Checkbox -->
+            <div
+              v-if="filteredMembers.length > 0"
+              class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <div class="flex items-center space-x-3">
                 <input
                   type="checkbox"
-                  :id="`member-${member.id}`"
-                  :value="member.id"
-                  v-model="form.member_ids"
+                  id="select-all"
+                  v-model="selectAllChecked"
+                  @change="toggleSelectAll"
                   class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
                 />
-                <label :for="`member-${member.id}`" class="flex-1 text-sm cursor-pointer">
-                  <div class="font-medium">{{ member.name }}</div>
-                  <div class="text-xs text-gray-500">
-                    {{ member.gender }} • Status:
-                    <span class="text-green-600 font-medium">Aktif</span>
-                  </div>
+                <label for="select-all" class="flex-1 text-sm font-medium cursor-pointer">
+                  <span class="text-rhino-800">Pilih Semua Member</span>
+                  <span class="text-gray-500 text-xs ml-2"
+                    >({{ filteredMembers.length }} member aktif tersedia)</span
+                  >
                 </label>
+              </div>
+            </div>
+
+            <div class="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
+              <div v-if="filteredMembers.length === 0" class="text-center text-gray-500 py-4">
+                <i class="fa-solid fa-users-slash text-xl mb-2"></i>
+                <p class="text-sm">Tidak ada member aktif untuk KU {{ selectedKU }}</p>
+              </div>
+              <div v-else class="space-y-2">
+                <div
+                  v-for="member in filteredMembers"
+                  :key="member.id"
+                  class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
+                >
+                  <input
+                    type="checkbox"
+                    :id="`member-${member.id}`"
+                    :value="member.id"
+                    v-model="form.member_ids"
+                    class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
+                  />
+                  <label :for="`member-${member.id}`" class="flex-1 text-sm cursor-pointer">
+                    <div class="font-medium">{{ member.name }}</div>
+                    <div class="text-xs text-gray-500">
+                      {{ member.gender }} • Status:
+                      <span class="text-green-600 font-medium">Aktif</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div v-if="form.member_ids?.length" class="mt-2 p-3 bg-piper-200 rounded-lg">
+              <p class="text-sm font-medium text-rhino-800 mb-2">
+                Terpilih: {{ form.member_ids.length }} dari {{ filteredMembers.length }} member
+                aktif
+              </p>
+
+              <!-- Tampilkan maksimal 3 nama member, sisanya dalam tooltip -->
+              <div class="flex flex-wrap gap-1">
+                <span
+                  v-for="member in getLimitedMemberNames"
+                  :key="member.id"
+                  class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
+                >
+                  {{ member.name }}
+                </span>
+
+                <!-- Tampilkan indikator jika ada member lebih dari 3 -->
+                <span
+                  v-if="getSelectedMemberNames.length > 3"
+                  v-tooltip="{
+                    value: getRemainingMemberNames,
+                    showDelay: 500,
+                    hideDelay: 300,
+                  }"
+                  class="text-xs bg-piper-300 text-rhino-800 px-2 py-1 rounded-full border border-piper-400 cursor-help"
+                >
+                  +{{ getSelectedMemberNames.length - 3 }} lainnya
+                </span>
               </div>
             </div>
           </div>
 
-          <div v-if="form.member_ids?.length" class="mt-2 p-3 bg-piper-200 rounded-lg">
-            <p class="text-sm font-medium text-rhino-800 mb-2">
-              Terpilih: {{ form.member_ids.length }} dari {{ filteredMembers.length }} member aktif
-            </p>
-
-            <!-- Tampilkan maksimal 3 nama member, sisanya dalam tooltip -->
-            <div class="flex flex-wrap gap-1">
-              <span
-                v-for="member in getLimitedMemberNames"
-                :key="member.id"
-                class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
-              >
-                {{ member.name }}
-              </span>
-
-              <!-- Tampilkan indikator jika ada member lebih dari 3 -->
-              <span
-                v-if="getSelectedMemberNames.length > 3"
-                v-tooltip="{
-                  value: getRemainingMemberNames,
-                  showDelay: 500,
-                  hideDelay: 300,
-                }"
-                class="text-xs bg-piper-300 text-rhino-800 px-2 py-1 rounded-full border border-piper-400 cursor-help"
-              >
-                +{{ getSelectedMemberNames.length - 3 }} lainnya
-              </span>
-            </div>
+          <!-- Action Buttons -->
+          <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <button
+              :disabled="saving"
+              type="button"
+              class="text-sm bg-gray-200 rounded-lg px-5 py-2 font-medium cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              :disabled="saving"
+              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34 font-medium flex items-center gap-2 justify-center"
+            >
+              <i v-if="saving" class="fa-solid fa-spinner fa-spin"></i>
+              <i v-else class="fa-solid fa-check"></i>
+              <p>
+                {{ saving ? 'Menyimpan...' : form?.id ? 'Update' : 'Simpan' }}
+              </p>
+            </button>
           </div>
         </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
-          <button
-            @click="closeDialog"
-            :disabled="saving"
-            class="text-sm bg-gray-200 rounded-lg px-5 py-2 font-medium cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34"
-          >
-            Batal
-          </button>
-          <button
-            @click="saveSchedule"
-            :disabled="saving"
-            class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg w-34 font-medium flex items-center gap-2 justify-center"
-          >
-            <i v-if="saving" class="fa-solid fa-spinner fa-spin"></i>
-            <i v-else class="fa-solid fa-check"></i>
-            <p>
-              {{ saving ? 'Menyimpan...' : form?.id ? 'Update' : 'Simpan' }}
-            </p>
-          </button>
-        </div>
-      </div>
+      </form>
     </Dialog>
   </CoachLayouts>
 </template>

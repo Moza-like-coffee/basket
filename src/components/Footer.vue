@@ -1,11 +1,15 @@
-<script setup></script>
+<script setup>
+import Logo from '@/assets/images/logo.png'
+</script>
 <template>
   <div class="bg-rhino-900 w-full min-h-20 max-w-7xl mx-auto px-10 pt-10">
-    <div class="flex md:flex-row flex-col w-full gap-5">
+    <div class="flex justify-center flex-col w-full gap-5">
       <div>
         <div class="flex flex-col gap-3">
           <div class="flex justify-center">
-            <div class="bg-white w-20 h-20 rounded-full"></div>
+            <div class="bg-white w-20 h-20 rounded-full p-2">
+              <img :src="Logo" alt="" />
+            </div>
           </div>
           <div class="flex gap-2 justify-center items-center">
             <svg
@@ -78,7 +82,7 @@
       </div>
     </div>
     <div class="w-full border-t mt-5 py-2 border-gray-500">
-      <p class="text-center text-white text-xs font-basketball font-light">
+      <p class="text-center text-white text-xs font-basketball font-light tracking-widest">
         © 2025 BRANDS. All Rights Reserved.
       </p>
     </div>
