@@ -358,8 +358,6 @@ router.beforeEach((to, from, next) => {
       const allowedRoles = to.meta.allowedRoles
 
       if (allowedRoles && !allowedRoles.includes(userRole)) {
-        console.log('Akses ditolak: role tidak sesuai')
-
         if (userRole === 'admin') {
           return next({ name: 'admin.dashboard' })
         } else if (userRole === 'coach') {
@@ -367,6 +365,7 @@ router.beforeEach((to, from, next) => {
         } else {
           return next({ name: 'dashboard' })
         }
+        console.log('Akses ditolak: role tidak sesuai')
       }
 
       return next()
