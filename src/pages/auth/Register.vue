@@ -31,7 +31,7 @@ async function submit() {
           <div class="w-full -mt-4 space-y-2">
             <div class="text-center mt-10">
               <h1 class="text-3xl font-bold text-rhino-950 font-basketball">Daftar</h1>
-              <p class="text-xs text-gray-400 font-basketball mt-1">
+              <p class="text-xs text-gray-400 font-comicsans mt-1">
                 Buat Akun untuk mendapatkan akses ke Aplikasi.
               </p>
             </div>

@@ -24,7 +24,13 @@ const totalAmount = computed(() => {
 
 async function fetchData() {
   datas.value = billStore.datas.filter((data) => {
-    return data.status == 'UNPAID'
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
+
+    const dueDate = new Date(data.due_date)
+    dueDate.setHours(0, 0, 0, 0)
+
+    return data.status === 'UNPAID' && dueDate >= today
   })
   payment.value = paymentStore.datas.filter((data) => {
     return data.status == 'UNPAID' || data.status == 'PENDING'

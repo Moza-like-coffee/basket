@@ -14,7 +14,7 @@ const route = useRoute()
       >
         <div
           :class="route?.name == 'register' ? 'w-[50%]' : 'w-[55%]'"
-          class="flex-none flex items-center justify-center rounded-xl border border-black bg-hexagon relative"
+          class="flex-none md:flex items-center justify-center rounded-xl border border-black bg-hexagon relative hidden"
         >
           <div class="absolute left-3 top-3 z-30">
             <router-link :to="{ name: 'welcome' }">
