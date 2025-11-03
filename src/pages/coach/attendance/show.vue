@@ -33,8 +33,7 @@ const showQRScanner = ref(false)
 const qrError = ref('')
 
 const selectedMember = ref(null)
-const formStatus = ref('present')
-const formReason = ref('')
+const form = ref({ member: null, status: 'present', reason: '' })
 
 // qr scanner state
 const scanResult = ref(null)
@@ -149,46 +148,46 @@ const filters = ref({
 })
 
 function openAttendanceModal(member) {
-  selectedMember.value = member
-  formStatus.value =
-    member.status === 'Hadir' ? 'present' : member.status === 'Tidak Hadir' ? 'absent' : 'present'
-  formReason.value = member.reason !== '-' ? member.reason : ''
-  showModal.value = true
+    selectedMember.value = member
+    form.value = {
+        member: member,
+        status: member.status === 'Hadir' ? 'present' : member.status === 'Tidak Hadir' ? 'absent' : 'present',
+        reason: member.reason !== '-' ? member.reason : ''
+    }
+    showModal.value = true
 }
 
 async function saveManualAttendance() {
-  if (formStatus.value === 'absent' && !formReason.value.trim()) {
+  if (form.value.status === 'absent' && !form.value.reason.trim()) {
     toast.add({ severity: 'error', summary: 'Harap isi alasan ketidakhadiran.', life: 3000 })
-    return
-  }
+  } else {
+    saving.value = true
 
-  saving.value = true
+    const attendanceForm = {
+      member_id: selectedMember.value.id,
+      training_schedule_id: scheduleId.value,
+      status: form.value.status,
+      reason: form.value.status === 'absent' ? form.value.reason : null,
+    }
 
-  const form = {
-    member_id: selectedMember.value.id,
-    training_schedule_id: scheduleId.value,
-    status: formStatus.value,
-    reason: formStatus.value === 'absent' ? formReason.value : null,
-  }
+    try {
+      if (selectedMember.value.attendance_id)
+        await attendanceStore.updateAttendance(selectedMember.value.attendance_id, attendanceForm)
+      else
+        await attendanceStore.addAttendance(attendanceForm)
 
-  try {
-    if (selectedMember.value.attendance_id)
-      await attendanceStore.updateAttendance(selectedMember.value.attendance_id, form)
-    else await attendanceStore.addAttendance(form)
-    showModal.value = false
-    await fetchData()
-  } catch (e) {
-    console.error('Attendance error:', e)
-    const errorMsg = e.response?.data?.message || 'Gagal menyimpan absensi.'
-    toast.add({
-      severity: 'error',
-      summary: errorMsg,
-      life: 5000,
-    })
-  } finally {
-    saving.value = false
+      showModal.value = false
+      await fetchData()
+    } catch (e) {
+      console.error('Attendance error:', e)
+      const errorMsg = e.response?.data?.message || 'Gagal menyimpan absensi.'
+      toast.add({ severity: 'error', summary: errorMsg, life: 3000 })
+    } finally {
+      saving.value = false
+    }
   }
 }
+
 
 // QR SCANNER
 function openQRScanner() {
@@ -298,10 +297,6 @@ function onCameraInit(promise) {
     })
 }
 
-function goBack() {
-  router.push('/coach/attendance')
-}
-
 async function fetchData() {
   training.value = trainingStore.datas
   console.log('Member store datas:', memberStore.datas)
@@ -319,365 +314,257 @@ onMounted(async () => {
 </script>
 
 <template>
-  <CoachLayouts :backRoute="'coach.attendance.index'">
-    <Toast
-      :pt="{
-        buttonContainer: {
-          class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
-        },
-        closeButton: {
-          class: '!my-auto',
-        },
-        messageContent: {
-          class: '!items-center',
-        },
-      }"
-    />
-    <div class="py-3 space-y-3">
-      <form @submit.prevent>
-        <div
-          class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white rounded-lg shadow px-5 py-4 gap-4"
-        >
-          <div class="flex items-center gap-4">
-            <button
-              type="button"
-              @click="openQRScanner"
-              class="flex items-center gap-2 bg-piper-600 hover:bg-piper-700 text-white px-5 py-2 rounded-lg transition shadow cursor-pointer"
-            >
-              <i class="pi pi-qrcode"></i>
-              <span>Scan QR Code</span>
-            </button>
-          </div>
-
-          <div class="relative w-full md:w-48">
-            <input
-              v-model="filters['global'].value"
-              type="text"
-              placeholder="Cari..."
-              class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg w-full"
-            />
-            <span class="absolute left-3 top-2.5 text-gray-400">
-              <i class="pi pi-search"></i>
-            </span>
-          </div>
-        </div>
-      </form>
-
-      <!-- TABLE -->
-      <form @submit.prevent>
-        <div class="!rounded-lg !overflow-hidden shadow bg-white">
-          <DataTable
-            :value="datas"
-            v-model:filters="filters"
-            paginator
-            :rows="10"
-            dataKey="id"
-            :loading="loading"
-            stripedRows
-            removableSort
+    <CoachLayouts backRoute="coach.attendance.index">
+        <Toast
             :pt="{
-              thead: { class: 'text-sm font-light' },
-              tbody: { class: 'text-sm font-light' },
-              pcPaginator: { content: { class: 'text-xs' } },
+                buttonContainer: {
+                    class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
+                },
+                closeButton: {
+                    class: '!my-auto',
+                },
+                messageContent: {
+                    class: '!items-center',
+                },
             }"
-          >
-            <!-- Nama -->
-            <Column field="name" header="Nama" />
-
-            <!-- KU -->
-            <Column
-              field="ku"
-              header="KU"
-              class="w-20"
-              :pt="{
-                columnHeaderContent: { class: '!justify-center' },
-              }"
-            >
-              <template #body="{ data }">
-                <p class="text-center">
-                  {{ calculateAgeGroup(data.date_of_birth) }}
-                </p>
-              </template>
-            </Column>
-
-            <!-- Jenis Kelamin -->
-            <Column
-              field="gender"
-              header="Jenis Kelamin"
-              class="w-40 text-center"
-              :pt="{
-                columnHeaderContent: { class: '!justify-center' },
-              }"
-            >
-              <template #body="{ data }">
-                <p class="text-center">{{ data.gender }}</p>
-              </template>
-            </Column>
-
-            <!-- Status -->
-            <Column
-              field="status"
-              header="Status"
-              :pt="{
-                columnHeaderContent: { class: '!justify-center' },
-              }"
-            >
-              <template #body="{ data }">
+        />
+        <div class="py-3 space-y-3">
+            <form @submit.prevent>
                 <div
-                  class="text-center rounded-lg px-3 py-1 w-min mx-auto whitespace-nowrap border shadow-lg text-xs"
-                  :class="[
-                    data.status === 'Hadir'
-                      ? 'bg-green-300 text-green-800 border-green-800'
-                      : data.status === 'Tidak Hadir'
-                        ? 'bg-red-300 text-red-800 border-red-800'
-                        : 'bg-gray-200 text-gray-800 border-gray-800',
-                  ]"
-                >
-                  <p>{{ data.status }}</p>
-                </div>
-              </template>
-            </Column>
-
-            <!-- Alasan -->
-            <Column
-              field="reason"
-              header="Alasan"
-              class="w-48 text-center"
-              :pt="{
-                columnHeaderContent: { class: '!justify-center' },
-              }"
-            >
-              <template #body="{ data }">
-                <p class="truncate block max-w-xs text-center" :title="data.reason">
-                  {{ data.reason || '-' }}
-                </p>
-              </template>
-            </Column>
-
-            <!-- Aksi -->
-            <Column
-              field="action"
-              header=""
-              :pt="{
-                columnHeaderContent: { class: '!justify-center' },
-              }"
-            >
-              <template #body="{ data }">
-                <div class="flex justify-center gap-3">
-                  <button
-                    type="button"
-                    @click="openAttendanceModal(data)"
-                    v-tooltip.left="{
-                      value: data.status === 'Belum Absen' ? 'Absen' : 'Ubah',
-                      showDelay: 1000,
-                      hideDelay: 300,
-                    }"
-                    :class="[
-                      data.status === 'Belum Absen'
-                        ? 'bg-piper-600 text-white hover:bg-piper-700'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-                      'text-xs rounded-md px-3 py-1.5 font-medium transition-all cursor-pointer',
-                    ]"
-                  >
-                    {{ data.status === 'Belum Absen' ? 'Absen' : 'Ubah' }}
-                  </button>
-                </div>
-              </template>
-            </Column>
-
-            <!-- Kosong -->
-            <template #empty>
-              <div class="text-center py-8 text-gray-500">
-                <i class="pi pi-users text-2xl mb-2"></i>
-                <p>Tidak ada data anggota untuk KU {{ selectedScheduleInfo?.ku }}</p>
-              </div>
-            </template>
-
-            <!-- Loading -->
-            <template #loading>
-              <div class="text-center text-sm py-6">
-                <p>Mohon Tunggu, Sedang Memuat Data.......</p>
-              </div>
-            </template>
-          </DataTable>
-        </div>
-      </form>
-
-      <!-- MODAL ABSENSI -->
-      <Dialog
-        v-model:visible="showModal"
-        :header="selectedMember ? `Absen: ${selectedMember.name}` : 'Absen Manual'"
-        modal
-        class="w-full max-w-md"
-      >
-        <form @submit.prevent="saveManualAttendance">
-          <div v-if="selectedMember" class="space-y-4">
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
-              <p class="text-blue-700">
-                <span class="font-medium">Status saat ini:</span>
-                <span
-                  :class="[
-                    selectedMember.status === 'Hadir'
-                      ? 'text-green-600'
-                      : selectedMember.status === 'Tidak Hadir'
-                        ? 'text-red-600'
-                        : 'text-gray-600',
-                    'ml-1 font-medium',
-                  ]"
-                >
-                  {{ selectedMember.status }}
-                </span>
-              </p>
-            </div>
-
-            <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Status Kehadiran</label>
-              <select
-                v-model="formStatus"
-                class="border border-gray-300 rounded-lg w-full px-3 py-2 text-sm focus:ring-2 focus:ring-piper-500 focus:border-piper-500 cursor-pointer"
-                :disabled="saving"
-              >
-                <option value="present">Hadir</option>
-                <option value="absent">Tidak Hadir</option>
-              </select>
-            </div>
-
-            <div v-if="formStatus === 'absent'">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Alasan</label>
-              <textarea
-                v-model="formReason"
-                rows="3"
-                placeholder="Masukkan alasan ketidakhadiran..."
-                class="border border-gray-300 rounded-lg w-full px-3 py-2 text-sm focus:ring-2 focus:ring-piper-500 focus:border-piper-500"
-                :disabled="saving"
-                required
-              ></textarea>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                @click="showModal = false"
-                class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer"
-              >
-                Batal
-              </button>
-              <button
-                type="submit"
-                :disabled="saving || (formStatus === 'absent' && !formReason.trim())"
-                class="px-4 py-2 text-sm rounded-lg bg-piper-600 text-white hover:bg-piper-700 flex items-center gap-2 cursor-pointer"
-              >
-                <i v-if="saving" class="pi pi-spin pi-spinner text-sm"></i>
-                {{ saving ? 'Menyimpan...' : 'Simpan' }}
-              </button>
-            </div>
-          </div>
-        </form>
-      </Dialog>
-
-      <!-- MODAL QR SCANNER -->
-      <Dialog
-        v-model:visible="showQRScanner"
-        header="Scan QR Code Absensi"
-        :modal="true"
-        :closable="!scanLoading"
-        class="w-full max-w-2xl"
-      >
-        <form @submit.prevent>
-          <div class="space-y-4">
-            <div
-              v-if="qrError && !scanResult"
-              class="bg-red-50 border border-red-200 rounded-lg p-4"
-            >
-              <div class="flex items-center gap-2">
-                <i class="pi pi-exclamation-triangle text-red-500 text-xl"></i>
-                <p class="text-red-700 text-sm">{{ qrError }}</p>
-              </div>
-            </div>
-
-            <div
-              v-if="scanResult"
-              :class="[
-                scanResult.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
-                'border rounded-lg p-4',
-              ]"
-            >
-              <div class="flex items-center gap-2">
-                <i
-                  :class="[
-                    scanResult.success
-                      ? 'pi pi-check-circle text-green-500'
-                      : 'pi pi-exclamation-circle text-red-500',
-                    'text-xl',
-                  ]"
-                ></i>
-                <div>
-                  <p
-                    :class="[scanResult.success ? 'text-green-800' : 'text-red-800', 'font-medium']"
-                  >
-                    {{ scanResult.message }}
-                  </p>
-                  <p
-                    v-if="scanResult.memberName"
-                    class="text-sm mt-1"
-                    :class="scanResult.success ? 'text-green-600' : 'text-red-600'"
-                  >
-                    Member: <strong>{{ scanResult.memberName }}</strong>
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div v-if="!scanResult" class="relative">
-              <div
-                class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50"
-              >
-                <qrcode-stream
-                  v-if="showQRScanner && !scanLoading"
-                  @detect="onQRCodeDetected"
-                  @error="onCameraError"
-                  @init="onCameraInit"
-                  :camera="cameraPermission === 'denied' ? 'off' : 'auto'"
-                  class="w-full h-64 md:h-96"
-                >
-                  <div
-                    v-if="scanLoading"
-                    class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-                  >
-                    <div class="text-white text-center">
-                      <i class="pi pi-spin pi-spinner text-2xl mb-2"></i>
-                      <p>Memproses QR Code...</p>
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center bg-white rounded-lg shadow px-5 py-4 gap-4">
+                    <div class="flex items-center gap-4">
+                        <button type="button" @click="openQRScanner"
+                            class="flex items-center gap-2 bg-piper-600 hover:bg-piper-700 text-white px-5 py-2 rounded-lg transition shadow cursor-pointer">
+                            <i class="fas fa-qrcode"></i>
+                            <span>Scan QR Code</span>
+                        </button>
                     </div>
-                  </div>
-                </qrcode-stream>
-              </div>
-            </div>
 
-            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 class="font-medium text-blue-800 mb-2 flex items-center gap-2">
-                <i class="pi pi-info-circle"></i> Petunjuk Scan QR
-              </h3>
-              <ul class="text-blue-700 text-sm space-y-1">
-                <li>• Pastikan QR Code berada dalam area kotak scanner</li>
-                <li>• Pastikan pencahayaan cukup</li>
-                <li>• Jaga jarak yang tepat dari kamera</li>
-                <li>• Absensi otomatis tersimpan ketika QR terdeteksi</li>
-              </ul>
-            </div>
+                    <div class="relative w-full md:w-48">
+                        <input v-model="filters['global'].value" type="text" placeholder="Cari..."
+                            class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg w-full" />
+                        <span class="absolute left-3 top-2.5 text-gray-400">
+                        </span>
+                    </div>
+                </div>
+            </form>
 
-            <div class="flex justify-end gap-2 pt-2">
-              <button
-                type="button"
-                @click="closeQRScanner"
-                :disabled="scanLoading"
-                class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition disabled:opacity-50"
-              >
-                Tutup
-              </button>
-            </div>
-          </div>
-        </form>
-      </Dialog>
-    </div>
+            <!-- TABLE -->
+            <form @submit.prevent>
+                <div class="!rounded-lg !overflow-hidden shadow bg-white">
+                    <DataTable :value="datas" v-model:filters="filters" paginator :rows="10" dataKey="id"
+                        :loading="loading" stripedRows removableSort class="p-datatable-sm" :pt="{
+                            thead: { class: 'text-sm font-light' },
+                            tbody: { class: 'text-sm font-light' },
+                            pcPaginator: { content: { class: 'text-xs' } },
+                        }">
+                        <!-- Nama -->
+                        <Column field="name" header="Nama" />
+
+                        <!-- KU -->
+                        <Column field="ku" header="KU" class="w-20" :pt="{
+                            columnHeaderContent: { class: '!justify-center' },
+                        }">
+                            <template #body="{ data }">
+                                <p class="text-center">
+                                    {{ calculateAgeGroup(data.date_of_birth) }}
+                                </p>
+                            </template>
+                        </Column>
+
+                        <!-- Jenis Kelamin -->
+                        <Column field="gender" header="Jenis Kelamin" class="w-40 text-center" :pt="{
+                            columnHeaderContent: { class: '!justify-center' },
+                        }">
+                            <template #body="{ data }">
+                                <p class="text-center">{{ data.gender }}</p>
+                            </template>
+                        </Column>
+
+                        <!-- Status -->
+                        <Column field="status" header="Status" :pt="{
+                            columnHeaderContent: { class: '!justify-center' },
+                        }">
+                            <template #body="{ data }">
+                                <div class="text-center rounded-lg px-3 py-1 w-min mx-auto whitespace-nowrap border shadow-lg text-xs"
+                                    :class="[data.status === 'Hadir'
+                                        ? 'bg-green-300 text-green-800 border-green-800'
+                                        : data.status === 'Tidak Hadir'
+                                            ? 'bg-red-300 text-red-800 border-red-800'
+                                            : 'bg-gray-200 text-gray-800 border-gray-800']">
+                                    <p>{{ data.status }}</p>
+                                </div>
+                            </template>
+                        </Column>
+
+                        <!-- Alasan -->
+                        <Column field="reason" header="Alasan" class="w-48 text-center" :pt="{
+                            columnHeaderContent: { class: '!justify-center' },
+                        }">
+                            <template #body="{ data }">
+                                <p class="truncate block max-w-xs text-center" :title="data.reason">
+                                    {{ data.reason || '-' }}
+                                </p>
+                            </template>
+                        </Column>
+
+                        <!-- Aksi -->
+                        <Column field="action" header="" :pt="{
+                            columnHeaderContent: { class: '!justify-center' },
+                        }">
+                            <template #body="{ data }">
+                                <div class="flex justify-center gap-3">
+                                    <button type="button" @click="openAttendanceModal(data)" v-tooltip.left="{
+                                        value: data.status === 'Belum Absen' ? 'Absen' : 'Ubah',
+                                        showDelay: 1000,
+                                        hideDelay: 300,
+                                    }" :class="[data.status === 'Belum Absen'
+                ? 'bg-piper-600 text-white hover:bg-piper-700'
+                : 'bg-gray-100 text-gray-700 hover:bg-gray-200',
+                'text-xs rounded-md px-3 py-1.5 font-medium transition-all cursor-pointer']">
+                                        {{ data.status === 'Belum Absen' ? 'Absen' : 'Ubah' }}
+                                    </button>
+                                </div>
+                            </template>
+                        </Column>
+
+                        <!-- Kosong -->
+                        <template #empty>
+                            <div class="text-center py-8 text-gray-500">
+                                <i class="fas fa-users text-2xl mb-2"></i>
+                                <p>Tidak ada data anggota untuk KU {{ selectedScheduleInfo?.ku }}</p>
+                            </div>
+                        </template>
+
+                        <!-- Loading -->
+                        <template #loading>
+                            <div class="text-center text-sm py-6">
+                                <p>Mohon Tunggu, Sedang Memuat Data.......</p>
+                            </div>
+                        </template>
+                    </DataTable>
+                </div>
+            </form>
+
+            <!-- MODAL ABSENSI -->
+            <Dialog v-model:visible="showModal"
+                :header="selectedMember ? `Absen: ${selectedMember.name}` : 'Absen Manual'" modal
+                class="w-full max-w-md">
+                <form @submit.prevent="saveManualAttendance">
+                    <div v-if="selectedMember" class="space-y-4">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+                            <p class="text-blue-700">
+                                <span class="font-medium">Status saat ini:</span>
+                                <span :class="[selectedMember.status === 'Hadir'
+                                    ? 'text-green-600'
+                                    : selectedMember.status === 'Tidak Hadir'
+                                        ? 'text-red-600'
+                                        : 'text-gray-600',
+                                    'ml-1 font-medium']">
+                                    {{ selectedMember.status }}
+                                </span>
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status Kehadiran</label>
+                            <select v-model="form.status"
+                                class="border border-gray-300 rounded-lg w-full px-3 py-2 text-sm focus:ring-2 focus:ring-piper-500 focus:border-piper-500 cursor-pointer"
+                                :disabled="saving">
+                                <option value="present">Hadir</option>
+                                <option value="absent">Tidak Hadir</option>
+                            </select>
+                        </div>
+
+                        <div v-if="form.status === 'absent'">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Alasan</label>
+                            <textarea v-model="form.reason" rows="3" placeholder="Masukkan alasan ketidakhadiran..."
+                                class="border border-gray-300 rounded-lg w-full px-3 py-2 text-sm focus:ring-2 focus:ring-piper-500 focus:border-piper-500"
+                                :disabled="saving" required></textarea>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" @click="showModal = false"
+                                class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 cursor-pointer">
+                                Batal
+                            </button>
+                            <button type="submit" :disabled="saving || (form.status === 'absent' && !form.reason.trim())"
+                                class="px-4 py-2 text-sm rounded-lg bg-piper-600 text-white hover:bg-piper-700 flex items-center gap-2 cursor-pointer">
+                                <i v-if="saving" class="fas fa-spinner fa-spin text-sm"></i>
+                                {{ saving ? 'Menyimpan...' : 'Simpan' }}
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </Dialog>
+
+            <!-- MODAL QR SCANNER -->
+            <Dialog v-model:visible="showQRScanner" header="Scan QR Code Absensi" :modal="true" :closable="!scanLoading"
+                class="w-full max-w-2xl">
+                <form @submit.prevent>
+                    <div class="space-y-4">
+                        <div v-if="qrError && !scanResult" class="bg-red-50 border border-red-200 rounded-lg p-4">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-exclamation-triangle text-red-500 text-xl"></i>
+                                <p class="text-red-700 text-sm">{{ qrError }}</p>
+                            </div>
+                        </div>
+
+                        <div v-if="scanResult" :class="[scanResult.success ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200',
+                            'border rounded-lg p-4']">
+                            <div class="flex items-center gap-2">
+                                <i
+                                    :class="[scanResult.success ? 'fas fa-check-circle text-green-500' : 'fas fa-exclamation-circle text-red-500', 'text-xl']"></i>
+                                <div>
+                                    <p :class="[scanResult.success ? 'text-green-800' : 'text-red-800', 'font-medium']">
+                                        {{
+                                        scanResult.message }}</p>
+                                    <p v-if="scanResult.memberName" class="text-sm mt-1"
+                                        :class="scanResult.success ? 'text-green-600' : 'text-red-600'">
+                                        Member: <strong>{{ scanResult.memberName }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div v-if="!scanResult" class="relative">
+                            <div class="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
+                                <qrcode-stream v-if="showQRScanner && !scanLoading" @detect="onQRCodeDetected"
+                                    @error="onCameraError" @init="onCameraInit"
+                                    :camera="cameraPermission === 'denied' ? 'off' : 'auto'"
+                                    class="w-full h-64 md:h-96">
+                                    <div v-if="scanLoading"
+                                        class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                        <div class="text-white text-center">
+                                            <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                                            <p>Memproses QR Code...</p>
+                                        </div>
+                                    </div>
+                                </qrcode-stream>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <h3 class="font-medium text-blue-800 mb-2 flex items-center gap-2">
+                                <i class="fas fa-info-circle"></i> Petunjuk Scan QR
+                            </h3>
+                            <ul class="text-blue-700 text-sm space-y-1">
+                                <li>• Pastikan QR Code berada dalam area kotak scanner</li>
+                                <li>• Pastikan pencahayaan cukup</li>
+                                <li>• Jaga jarak yang tepat dari kamera</li>
+                                <li>• Absensi otomatis tersimpan ketika QR terdeteksi</li>
+                            </ul>
+                        </div>
+
+                        <div class="flex justify-end gap-2 pt-2">
+                            <button type="button" @click="closeQRScanner" :disabled="scanLoading"
+                                class="px-4 py-2 text-sm rounded-lg border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 transition disabled:opacity-50">
+                                Tutup
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </Dialog>
+        </div>
   </CoachLayouts>
 </template>
