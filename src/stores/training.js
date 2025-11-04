@@ -110,6 +110,23 @@ export const useTrainingStore = defineStore('training', {
     setCurrentSchedule(schedule) {
       this.currentSchedule = schedule
     },
+    async getByParentId(withRelations = '') {
+      const uiStore = useUIStore()
+      uiStore.isLoading = true
+      try {
+        const response = await api.get(
+          '/getByAuth/attendance' + (withRelations ? `?with=${withRelations}` : ''),
+        )
+        this.datas = Array.isArray(response.data)
+          ? response.data
+          : response.data.data || []
+      } catch (error) {
+        console.error('Gagal mengambil data absensi parent:', error)
+        throw error
+      } finally {
+        uiStore.isLoading = false
+      }
+    },
   },
 })
 

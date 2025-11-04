@@ -31,7 +31,7 @@ const sideBarItems = ref([
   {
     icon: 'fa-solid fa-timer',
     label: 'Jadwal Latihan',
-    to: 'dashboard',
+    to: 'member.training.index'
   },
   {
     icon: 'fa-solid fa-money-bills',

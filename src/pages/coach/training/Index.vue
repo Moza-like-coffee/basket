@@ -483,58 +483,6 @@ const getRemainingMemberNames = computed(() => {
           </p>
         </div>
 
-          <!-- Tanggal -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Tanggal <span class="text-red-500">*</span>
-            </label>
-            <input
-              v-model="form.date"
-              class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-              type="date"
-              required
-            />
-          </div>
-
-          <!-- KU Selection -->
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Kelompok Umur (KU) <span class="text-red-500">*</span>
-            </label>
-            <Dropdown
-              v-model="selectedKU"
-              :options="availableKUs"
-              placeholder="Pilih KU"
-              class="w-full"
-              @change="onKUChange($event.value)"
-              :pt="{
-                root: {
-                  class:
-                    'w-full h-9 flex items-center border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500 !rounded-lg',
-                },
-                input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
-                trigger: { class: 'bg-transparent pr-2' },
-                label: {
-                  class: '!text-sm',
-                },
-                option: {
-                  class: '!text-sm',
-                },
-              }"
-            >
-              <template #value="slotProps">
-                <span v-if="slotProps.value">{{ slotProps.value }}</span>
-                <span v-else class="text-gray-400">Pilih KU</span>
-              </template>
-              <template #option="slotProps">
-                <span>{{ slotProps.option }}</span>
-              </template>
-            </Dropdown>
-            <p class="text-xs text-gray-500 mt-1">
-              Pilih Kelompok Umur untuk menampilkan daftar member
-            </p>
-          </div>
-
           <!-- Member Selection -->
           <div v-if="selectedKU">
             <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>

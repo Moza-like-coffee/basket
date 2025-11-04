@@ -237,6 +237,26 @@ const parentRoutes = [
       allowedRoles: ['parent'],
     },
   },
+   {
+    path: '/training',
+    name: 'member.training.index',
+    component: () => import('@/pages/member/training/Index.vue'),
+    meta: {
+      auth: true,
+      title: 'Daftar Anak',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
+    path: '/training/:id',
+    name: 'member.training.show',
+    component: () => import('@/pages/member/training/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Jadwal Latihan',
+      allowedRoles: ['parent'],
+    },
+  },
 ]
 
 const coachRoutes = [
