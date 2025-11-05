@@ -28,7 +28,8 @@ const form = ref({
 })
 
 onMounted(async () => {
-  await memberStore.getById(route.params.id)
+  const withRelation = 'file'
+  await memberStore.getById(route.params.id, withRelation)
 
   member.value = memberStore.data
 
@@ -109,6 +110,7 @@ async function submit() {
               <div class="space-y-1">
                 <label class="block text-sm" for="form-date-of-birth">Tanggal Lahir</label>
                 <input
+                  :disabled="member?.file !== null"
                   id="form-date-of-birth"
                   type="date"
                   v-model="form.date_of_birth"

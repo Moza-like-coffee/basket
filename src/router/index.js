@@ -148,6 +148,16 @@ const parentRoutes = [
     },
   },
   {
+    path: '/member/:id',
+    name: 'member.show',
+    component: () => import('@/pages/member/member/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Data Member',
+      allowedRoles: ['parent'],
+    },
+  },
+  {
     path: '/member/:id/edit',
     name: 'member.edit',
     component: () => import('@/pages/member/member/Edit.vue'),
@@ -237,13 +247,13 @@ const parentRoutes = [
       allowedRoles: ['parent'],
     },
   },
-   {
+  {
     path: '/training',
     name: 'member.training.index',
     component: () => import('@/pages/member/training/Index.vue'),
     meta: {
       auth: true,
-      title: 'Daftar Anak',
+      title: 'Daftar Jadwal Latihan',
       allowedRoles: ['parent'],
     },
   },

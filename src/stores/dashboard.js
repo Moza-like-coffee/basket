@@ -14,7 +14,20 @@ export const useDashboardStore = defineStore('dashboard', {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       try {
-        const response = await api.get('/admin/dashboard')
+        const response = await api.get('/dashboard/admin')
+        this.datas = response.data.data
+      } catch (error) {
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+      } finally {
+        uiStore.isLoading = false
+      }
+    },
+    async memberDashboard() {
+      const uiStore = useUIStore()
+      uiStore.isLoading = true
+      try {
+        const response = await api.get('/dashboard/member')
         this.datas = response.data.data
       } catch (error) {
         console.log(error)

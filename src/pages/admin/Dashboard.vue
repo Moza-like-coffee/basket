@@ -38,6 +38,7 @@ onMounted(async () => {
           </div>
         </router-link>
         <router-link
+          :to="{ name: 'admin.payment.index' }"
           class="bg-rhino-950 rounded-lg shadow h-20 cursor-pointer hover:scale-105 hover:opacity-95 transition-all duration-300"
         >
           <div class="flex gap-3 items-center h-full p-5">
@@ -52,7 +53,8 @@ onMounted(async () => {
             </div>
           </div>
         </router-link>
-        <div
+        <router-link
+          :to="{ name: 'admin.bill.index' }"
           class="bg-rhino-950 rounded-lg shadow h-20 cursor-pointer hover:scale-105 hover:opacity-95 transition-all duration-300"
         >
           <div class="flex gap-3 items-center h-full p-5">
@@ -66,7 +68,7 @@ onMounted(async () => {
               <p class="text-sm text-white">Tagihan</p>
             </div>
           </div>
-        </div>
+        </router-link>
       </div>
       <!-- <div class="grid grid-cols-2 gap-3">
         <div class="h-80 w-full rounded-lg shadow bg-white"></div>

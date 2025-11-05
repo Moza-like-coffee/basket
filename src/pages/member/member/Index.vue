@@ -272,6 +272,17 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
           <Column field="action" header="">
             <template #body="{ data }">
               <div class="flex justify-center gap-3">
+                <router-link
+                  :to="{
+                    name: 'member.show',
+                    params: {
+                      id: data?.id,
+                    },
+                  }"
+                  v-tooltip.left="{ value: 'Show Detail', showDelay: 1000, hideDelay: 300 }"
+                >
+                  <i class="fa-solid fa-eye"></i>
+                </router-link>
                 <button
                   @click="showQRCode(data)"
                   v-if="data?.status == 'active'"

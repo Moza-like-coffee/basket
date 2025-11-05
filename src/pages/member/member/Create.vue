@@ -195,7 +195,10 @@ async function calculateAgeGroup() {
               </div>
             </div>
           </fieldset>
-          <fieldset class="border border-gray-300 rounded-lg shadow p-5">
+          <fieldset
+            class="border border-gray-300 rounded-lg shadow p-5"
+            v-if="parentStore?.data?.name == null"
+          >
             <legend class="text-sm px-3">Informasi Orangtua</legend>
             <div class="grid grid-cols-2 gap-3">
               <div class="space-y-1 col-span-2">
