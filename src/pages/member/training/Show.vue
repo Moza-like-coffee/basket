@@ -1,16 +1,14 @@
 <script setup>
 import MemberLayouts from '@/layouts/MemberLayouts.vue'
-import { DataTable, Column, Dialog, Toast } from 'primevue'
+import { DataTable, Column, Dialog } from 'primevue'
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { useToast } from 'primevue/usetoast'
 import { FilterMatchMode } from '@primevue/core/api'
 
 import { useAttendanceStore } from '@/stores/attendance'
 import { useTrainingStore } from '@/stores/training'
 import { useMemberStore } from '@/stores/member'
 
-const toast = useToast()
 const route = useRoute()
 const router = useRouter()
 const attendanceStore = useAttendanceStore()
@@ -140,65 +138,51 @@ const attendanceHistory = computed(() => {
 })
 
 async function fetchData() {
-    try {
-        // Ambil data member yang dipilih
-        const members = memberStore.datas.filter(member => member.status === 'active')
-        selectedMember.value = members.find(member => member.id === memberId.value)
+    // Ambil data member yang dipilih
+    const members = memberStore.datas.filter(member => member.status === 'active')
+    selectedMember.value = members.find(member => member.id === memberId.value)
 
-        if (!selectedMember.value) {
-            toast.add({
-                severity: 'error',
-                summary: 'Data anak tidak ditemukan',
-                life: 3000
-            })
-            router.push('/member/attendance')
-            return
-        }
-
-        // Ambil data training schedules
-        trainingSchedules.value = trainingStore.datas
-
-        // Ambil data attendance untuk member ini
-        const allAttendance = Array.isArray(attendanceStore.datas) ? attendanceStore.datas : []
-        attendanceData.value = allAttendance.filter(att => att.member_id === memberId.value)
-
-    } catch (error) {
-        console.error('Error fetching data:', error)
-        toast.add({
-            severity: 'error',
-            summary: 'Gagal memuat data',
-            detail: error.response?.data?.message || 'Terjadi kesalahan',
-            life: 3000
-        })
+    if (!selectedMember.value) {
+        router.push({ name: 'member.training.index' })
+        return
     }
+
+    // Ambil data training schedules
+    trainingSchedules.value = trainingStore.datas
+
+    // Ambil data attendance untuk member ini
+    const allAttendance = Array.isArray(attendanceStore.datas) ? attendanceStore.datas : []
+    attendanceData.value = allAttendance.filter(att => att.member_id === memberId.value)
 }
 
 onMounted(async () => {
     loading.value = true
-    try {
-        await Promise.all([
-            trainingStore.get(),
-            memberStore.getByParentId(),
-            attendanceStore.getByParentId('trainingSchedule,member')
-        ])
-        await fetchData()
-    } catch (error) {
-        console.error('Error in mounted:', error)
-    } finally {
-        loading.value = false
-    }
+    await Promise.all([
+        trainingStore.get(),
+        memberStore.getByParentId(),
+        attendanceStore.getByParentId('trainingSchedule,member')
+    ])
+    await fetchData()
+    loading.value = false
 })
 </script>
 
 <template>
     <MemberLayouts backRoute="member.training.index">
-        <Toast />
         <div class="py-3 space-y-6">
             <!-- Header Informasi Anak -->
             <div class="bg-white rounded-lg shadow px-5 py-6">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 class="text-2xl font-bold text-gray-800">{{ selectedMember?.name }}</h1>
+                        <div class="flex items-center gap-3">
+                            <h1 class="text-2xl font-bold text-gray-800">{{ selectedMember?.name }}</h1>
+                            <span v-if="selectedMember?.status === 'active'"
+                                class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                Aktif
+                            </span>
+
+                        </div>
                         <div class="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
                             <span class="flex items-center gap-2">
                                 <i class="fas fa-birthday-cake text-piper-500"></i>
@@ -213,13 +197,6 @@ onMounted(async () => {
                                 KU: {{ selectedMember ? calculateAgeGroup(selectedMember.date_of_birth) : '' }}
                             </span>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span
-                            class="px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                            <i class="fas fa-check-circle mr-1"></i>
-                            Aktif
-                        </span>
                     </div>
                 </div>
             </div>
