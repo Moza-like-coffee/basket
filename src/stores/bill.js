@@ -10,6 +10,19 @@ export const useBillStore = defineStore('bill', {
     data: {},
   }),
   actions: {
+    async get(withRelations = '') {
+      const uiStore = useUIStore()
+      uiStore.isLoading = true
+      try {
+        const response = await api.get('/bill' + (withRelations ? `?with=${withRelations}` : ''))
+        this.datas = response.data.data
+      } catch (error) {
+        console.log(error)
+        if (error.response && error.response.status !== 422) throw error
+      } finally {
+        uiStore.isLoading = false
+      }
+    },
     async getByParentId(withRelations = '') {
       const uiStore = useUIStore()
       uiStore.isLoading = true

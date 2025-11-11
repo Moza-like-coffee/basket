@@ -45,7 +45,7 @@ export const useMemberStore = defineStore('member', {
       const uiStore = useUIStore()
       uiStore.isLoading = true
       try {
-        const response = await api.get('/member/' + (withRelations ? `?with=${withRelations}` : ''))
+        const response = await api.get('/member' + (withRelations ? `?with=${withRelations}` : ''))
         this.datas = response.data.data
       } catch (error) {
         console.log(error)

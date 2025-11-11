@@ -42,7 +42,7 @@ onMounted(async () => {
               v-for="member in members"
               :key="member.id"
               :to="{ name: 'member.training.show', params: { id: member.id } }"
-              class="cursor-pointer rounded-xl border-2 shadow-sm p-6 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
+              class="cursor-pointer rounded-xl border-2 shadow-sm md:p-6 p-3 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 md:min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
             >
               <div class="w-full">
                 <div class="flex items-start justify-between mb-3">

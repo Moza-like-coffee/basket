@@ -1,12 +1,10 @@
 <script setup>
 import CoachLayouts from '@/layouts/CoachLayouts.vue'
 import { ref, computed, onMounted } from 'vue'
-import { useToast } from 'primevue/usetoast'
 
 import { useTrainingStore } from '@/stores/training'
 import { useMemberStore } from '@/stores/member'
 
-const toast = useToast()
 const trainingStore = useTrainingStore()
 const memberStore = useMemberStore()
 
@@ -86,29 +84,30 @@ onMounted(async () => {
 <template>
   <CoachLayouts>
     <div class="py-3 space-y-3">
-      <div class="bg-white rounded-lg shadow px-5 py-6">
-        
+      <div class="bg-white rounded-lg shadow p-5">
         <div v-if="loading" class="text-center py-8">
           <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
           <p class="text-gray-500">Memuat jadwal latihan...</p>
         </div>
 
         <div v-else-if="schedules.length > 0" class="space-y-4">
-          <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <router-link
               v-for="s in schedules"
               :key="s.value"
               :to="`/coach/attendance/${s.value}`"
-              class="cursor-pointer rounded-xl border-2 shadow-sm p-6 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
+              class="cursor-pointer rounded-xl border-2 shadow-sm p-3 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 flex flex-col justify-between bg-white border-gray-200 text-gray-700"
             >
               <div class="w-full">
                 <!-- Title -->
                 <div class="mb-3">
-                  <p class="font-semibold text-base leading-tight line-clamp-2">{{ s.title }}</p>
+                  <p class="font-semibold md:text-base text-sm leading-tight line-clamp-2">
+                    {{ s.title }}
+                  </p>
                 </div>
 
                 <!-- Date -->
-                <p class="text-sm mb-1 text-gray-600">
+                <p class="md:text-sm text-xs mb-1 text-gray-600">
                   {{ s.label }}
                 </p>
 

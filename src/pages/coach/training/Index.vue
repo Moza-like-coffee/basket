@@ -1,19 +1,19 @@
 <script setup>
 import CoachLayouts from '@/layouts/CoachLayouts.vue'
-import { DataTable, Column, Dialog, ConfirmPopup, useConfirm, Dropdown, Toast } from 'primevue'
+import { DataTable, Column, Dialog, ConfirmPopup, useConfirm, Dropdown } from 'primevue'
 import { ref, computed, onMounted, watch } from 'vue'
 import { useTrainingStore } from '@/stores/training'
 import { useMemberStore } from '@/stores/member'
 import { FilterMatchMode } from '@primevue/core/api'
-import { useToast } from 'primevue/usetoast'
+import { useResponseStore } from '@/stores/response'
 
-const toast = useToast()
 const confirm = useConfirm()
 const trainingStore = useTrainingStore()
 const memberStore = useMemberStore()
 const datas = ref([])
 const members = ref([])
 const availableKUs = ref([])
+const responseStore = useResponseStore()
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS },
@@ -171,13 +171,14 @@ function filterMembersByExistingKU(item) {
 
     // Set member_ids yang sudah dipilih
     if (item.members && item.members.length > 0) {
-      form.value.member_ids = item.members.map(member => member.id)
+      form.value.member_ids = item.members.map((member) => member.id)
 
       // Update select all status
       if (filteredMembers.value.length > 0) {
-        const allMemberIds = filteredMembers.value.map(member => member.id)
-        selectAllChecked.value = form.value.member_ids.length === allMemberIds.length &&
-          allMemberIds.every(id => form.value.member_ids.includes(id))
+        const allMemberIds = filteredMembers.value.map((member) => member.id)
+        selectAllChecked.value =
+          form.value.member_ids.length === allMemberIds.length &&
+          allMemberIds.every((id) => form.value.member_ids.includes(id))
       }
     }
   }
@@ -185,16 +186,18 @@ function filterMembersByExistingKU(item) {
 
 // Dialog functions
 function openDialog(item = null) {
-  form.value = item ? {
-    ...item,
-    // Pastikan member_ids ada
-    member_ids: item.members ? item.members.map(member => member.id) : []
-  } : {
-    title: '',
-    date: '',
-    ku: null,
-    member_ids: []
-  }
+  form.value = item
+    ? {
+        ...item,
+        // Pastikan member_ids ada
+        member_ids: item.members ? item.members.map((member) => member.id) : [],
+      }
+    : {
+        title: '',
+        date: '',
+        ku: null,
+        member_ids: [],
+      }
 
   selectedKU.value = null
   visible.value = true
@@ -206,8 +209,6 @@ function openDialog(item = null) {
     filterMembersByExistingKU(item)
   }
 }
-
-
 
 function closeDialog() {
   visible.value = false
@@ -227,9 +228,9 @@ function onKUChange(ku) {
 
 async function saveSchedule() {
   if (!form.value.title || !form.value.date || !form.value.ku) {
-    toast.add({ severity: 'error', summary: 'Silahkan lengkapi terlebih dahulu.', life: 3000 })
+    responseStore.addError('Silahkan lengkapi terlebih dahulu')
   } else if (form.value.ku && (!form.value.member_ids || form.value.member_ids.length === 0)) {
-    toast.add({ severity: 'error', summary: 'Harap pilih minimal 1 member untuk KU yang dipilih.', life: 3000 })
+    responseStore.addError('Harap pilih minimal 1 member untuk KU yang dipilih.')
   } else {
     saving.value = true
     try {
@@ -237,7 +238,7 @@ async function saveSchedule() {
         title: form.value.title,
         date: form.value.date,
         ku: form.value.ku,
-        member_ids: form.value.member_ids || []
+        member_ids: form.value.member_ids || [],
       }
 
       if (form.value.id) {
@@ -250,7 +251,7 @@ async function saveSchedule() {
       closeDialog()
     } catch (error) {
       console.error('Error saving schedule:', error)
-      toast.add({ severity: 'error', summary: 'Terjadi kesalahan saat menyimpan jadwal.', life: 3000 })
+      responseStore.addError('Terjadi kesalahan saat menyimpan jadwal.')
     } finally {
       saving.value = false
     }
@@ -301,28 +302,18 @@ const getRemainingMemberNames = computed(() => {
   if (getSelectedMemberNames.value.length <= 3) return ''
 
   const remainingMembers = getSelectedMemberNames.value.slice(3)
-  return remainingMembers.map(member => member.name).join(', ')
+  return remainingMembers.map((member) => member.name).join(', ')
 })
 </script>
 
 <template>
   <CoachLayouts>
-    <Toast
+    <ConfirmPopup
+      :appendTo="'body'"
       :pt="{
-        buttonContainer: {
-          class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
-        },
-        closeButton: {
-          class: '!my-auto',
-        },
-        messageContent: {
-          class: '!items-center',
-        },
+        root: { class: '!rounded-lg !shadow-lg !text-sm' },
       }"
     />
-    <ConfirmPopup :appendTo="'body'" :pt="{
-      root: { class: '!rounded-lg !shadow-lg !text-sm' },
-    }" />
 
     <div class="py-3 space-y-3">
       <!-- HEADER -->
@@ -462,12 +453,13 @@ const getRemainingMemberNames = computed(() => {
             class="w-full"
             @change="onKUChange($event.value)"
             :pt="{
-              root: { 
-                class: 'w-full h-9 flex items-center rounded-lg border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500',
-                style: 'border-radius: 0.5rem;'
+              root: {
+                class:
+                  'w-full h-9 flex items-center rounded-lg border border-gray-300 text-sm focus-within:outline-1 focus-within:outline-gray-500',
+                style: 'border-radius: 0.5rem;',
               },
               input: { class: 'w-full text-sm px-2.5 focus:outline-none focus:ring-0' },
-              trigger: { class: 'bg-transparent pr-2' }
+              trigger: { class: 'bg-transparent pr-2' },
             }"
           >
             <template #value="slotProps">
@@ -483,83 +475,83 @@ const getRemainingMemberNames = computed(() => {
           </p>
         </div>
 
-          <!-- Member Selection -->
-          <div v-if="selectedKU">
-            <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>
+        <!-- Member Selection -->
+        <div v-if="selectedKU">
+          <label class="block text-sm font-medium text-gray-700 mb-2"> Pilih Member </label>
 
-            <!-- Select All Checkbox -->
-            <div
-              v-if="filteredMembers.length > 0"
-              class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
-            >
-              <div class="flex items-center space-x-3">
+          <!-- Select All Checkbox -->
+          <div
+            v-if="filteredMembers.length > 0"
+            class="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200"
+          >
+            <div class="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id="select-all"
+                v-model="selectAllChecked"
+                @change="toggleSelectAll"
+                class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
+              />
+              <label for="select-all" class="flex-1 text-sm font-medium cursor-pointer">
+                <span class="text-rhino-800">Pilih Semua Member</span>
+                <span class="text-gray-500 text-xs ml-2"
+                  >({{ filteredMembers.length }} member aktif tersedia)</span
+                >
+              </label>
+            </div>
+          </div>
+
+          <div class="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
+            <div v-if="filteredMembers.length === 0" class="text-center text-gray-500 py-4">
+              <i class="fa-solid fa-users-slash text-xl mb-2"></i>
+              <p class="text-sm">Tidak ada member aktif untuk KU {{ selectedKU }}</p>
+            </div>
+            <div v-else class="space-y-2">
+              <div
+                v-for="member in filteredMembers"
+                :key="member.id"
+                class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
+              >
                 <input
                   type="checkbox"
-                  id="select-all"
-                  v-model="selectAllChecked"
-                  @change="toggleSelectAll"
+                  :id="`member-${member.id}`"
+                  :value="member.id"
+                  v-model="form.member_ids"
                   class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
                 />
-                <label for="select-all" class="flex-1 text-sm font-medium cursor-pointer">
-                  <span class="text-rhino-800">Pilih Semua Member</span>
-                  <span class="text-gray-500 text-xs ml-2"
-                    >({{ filteredMembers.length }} member aktif tersedia)</span
-                  >
+                <label :for="`member-${member.id}`" class="flex-1 text-sm cursor-pointer">
+                  <div class="font-medium">{{ member.name }}</div>
+                  <div class="text-xs text-gray-500">
+                    {{ member.gender }} • Status:
+                    <span class="text-green-600 font-medium">Aktif</span>
+                  </div>
                 </label>
               </div>
             </div>
-
-            <div class="max-h-40 overflow-y-auto border border-gray-300 rounded-lg p-2">
-              <div v-if="filteredMembers.length === 0" class="text-center text-gray-500 py-4">
-                <i class="fa-solid fa-users-slash text-xl mb-2"></i>
-                <p class="text-sm">Tidak ada member aktif untuk KU {{ selectedKU }}</p>
-              </div>
-              <div v-else class="space-y-2">
-                <div
-                  v-for="member in filteredMembers"
-                  :key="member.id"
-                  class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded"
-                >
-                  <input
-                    type="checkbox"
-                    :id="`member-${member.id}`"
-                    :value="member.id"
-                    v-model="form.member_ids"
-                    class="rounded border-gray-300 text-piper-600 focus:ring-piper-500"
-                  />
-                  <label :for="`member-${member.id}`" class="flex-1 text-sm cursor-pointer">
-                    <div class="font-medium">{{ member.name }}</div>
-                    <div class="text-xs text-gray-500">
-                      {{ member.gender }} • Status:
-                      <span class="text-green-600 font-medium">Aktif</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap gap-1">
-              <span
-                v-for="(member, index) in getLimitedMemberNames"
-                :key="member.id"
-                class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
-              >
-                {{ member.name }}
-              </span>
-
-              <span
-                v-if="getSelectedMemberNames.length > 3"
-                v-tooltip="{
-                  value: getRemainingMemberNames,
-                  showDelay: 500,
-                  hideDelay: 300
-                }"
-                class="text-xs bg-piper-300 text-rhino-800 px-2 py-1 rounded-full border border-piper-400 cursor-help"
-              >
-                +{{ getSelectedMemberNames.length - 3 }} lainnya
-              </span>
-            </div>
           </div>
+
+          <div class="flex flex-wrap gap-1">
+            <span
+              v-for="(member, index) in getLimitedMemberNames"
+              :key="member.id"
+              class="text-xs bg-piper-100 text-rhino-700 px-2 py-1 rounded-full border border-piper-300"
+            >
+              {{ member.name }}
+            </span>
+
+            <span
+              v-if="getSelectedMemberNames.length > 3"
+              v-tooltip="{
+                value: getRemainingMemberNames,
+                showDelay: 500,
+                hideDelay: 300,
+              }"
+              class="text-xs bg-piper-300 text-rhino-800 px-2 py-1 rounded-full border border-piper-400 cursor-help"
+            >
+              +{{ getSelectedMemberNames.length - 3 }} lainnya
+            </span>
+          </div>
+        </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">

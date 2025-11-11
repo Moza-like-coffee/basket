@@ -1,5 +1,5 @@
 <script setup>
-import MemberLayouts from '@/layouts/MemberLayouts.vue'
+import AdminLayouts from '@/layouts/AdminLayouts.vue'
 import { useMemberStore } from '@/stores/member'
 import { useParentStore } from '@/stores/parent'
 import { onMounted, ref } from 'vue'
@@ -42,7 +42,7 @@ function calculateAgeGroup(date) {
 }
 </script>
 <template>
-  <MemberLayouts backRoute="member.index">
+  <AdminLayouts backRoute="admin.member.index">
     <div class="py-3 space-y-3">
       <div class="rounded-lg bg-white shadow p-5">
         <form @submit.prevent="submit" class="space-y-3">
@@ -157,5 +157,5 @@ function calculateAgeGroup(date) {
         </form>
       </div>
     </div>
-  </MemberLayouts>
+  </AdminLayouts>
 </template>

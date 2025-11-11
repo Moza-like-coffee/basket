@@ -19,7 +19,7 @@ const adminRoutes = [
     component: () => import('@/pages/admin/member/Index.vue'),
     meta: {
       auth: true,
-      title: 'Admin Member',
+      title: 'Member',
       allowedRoles: ['admin'],
     },
   },
@@ -44,6 +44,16 @@ const adminRoutes = [
     },
   },
   {
+    path: '/admin/member/:id',
+    name: 'admin.member.show',
+    component: () => import('@/pages/admin/member/Show.vue'),
+    meta: {
+      auth: true,
+      title: 'Data Member',
+      allowedRoles: ['admin'],
+    },
+  },
+  {
     path: '/admin/member/:id/verification',
     name: 'admin.member.verification',
     component: () => import('@/pages/admin/member/Verification.vue'),
@@ -60,7 +70,7 @@ const adminRoutes = [
     component: () => import('@/pages/admin/user/Index.vue'),
     meta: {
       auth: true,
-      title: 'Admin User',
+      title: 'User',
       allowedRoles: ['admin'],
     },
   },
@@ -70,7 +80,7 @@ const adminRoutes = [
     component: () => import('@/pages/admin/user/Create.vue'),
     meta: {
       auth: true,
-      title: 'Tambah Admin User',
+      title: 'Tambah User',
       allowedRoles: ['admin'],
     },
   },

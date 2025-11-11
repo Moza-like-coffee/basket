@@ -31,7 +31,7 @@ onMounted(async () => {
       :position="'topleft'"
       :pt="{
         root: {
-          class: '!rounded-lg !shadow-lg !text-sm',
+          class: '!rounded-lg !shadow-lg md:!text-sm text-xs',
         },
       }"
     />
@@ -45,10 +45,10 @@ onMounted(async () => {
           :loading="loading"
           :pt="{
             thead: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             tbody: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             pcPaginator: {
               content: {
@@ -148,12 +148,12 @@ onMounted(async () => {
           </Column>
 
           <template #empty>
-            <div class="text-center text-sm">
+            <div class="text-center md:text-sm text-xs">
               <p>Tidak ada data ditemukan.</p>
             </div>
           </template>
           <template #loading>
-            <div class="text-center text-sm">
+            <div class="text-center md:text-sm text-xs">
               <p>Mohon Tunggu, Sedang Memuat Data.......</p>
             </div>
           </template>

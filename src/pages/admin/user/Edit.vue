@@ -49,52 +49,52 @@ async function submit() {
       <div class="rounded-lg bg-white shadow p-5">
         <form @submit.prevent="submit" class="space-y-3">
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
-            <legend class="text-sm px-3">Edit Data User</legend>
+            <legend class="md:text-sm text-xs px-3">Edit Data User</legend>
 
             <div class="grid grid-cols-2 gap-3">
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-name">Nama Lengkap</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-name">Nama Lengkap</label>
                 <input
                   id="form-name"
                   type="text"
                   v-model="form.name"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Nama Lengkap"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-username">Username</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-username">Username</label>
                 <input
                   id="form-username"
                   type="text"
                   v-model="form.username"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Username"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-email">Email</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-email">Email</label>
                 <input
                   id="form-email"
                   type="email"
                   v-model="form.email"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Email"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-password">Password</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-password">Password</label>
                 <input
                   id="form-password"
                   type="password"
                   v-model="form.password"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Kosongkan jika tidak ingin mengganti password"
                 />
               </div>
@@ -105,7 +105,7 @@ async function submit() {
             <button
               type="submit"
               :disabled="loading"
-              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ loading ? 'Menyimpan...' : 'Simpan Perubahan' }}
             </button>

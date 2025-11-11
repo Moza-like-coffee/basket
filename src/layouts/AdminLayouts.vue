@@ -1,12 +1,13 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth'
-import { Menu } from 'primevue'
+import { Drawer, Menu } from 'primevue'
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
 import Logo from '@/assets/images/logo.png'
 
 const route = useRoute()
 const profileMenu = ref()
+const mobileSidebar = ref(false)
 const profileMenuToggle = (event) => {
   profileMenu.value.toggle(event)
 }
@@ -54,7 +55,7 @@ const props = defineProps({
 <template>
   <div class="min-h-screen w-full bg-gray-200 font-poppins">
     <div class="flex h-full w-full">
-      <div class="p-3 h-full w-72 fixed left-0 top-0 flex-none">
+      <div class="p-3 h-full w-72 fixed left-0 top-0 flex-none hidden md:block">
         <div class="h-full bg-rhino-950 w-full rounded-lg p-3 flex flex-col gap-3 shadow-lg">
           <div class="border-b border-gray-300 h-16 flex items-center">
             <router-link
@@ -78,11 +79,69 @@ const props = defineProps({
           </div>
         </div>
       </div>
-      <div class="min-h-screen pl-72 py-3 pr-3 w-full">
+      <Drawer
+        v-model:visible="mobileSidebar"
+        class="md:!hidden"
+        :show-close-icon="false"
+        :pt="{
+          header: {
+            class: '!hidden',
+          },
+          content: {
+            class: '!p-0',
+          },
+          mask: {
+            class: '!p-0',
+          },
+          root: {
+            class: '!bg-transparent !border-none',
+          },
+        }"
+      >
+        <div class="h-full w-full">
+          <div class="h-full bg-rhino-950 w-full rounded-r-lg p-3 flex flex-col gap-3 shadow-lg">
+            <div class="border-b border-gray-300 h-16 flex items-center">
+              <div
+                class="justify-between flex items-center bg-white rounded-lg py-1 px-3 mb-3 w-full"
+              >
+                <router-link :to="{ name: 'welcome' }" class="flex items-center justify-center">
+                  <img :src="Logo" class="h-11" alt="" />
+                </router-link>
+                <button
+                  type="button"
+                  @click="mobileSidebar = false"
+                  class="cursor-pointer aspect-square group p-1 transition-all duration-300 hover:bg-piper-600 w-8 h-8 flex items-center justify-center rounded-full"
+                >
+                  <i class="fa-solid fa-x group-hover:text-white transition-all duration-300"></i>
+                </button>
+              </div>
+            </div>
+            <div class="h-full overflow-y-scroll no-scrollbar">
+              <div
+                v-for="(item, index) in sideBarItems"
+                :key="index"
+                class="p-3 text-white rounded-lg hover:bg-piper-600 transition-all duration-300 cursor-pointer"
+              >
+                <router-link :to="{ name: item.to }" class="flex gap-3 items-center text-sm">
+                  <i :class="item.icon"></i>
+                  <p>{{ item.label }}</p>
+                </router-link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </Drawer>
+      <div class="min-h-screen md:pl-72 pl-3 py-3 pr-3 w-full">
         <div
           class="w-full bg-rhino-950 h-16 rounded-lg shadow-lg flex items-center justify-between py-3 px-5"
         >
-          <div class="flex gap-3 items-center">
+          <div class="flex gap-3 items-center w-full">
+            <button
+              class="flex items-center cursor-pointer md:hidden hover:bg-piper-600 p-3 rounded-lg transition-all duration-300"
+              @click="mobileSidebar = true"
+            >
+              <i class="fa-solid fa-bars text-white text-lg"></i>
+            </button>
             <router-link v-if="backRoute" :to="{ name: backRoute }">
               <div class="bg-piper-600 rounded-xl px-3 py-1">
                 <svg
@@ -116,22 +175,13 @@ const props = defineProps({
                 </svg>
               </div>
             </router-link>
-            <p class="text-white font-medium text-xl">{{ route?.meta?.title }}</p>
+            <p
+              class="text-white font-medium md:text-xl text-sm text-center md:text-start w-full line-clamp-1"
+            >
+              {{ route?.meta?.title }}
+            </p>
           </div>
           <div class="flex gap-3">
-            <div>
-              <svg viewBox="0 0 24 24" class="w-7 h-7" fill="white">
-                <g id="SVGRepo_iconCarrier">
-                  <path
-                    d="M19.3399 14.49L18.3399 12.83C18.1299 12.46 17.9399 11.76 17.9399 11.35V8.82C17.9399 6.47 16.5599 4.44 14.5699 3.49C14.0499 2.57 13.0899 2 11.9899 2C10.8999 2 9.91994 2.59 9.39994 3.52C7.44994 4.49 6.09994 6.5 6.09994 8.82V11.35C6.09994 11.76 5.90994 12.46 5.69994 12.82L4.68994 14.49C4.28994 15.16 4.19994 15.9 4.44994 16.58C4.68994 17.25 5.25994 17.77 5.99994 18.02C7.93994 18.68 9.97994 19 12.0199 19C14.0599 19 16.0999 18.68 18.0399 18.03C18.7399 17.8 19.2799 17.27 19.5399 16.58C19.7999 15.89 19.7299 15.13 19.3399 14.49Z"
-                  ></path>
-                  <path
-                    d="M14.8297 20.01C14.4097 21.17 13.2997 22 11.9997 22C11.2097 22 10.4297 21.68 9.87969 21.11C9.55969 20.81 9.31969 20.41 9.17969 20C9.30969 20.02 9.43969 20.03 9.57969 20.05C9.80969 20.08 10.0497 20.11 10.2897 20.13C10.8597 20.18 11.4397 20.21 12.0197 20.21C12.5897 20.21 13.1597 20.18 13.7197 20.13C13.9297 20.11 14.1397 20.1 14.3397 20.07C14.4997 20.05 14.6597 20.03 14.8297 20.01Z"
-                  ></path>
-                </g>
-              </svg>
-            </div>
-            <div class="border border-gray-400"></div>
             <div
               class="rounded-full w-7 h-7 bg-white flex items-center justify-center cursor-pointer"
               @click="profileMenuToggle"

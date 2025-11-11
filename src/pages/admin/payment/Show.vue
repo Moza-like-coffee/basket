@@ -50,11 +50,11 @@ const confirmPayment = (event) => {
       }"
     />
     <div class="py-3 grid grid-cols-3 gap-5" v-if="payment">
-      <div class="col-span-2">
+      <div class="md:col-span-2 col-span-3">
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="flex items-center justify-between border-b border-gray-300 pb-3">
             <div>
-              <p class="font-semibold text-lg">Detail Pembayaran</p>
+              <p class="font-semibold md:text-lg text-base">Detail Pembayaran</p>
               <p class="text-xs text-gray-500">Kode Referensi : {{ payment?.reference_code }}</p>
             </div>
             <div>
@@ -92,7 +92,7 @@ const confirmPayment = (event) => {
             >
               <div class="flex justify-between items-center">
                 <div>
-                  <p>
+                  <p class="md:text-base text-sm">
                     {{ item?.bill?.member?.name }}
                   </p>
                   <p class="text-xs">
@@ -113,7 +113,7 @@ const confirmPayment = (event) => {
                   </p>
                 </div>
                 <div>
-                  <p>
+                  <p class="md:text-base text-sm">
                     {{
                       Number(item?.bill?.amount || 0).toLocaleString('id-ID', {
                         style: 'currency',
@@ -128,8 +128,8 @@ const confirmPayment = (event) => {
             </div>
             <div class="border border-gray-300 rounded-lg shadow px-5 py-3">
               <div class="flex justify-between items-center">
-                <p class="font-bold">Total</p>
-                <p class="font-bold">
+                <p class="font-bold md:text-base text-sm">Total</p>
+                <p class="font-bold md:text-base text-sm">
                   {{
                     Number(payment?.total_amount || 0).toLocaleString('id-ID', {
                       style: 'currency',
@@ -144,10 +144,10 @@ const confirmPayment = (event) => {
           </div>
         </div>
       </div>
-      <div>
+      <div class="md:col-span-1 col-span-3">
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="border-b border-gray-300 pb-3">
-            <p class="font-semibold text-lg">Bukti Pembayaran</p>
+            <p class="font-semibold md:text-lg text-base">Bukti Pembayaran</p>
           </div>
           <div class="space-y-3 py-3 border-b border-gray-300">
             <Image
@@ -163,7 +163,7 @@ const confirmPayment = (event) => {
             <button
               @click="confirmPayment"
               v-if="payment?.status == 'PENDING'"
-              class="text-green-500 border border-green-500 bg-green-100 rounded-lg px-3 py-2 w-full text-sm hover:opacity-90 duration-300 transition-all cursor-pointer"
+              class="text-green-500 border border-green-500 bg-green-100 rounded-lg px-3 py-2 w-full text-xs md:text-sm hover:opacity-90 duration-300 transition-all cursor-pointer"
             >
               Konfirmasi Pembayaran
             </button>
