@@ -54,7 +54,7 @@ const handleUploadFile = (event, type) => {
       <div class="rounded-lg bg-white shadow p-5">
         <form @submit.prevent="submit" class="space-y-3">
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
-            <legend class="text-sm px-3">Verifikasi Dokumen</legend>
+            <legend class="md:text-sm text-xs px-3">Verifikasi Dokumen</legend>
             <div class="grid grid-cols-2 gap-3">
               <div class="col-span-2 flex justify-center">
                 <div class="flex justify-center !w-32 flex-none">
@@ -90,34 +90,38 @@ const handleUploadFile = (event, type) => {
                   </div>
                 </div>
               </div>
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-birth-certificate">Akta Kelahiran</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-birth-certificate"
+                  >Akta Kelahiran</label
+                >
                 <input
                   id="form-birth-certificate"
                   type="file"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
                   @change="(event) => handleUploadFile(event, 'birth_certificate')"
                   required
                 />
               </div>
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-family-card">Kartu Keluarga</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-family-card"
+                  >Kartu Keluarga</label
+                >
                 <input
                   id="form-family-card"
                   type="file"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
                   @change="(event) => handleUploadFile(event, 'family_card')"
                   required
                 />
               </div>
               <div class="col-span-2 space-y-1" v-if="member?.is_former_club">
-                <label class="block text-sm" for="form-club-release-letter"
+                <label class="block md:text-sm text-xs" for="form-club-release-letter"
                   >Surat Peleapasan Club Lama</label
                 >
                 <input
                   id="form-club-release-letter"
                   type="file"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
                   @change="(event) => handleUploadFile(event, 'club_release_letter')"
                 />
               </div>
@@ -128,16 +132,16 @@ const handleUploadFile = (event, type) => {
                   v-model="form.is_have_bpjs"
                   class="px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-1 focus:outline-gray-500"
                 />
-                <label class="block text-sm select-none" for="form-is-have-bpjs"
+                <label class="block md:text-sm text-xs select-none" for="form-is-have-bpjs"
                   >Member Memiliki Kartu BPJS Aktif</label
                 >
               </div>
               <div class="col-span-2 space-y-1" v-if="form.is_have_bpjs">
-                <label class="block text-sm" for="form-bpjs">BPJS</label>
+                <label class="block md:text-sm text-xs" for="form-bpjs">BPJS</label>
                 <input
                   id="form-bpjs"
                   type="file"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
                   @change="(event) => handleUploadFile(event, 'bpjs')"
                   required
                 />
@@ -147,7 +151,7 @@ const handleUploadFile = (event, type) => {
           <div class="flex justify-end">
             <button
               type="submit"
-              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
             >
               Tambah
             </button>

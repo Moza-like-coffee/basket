@@ -1,15 +1,6 @@
 <script setup>
 import MemberLayouts from '@/layouts/MemberLayouts.vue'
-import {
-  Column,
-  DataTable,
-  IconField,
-  InputIcon,
-  InputText,
-  useConfirm,
-  Dialog,
-  Image,
-} from 'primevue'
+import { Column, DataTable, useConfirm, Dialog, Image } from 'primevue'
 import { onMounted, ref } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useMemberStore } from '@/stores/member'
@@ -122,9 +113,9 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
             <div>
               <router-link
                 :to="{ name: 'member.create' }"
-                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+                class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
               >
-                Tambahkan Member Baru +
+                Tambah +
               </router-link>
             </div>
             <div>
@@ -132,7 +123,7 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
                 type="text"
                 v-model="filters['global'].value"
                 placeholder="Cari...."
-                class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg"
+                class="border border-gray-300 rounded-lg px-2.5 py-2 md:text-sm text-xs focus:outline-0 shadow-lg"
               />
             </div>
           </div>
@@ -148,10 +139,10 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
           :loading="loading"
           :pt="{
             thead: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             tbody: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             pcPaginator: {
               content: {
@@ -337,7 +328,7 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
           </Column>
 
           <template #empty>
-            <div class="text-center text-sm">
+            <div class="text-center md:text-sm text-xs">
               <p>Tidak ada data ditemukan.</p>
             </div>
           </template>
@@ -349,44 +340,5 @@ const backendUrl = import.meta.env.VITE_APP_BACKEND_URL
         </DataTable>
       </div>
     </div>
-
-    <!-- Dialog QR Code -->
-    <Dialog
-      v-model:visible="visible"
-      modal
-      header="QR Code Member"
-      :style="{ width: '350px' }"
-      :breakpoints="{ '960px': '75vw', '641px': '90vw' }"
-    >
-      <div class="flex flex-col items-center gap-4">
-        <div v-if="selectedMember">
-          <p class="text-center font-semibold">{{ selectedMember.name }}</p>
-          <p class="text-center text-sm text-gray-600">Member ID: {{ selectedMember.id }}</p>
-        </div>
-
-        <div class="border-2 border-gray-200 p-4 rounded-lg">
-          <img :src="qrCodeUrl" alt="QR Code" class="w-48 h-48 mx-auto" v-if="qrCodeUrl" />
-          <div v-else class="w-48 h-48 flex items-center justify-center bg-gray-100">
-            <p class="text-gray-500">Generating QR Code...</p>
-          </div>
-        </div>
-
-        <div class="flex justify-center gap-2 mt-4">
-          <button
-            @click="visible = false"
-            class="px-4 py-2 bg-gray-500 text-white rounded-lg text-sm hover:bg-gray-600 transition-colors"
-          >
-            Tutup
-          </button>
-          <button
-            v-if="qrCodeUrl"
-            @click="downloadQR"
-            class="px-4 py-2 bg-piper-600 text-white rounded-lg text-sm hover:bg-piper-700 transition-colors"
-          >
-            Download QR
-          </button>
-        </div>
-      </div>
-    </Dialog>
   </MemberLayouts>
 </template>

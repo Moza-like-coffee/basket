@@ -1,16 +1,16 @@
 <script setup>
 import MemberLayouts from '@/layouts/MemberLayouts.vue'
-import { Column, DataTable, IconField, InputIcon, InputText, Toast, useToast } from 'primevue'
+import { Column, DataTable, IconField, InputIcon, InputText } from 'primevue'
 import { computed, onMounted, ref } from 'vue'
 import { FilterMatchMode } from '@primevue/core/api'
 import { useRouter } from 'vue-router'
 import { useBillStore } from '@/stores/bill'
 import { usePaymentStore } from '@/stores/payment'
+import { useResponseStore } from '@/stores/response'
 
 const router = useRouter()
 const billStore = useBillStore()
 const paymentStore = usePaymentStore()
-const toast = useToast()
 
 const datas = ref([])
 const payment = ref([])
@@ -50,10 +50,11 @@ onMounted(async () => {
   await paymentStore.getByParentId()
   fetchData()
 })
+const responseStore = useResponseStore()
 
 async function submit() {
   if (form.value.checkbox.length == 0) {
-    toast.add({ severity: 'error', summary: 'Pilih Minimal 1 Tagihan Untuk Membayar', life: 3000 })
+    responseStore.addError('Pilih minimal 1 tagihan untuk membayar')
   } else {
     await billStore.post(form.value)
   }
@@ -61,19 +62,6 @@ async function submit() {
 </script>
 <template>
   <MemberLayouts>
-    <Toast
-      :pt="{
-        buttonContainer: {
-          class: '!w-[28px] !h-[28px] !flex !items-center !justify-center',
-        },
-        closeButton: {
-          class: '!my-auto',
-        },
-        messageContent: {
-          class: '!items-center',
-        },
-      }"
-    />
     <div class="py-3 space-y-3">
       <div class="rounded-lg bg-white shadow px-5 py-3">
         <div>
@@ -90,10 +78,10 @@ async function submit() {
                 }}
               </p>
             </div>
-            <div class="flex gap-3">
+            <div class="flex flex-col md:flex-row gap-3">
               <router-link
                 :to="{ name: 'payment.index' }"
-                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg relative"
+                class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg relative"
               >
                 <div
                   v-if="payment.length > 0"
@@ -105,7 +93,7 @@ async function submit() {
               </router-link>
               <button
                 @click="submit"
-                class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+                class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
               >
                 Bayar Sekarang
               </button>
@@ -123,10 +111,10 @@ async function submit() {
           :loading="loading"
           :pt="{
             thead: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             tbody: {
-              class: 'text-sm font-light',
+              class: 'md:text-sm text-xs font-light',
             },
             pcPaginator: {
               content: {
@@ -138,7 +126,12 @@ async function submit() {
           <Column field="checkbox" header="">
             <template #body="{ data }">
               <div class="flex items-start justify-center">
-                <input type="checkbox" v-model="form.checkbox" class="w-5 h-5" :value="data" />
+                <input
+                  type="checkbox"
+                  v-model="form.checkbox"
+                  class="md:w-5 md:h-5 w-4 h-4"
+                  :value="data"
+                />
               </div>
             </template>
           </Column>
@@ -186,12 +179,12 @@ async function submit() {
           </Column>
 
           <template #empty>
-            <div class="text-center text-sm">
+            <div class="text-center md:text-sm text-xs">
               <p>Tidak ada data ditemukan.</p>
             </div>
           </template>
           <template #loading>
-            <div class="text-center text-sm">
+            <div class="text-center md:text-sm text-xs">
               <p>Mohon Tunggu, Sedang Memuat Data.......</p>
             </div>
           </template>

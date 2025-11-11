@@ -29,75 +29,77 @@ async function submit() {
       <div class="rounded-lg bg-white shadow p-5">
         <form @submit.prevent="submit" class="space-y-3">
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
-            <legend class="text-sm px-3">Informasi User</legend>
+            <legend class="md:text-sm text-xs px-3">Informasi User</legend>
 
             <div class="grid grid-cols-2 gap-3">
-              <div class="space-y-1">
-                <label class="block text-sm" for="name">Nama Lengkap</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="name">Nama Lengkap</label>
                 <input
                   id="name"
                   type="text"
                   v-model="form.name"
                   placeholder="Masukkan Nama Lengkap"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="username">Username</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="username">Username</label>
                 <input
                   id="username"
                   type="text"
                   v-model="form.username"
                   placeholder="Masukkan Username"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 />
               </div>
 
               <div class="space-y-1 col-span-2">
-                <label class="block text-sm" for="email">Email</label>
+                <label class="block md:text-sm text-xs" for="email">Email</label>
                 <input
                   id="email"
                   type="email"
                   v-model="form.email"
                   placeholder="Masukkan Email"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="password">Password</label>
+              <div class="space-y-1 col-span-2 md:col-span-1">
+                <label class="block md:text-sm text-xs" for="password">Password</label>
                 <input
                   id="password"
                   type="password"
                   v-model="form.password"
                   placeholder="Masukkan Password"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 />
               </div>
 
-              <div class="space-y-1">
-                <label class="block text-sm" for="password_confirmation">Konfirmasi Password</label>
+              <div class="space-y-1 col-span-2 md:col-span-1">
+                <label class="block md:text-sm text-xs" for="password_confirmation"
+                  >Konfirmasi Password</label
+                >
                 <input
                   id="password_confirmation"
                   type="password"
                   v-model="form.password_confirmation"
                   placeholder="Konfirmasi Password"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 />
               </div>
 
               <div class="space-y-1 col-span-2">
-                <label class="block text-sm" for="role">Role</label>
+                <label class="block md:text-sm text-xs" for="role">Role</label>
                 <select
                   id="role"
                   v-model="form.role"
-                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 rounded-lg shadow md:text-sm text-xs w-full focus:outline-1 focus:outline-gray-500"
                   required
                 >
                   <option value="" disabled selected>Pilih Role</option>
@@ -113,7 +115,7 @@ async function submit() {
             <button
               type="submit"
               :disabled="userStore.isLoading"
-              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {{ userStore.isLoading ? 'Menyimpan...' : 'Simpan' }}
             </button>

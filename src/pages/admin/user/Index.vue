@@ -58,16 +58,16 @@ const confirmDelete = (event, id) => {
         <div class="flex justify-between items-center">
           <router-link
             :to="{ name: 'admin.user.create' }"
-            class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+            class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
           >
-            Tambah User Baru +
+            Tambah +
           </router-link>
 
           <input
             type="text"
             v-model="filters['global'].value"
             placeholder="Cari user..."
-            class="border border-gray-300 rounded-lg px-2.5 py-2 text-sm focus:outline-0 shadow-lg"
+            class="border border-gray-300 rounded-lg px-2.5 py-2 md:text-sm text-xs focus:outline-0 shadow-lg"
           />
         </div>
       </div>
@@ -82,8 +82,8 @@ const confirmDelete = (event, id) => {
           dataKey="id"
           :loading="loading"
           :pt="{
-            thead: { class: 'text-sm font-light' },
-            tbody: { class: 'text-sm font-light' },
+            thead: { class: 'md:text-sm text-xs font-light' },
+            tbody: { class: 'md:text-sm text-xs font-light' },
             pcPaginator: { content: { class: 'text-xs' } },
           }"
         >

@@ -47,6 +47,9 @@ watch(
         messageContent: {
           class: '!items-center',
         },
+        root: {
+          class: '!max-w-xs md:!max-w-max',
+        },
       }"
     />
     <ProgressBar :isLoading="ui.isLoading" :mode="'indeterminate'" :value="ui.loadingValue" />

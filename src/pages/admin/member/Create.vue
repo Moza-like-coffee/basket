@@ -80,25 +80,25 @@ async function submit() {
       <div class="rounded-lg bg-white shadow p-5">
         <form @submit.prevent="submit" class="space-y-3">
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
-            <legend class="text-sm px-3">Informasi Member</legend>
+            <legend class="md:text-sm text-xs px-3">Informasi Member</legend>
             <div class="grid grid-cols-2 gap-3">
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-name">Nama Lengkap</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-name">Nama Lengkap</label>
                 <input
                   id="form-name"
                   type="text"
                   v-model="form.name"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Nama Lengkap Member"
                   required
                 />
               </div>
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-gender">Jenis Kelamin</label>
+              <div class="space-y-1 md:col-span-1 col-span-2">
+                <label class="block md:text-sm text-xs" for="form-gender">Jenis Kelamin</label>
                 <select
                   id="form-gender"
                   v-model="form.gender"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500h-[37.33px]"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500h-[37.33px]"
                   required
                 >
                   <option value="" selected disabled>Pilih Jenis Kelamin</option>
@@ -107,56 +107,66 @@ async function submit() {
                 </select>
               </div>
               <div class="space-y-1">
-                <label class="block text-sm" for="form-place-of-birth">Tempat Lahir</label>
+                <label class="block md:text-sm text-xs" for="form-place-of-birth"
+                  >Tempat Lahir</label
+                >
                 <input
                   id="form-place-of-birth"
                   type="text"
                   v-model="form.place_of_birth"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Tempat Lahir"
                   required
                 />
               </div>
               <div class="space-y-1">
-                <label class="block text-sm" for="form-date-of-birth">Tanggal Lahir</label>
-                <input
-                  id="form-date-of-birth"
-                  type="date"
-                  v-model="form.date_of_birth"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
-                  placeholder="Masukkan Tanggal Lahir"
-                  required
-                />
+                <label class="block md:text-sm text-xs" for="form-date-of-birth"
+                  >Tanggal Lahir <span v-if="form?.ageGroup">({{ form.ageGroup }})</span></label
+                >
+                <div class="flex gap-3">
+                  <input
+                    id="form-date-of-birth"
+                    type="date"
+                    @change="calculateAgeGroup"
+                    v-model="form.date_of_birth"
+                    class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                    placeholder="Masukkan Tanggal Lahir"
+                    required
+                  />
+                  <div class="md:flex hidden text-sm items-center whitespace-nowrap">
+                    <p>Kelompok Umur: {{ form.ageGroup }}</p>
+                  </div>
+                </div>
               </div>
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-school">Asal Sekolah</label>
+              <div class="space-y-1 col-span-2 md:col-span-1">
+                <label class="block md:text-sm text-xs" for="form-school">Asal Sekolah</label>
                 <input
                   id="form-school"
                   type="text"
                   v-model="form.school"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Asal Sekolah"
                   required
                 />
               </div>
-              <div class="space-y-1">
-                <label class="block text-sm" for="form-school-grade">Kelas</label>
+              <div class="space-y-1 col-span-2 md:col-span-1">
+                <label class="block md:text-sm text-xs" for="form-school-grade">Kelas</label>
                 <input
                   id="form-school-grade"
                   type="text"
                   v-model="form.school_grade"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Kelas"
                   required
                 />
               </div>
               <div class="col-span-2 space-y-1">
-                <label class="block text-sm" for="form-disease">Penyakit/Kelainan</label>
+                <label class="block md:text-sm text-xs" for="form-disease">Penyakit/Kelainan</label>
                 <input
                   id="form-disease"
                   type="text"
                   v-model="form.disease"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Penyakit/Kelainan yang perlu kita ketahui"
                 />
               </div>
@@ -167,23 +177,27 @@ async function submit() {
                   v-model="form.is_former_club"
                   class="px-2.5 py-2 border border-gray-300 rounded-lg focus:outline-1 focus:outline-gray-500"
                 />
-                <label class="block text-sm select-none" for="form-is-former-club"
+                <label class="block md:text-sm text-xs select-none" for="form-is-former-club"
                   >Member pernah terdaftar atau bermain di club lain</label
                 >
               </div>
-              <div class="space-y-1" v-if="form.is_former_club">
-                <label class="block text-sm" for="form-former-club">Nama Club Sebelumnya</label>
+              <div class="space-y-1 col-span-2 md:col-span-1" v-if="form.is_former_club">
+                <label class="block md:text-sm text-xs" for="form-former-club"
+                  >Nama Club Sebelumnya</label
+                >
                 <input
                   id="form-former-club"
                   type="text"
                   v-model="form.former_club"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Nama Club Sebelumnya"
                   required
                 />
               </div>
-              <div class="space-y-1" v-if="form.is_former_club">
-                <label class="block text-sm" for="form-former-club-year">Tahun Bergabung</label>
+              <div class="space-y-1 col-span-2 md:col-span-1" v-if="form.is_former_club">
+                <label class="block md:text-sm text-xs" for="form-former-club-year"
+                  >Tahun Bergabung</label
+                >
                 <input
                   id="form-former-club-year"
                   type="number"
@@ -199,10 +213,10 @@ async function submit() {
             </div>
           </fieldset>
           <fieldset class="border border-gray-300 rounded-lg shadow p-5">
-            <legend class="text-sm px-3">Informasi Orangtua</legend>
+            <legend class="md:text-sm text-xs px-3">Informasi Orangtua</legend>
             <div class="grid grid-cols-2 gap-3">
               <div class="space-y-1 col-span-2 relative">
-                <label for="form-parent" class="block text-sm font-medium text-gray-800">
+                <label for="form-parent" class="block md:text-sm text-xs font-medium text-gray-800">
                   Nama Lengkap Orang Tua
                 </label>
 
@@ -226,19 +240,19 @@ async function submit() {
                     :allow-empty="true"
                     :close-on-select="true"
                     :preserve-search="true"
-                    class="w-full !text-sm bg-white"
+                    class="w-full md:!text-sm !text-xs bg-white"
                   >
                   </multiselect>
                 </div>
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1 md:col-span-1 col-span-2">
                 <label class="block text-sm" for="form-parent-phone-number">Nomor Handphone</label>
                 <input
                   id="form-parent-phone-number"
                   type="text"
                   v-model="form.parent_phone_number"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Nomor Handphone"
                   pattern="[0-9]*"
                   inputmode="numeric"
@@ -248,13 +262,13 @@ async function submit() {
                 />
               </div>
 
-              <div class="space-y-1">
+              <div class="space-y-1 md:col-span-1 col-span-2">
                 <label class="block text-sm" for="form-parent-email">Email</label>
                 <input
                   id="form-parent-email"
                   type="email"
                   v-model="form.parent_email"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Email"
                 />
               </div>
@@ -265,7 +279,7 @@ async function submit() {
                   id="form-parent-address"
                   rows="4"
                   v-model="form.parent_address"
-                  class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500"
+                  class="px-2.5 py-2 border border-gray-300 shadow md:text-sm text-xs rounded-lg w-full focus:outline-1 focus:outline-gray-500"
                   placeholder="Masukkan Alamat"
                 ></textarea>
               </div>
@@ -276,14 +290,14 @@ async function submit() {
             <button
               @click="form.isNext = false"
               type="submit"
-              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
             >
               Simpan
             </button>
             <button
               @click="form.isNext = true"
               type="submit"
-              class="text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
+              class="md:text-sm text-xs bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg"
             >
               Simpan dan Lanjutkan Verifikasi Data
             </button>

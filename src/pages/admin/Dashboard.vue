@@ -20,7 +20,7 @@ onMounted(async () => {
 <template>
   <AdminLayouts>
     <div class="py-3 space-y-3">
-      <div class="grid grid-cols-3 gap-3">
+      <div class="grid md:grid-cols-3 gap-3">
         <router-link
           :to="{ name: 'admin.member.index' }"
           class="bg-rhino-950 rounded-lg shadow h-20 cursor-pointer hover:scale-105 hover:opacity-95 transition-all duration-300"

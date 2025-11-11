@@ -42,16 +42,18 @@ onMounted(async () => {
               v-for="member in members"
               :key="member.id"
               :to="{ name: 'member.training.show', params: { id: member.id } }"
-              class="cursor-pointer rounded-xl border-2 shadow-sm p-6 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
+              class="cursor-pointer rounded-xl border-2 shadow-sm md:p-6 p-3 text-left transition-all duration-300 hover:shadow-lg hover:border-piper-500 hover:scale-105 md:min-h-[160px] flex flex-col justify-between bg-white border-gray-200 text-gray-700"
             >
               <div class="w-full">
                 <!-- Nama Anak -->
                 <div class="mb-3">
-                  <p class="font-semibold text-lg leading-tight line-clamp-2">{{ member.name }}</p>
+                  <p class="font-semibold md:text-lg text-base leading-tight line-clamp-2">
+                    {{ member.name }}
+                  </p>
                 </div>
 
                 <!-- Informasi Umur/KU -->
-                <div class="space-y-1 text-sm text-gray-600">
+                <div class="space-y-1 md:text-sm text-xs text-gray-600">
                   <p class="flex items-center gap-2">
                     <span>Usia: {{ calculateAgeGroup(member.date_of_birth) }} tahun</span>
                   </p>
@@ -75,8 +77,8 @@ onMounted(async () => {
         </div>
 
         <div v-else class="text-center py-8 text-gray-500">
-          <i class="fas fa-child text-3xl mb-3 text-gray-400"></i>
-          <p class="text-lg font-medium mb-2">Belum ada anak terdaftar</p>
+          <i class="fas fa-child md:text-3xl text-2xl mb-3 text-gray-400"></i>
+          <p class="md:text-lg text-base font-medium mb-2">Belum ada anak terdaftar</p>
         </div>
       </div>
     </div>

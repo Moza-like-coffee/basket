@@ -44,11 +44,11 @@ async function submit() {
       :class="payment?.status == 'UNPAID' ? 'grid grid-cols-3 gap-5' : ''"
       v-if="payment"
     >
-      <div class="col-span-2">
+      <div class="md:col-span-2 col-span-3">
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="flex items-center justify-between border-b border-gray-300 pb-3">
             <div>
-              <p class="font-semibold text-lg">Detail Pembayaran</p>
+              <p class="font-semibold md:text-lg text-base">Detail Pembayaran</p>
               <p class="text-xs text-gray-500">Kode Referensi : {{ payment?.reference_code }}</p>
             </div>
             <div>
@@ -86,7 +86,7 @@ async function submit() {
             >
               <div class="flex justify-between items-center">
                 <div>
-                  <p>
+                  <p class="md:text-base text-sm">
                     {{ item?.bill?.member?.name }}
                   </p>
                   <p class="text-xs">
@@ -107,7 +107,7 @@ async function submit() {
                   </p>
                 </div>
                 <div>
-                  <p>
+                  <p class="md:text-base text-sm">
                     {{
                       Number(item?.bill?.amount || 0).toLocaleString('id-ID', {
                         style: 'currency',
@@ -122,8 +122,8 @@ async function submit() {
             </div>
             <div class="border border-gray-300 rounded-lg shadow px-5 py-3">
               <div class="flex justify-between items-center">
-                <p class="font-bold">Total</p>
-                <p class="font-bold">
+                <p class="font-bold md:text-base text-sm">Total</p>
+                <p class="font-bold md:text-base text-sm">
                   {{
                     Number(payment?.total_amount || 0).toLocaleString('id-ID', {
                       style: 'currency',
@@ -138,16 +138,16 @@ async function submit() {
           </div>
         </div>
       </div>
-      <div v-if="payment?.status == 'UNPAID'">
+      <div v-if="payment?.status == 'UNPAID'" class="md:col-span-1 col-span-3">
         <div class="rounded-lg bg-white shadow px-5 pb-3 pt-5 w-full">
           <div class="border-b border-gray-300 pb-3">
-            <p class="font-semibold text-lg">Informasi Pembayaran</p>
+            <p class="font-semibold md:text-lg text-base">Informasi Pembayaran</p>
           </div>
           <div class="space-y-3 py-3 border-b border-gray-300">
             <div>
               <select
                 v-model="form.payment_method"
-                class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-sm w-full focus:outline-1 focus:outline-gray-500"
+                class="px-2.5 py-2 border border-gray-300 rounded-lg shadow text-xs md:text-sm w-full focus:outline-1 focus:outline-gray-500"
               >
                 <option value="" disabled>Pilih Metode Pembayaran</option>
                 <option value="transfer">Transfer</option>
@@ -155,26 +155,34 @@ async function submit() {
               </select>
             </div>
             <div class="space-y-3" v-if="form.payment_method == 'transfer'">
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
+              <div
+                class="text-xs md:text-sm flex justify-between border rounded-lg p-3 border-gray-300"
+              >
                 <p>Bank BCA</p>
                 <p>376123123</p>
               </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
+              <div
+                class="text-xs md:text-sm flex justify-between border rounded-lg p-3 border-gray-300"
+              >
                 <p>Bank BRI</p>
                 <p>376123123</p>
               </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
+              <div
+                class="text-xs md:text-sm flex justify-between border rounded-lg p-3 border-gray-300"
+              >
                 <p>Bank BNI</p>
                 <p>376123123</p>
               </div>
-              <div class="text-sm flex justify-between border rounded-lg p-3 border-gray-300">
+              <div
+                class="text-xs md:text-sm flex justify-between border rounded-lg p-3 border-gray-300"
+              >
                 <p>Bank BSI</p>
                 <p>376123123</p>
               </div>
             </div>
             <div
               v-if="form.payment_method == 'qris'"
-              class="text-sm flex justify-between border rounded-lg p-3 border-gray-300"
+              class="text-xs md:text-sm flex justify-between border rounded-lg p-3 border-gray-300"
             >
               <img :src="QRISImage" alt="" class="w-full" />
             </div>
@@ -183,7 +191,7 @@ async function submit() {
             <button
               @click="dialogPayment = true"
               v-if="payment?.status == 'UNPAID' && form.payment_method !== ''"
-              class="text-green-500 border border-green-500 bg-green-100 rounded-lg px-3 py-2 w-full text-sm hover:opacity-90 duration-300 transition-all cursor-pointer"
+              class="text-green-500 border border-green-500 bg-green-100 rounded-lg px-3 py-2 w-full text-xs md:text-sm hover:opacity-90 duration-300 transition-all cursor-pointer"
             >
               Saya Sudah Membayar
             </button>
@@ -211,14 +219,14 @@ async function submit() {
                     id="form-family-card"
                     type="file"
                     accept="image/*"
-                    class="px-2.5 py-2 border border-gray-300 shadow text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
+                    class="px-2.5 py-2 border border-gray-300 shadow text-xs md:text-sm rounded-lg w-full focus:outline-1 focus:outline-gray-500 cursor-pointer"
                     @change="handleUploadFile"
                     required
                   />
                 </div>
                 <button
                   type="submit"
-                  class="w-full text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="w-full text-xs md:text-sm bg-piper-600 text-white rounded-lg px-5 py-2 font-light cursor-pointer hover:opacity-90 transition-all duration-300 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Simpan
                 </button>
